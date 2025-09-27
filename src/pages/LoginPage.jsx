@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { requestOtp, verifyOtp } from '../features/auth/authSlice';
 import toast from 'react-hot-toast';
+import { jwtDecode } from 'jwt-decode'; // Import the JWT decoding library
 
 const LoginPage = () => {
   const [phoneNumber, setPhoneNumber] = useState('+1');
@@ -10,7 +11,7 @@ const LoginPage = () => {
   const [otpSent, setOtpSent] = useState(false);
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { status, user } = useSelector((state) => state.auth);
+  const { status } = useSelector((state) => state.auth);
 
   const handleRequestOtp = async (e) => {
     e.preventDefault();
@@ -26,19 +27,20 @@ const LoginPage = () => {
   const handleVerifyOtp = async (e) => {
     e.preventDefault();
     try {
-      await dispatch(verifyOtp({ phoneNumber, otp })).unwrap();
+      // FIX: The `.unwrap()` function returns the action payload, which is the JWT token.
+      const token = await dispatch(verifyOtp({ phoneNumber, otp })).unwrap();
       toast.success('Login successful!');
       
-      // We need to access the user from the store *after* the dispatch is complete.
-      // A small delay ensures the state has updated before we read it.
-      setTimeout(() => {
-        const updatedUser = store.getState().auth.user;
-        if (updatedUser?.roles?.includes('ROLE_ADMIN')) {
-            navigate('/admin/dashboard');
-        } else {
-            navigate('/dashboard');
-        }
-      }, 100);
+      // FIX: Decode the token we just received to get the user's roles.
+      // This is much safer than using `atob` and removes the need for `setTimeout` or direct store access.
+      const decodedToken = jwtDecode(token);
+      const userRoles = decodedToken.roles || [];
+      
+      if (userRoles.includes('ROLE_ADMIN')) {
+          navigate('/admin/dashboard');
+      } else {
+          navigate('/dashboard');
+      }
       
     } catch (error) {
       toast.error('Invalid or expired OTP.');
