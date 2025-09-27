@@ -23,7 +23,7 @@ export const generateSlotsForMonth = (year, month) => {
 export const getReport = (format, startDate, endDate) => {
     return axiosInstance.get(`/admin/reports/appointments.${format}`, {
         params: { startDate, endDate },
-        responseType: 'blob', // Important for file downloads
+        responseType: 'blob',
     });
 };
 

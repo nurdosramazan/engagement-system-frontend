@@ -3,6 +3,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { Client } from '@stomp/stompjs';
 import SockJS from 'sockjs-client';
 import toast from 'react-hot-toast';
+import { jwtDecode } from 'jwt-decode';
 import { addNotification } from '../../features/notification/notificationSlice';
 import { fetchAppointmentsByStatus } from '../../features/admin/adminSlice';
 import { fetchMyAppointments } from '../../features/appointment/appointmentSlice';
@@ -12,51 +13,53 @@ const InfoToastIcon = () => (
 );
 
 const WebSocketProvider = ({ children }) => {
-  const { token, user } = useSelector((state) => state.auth);
+  const { token } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
 
   useEffect(() => {
-    if (!token || !user) return;
+    if (!token) return;
 
+    let decodedToken;
+    try {
+        decodedToken = jwtDecode(token);
+    } catch (error) {
+        console.error("Invalid token, cannot establish WebSocket connection.", error);
+        return;
+    }
+    
+    const userRoles = (decodedToken.roles || []).map(role => role.replace('ROLE_', ''));
+    
     const stompClient = new Client({
       webSocketFactory: () => new SockJS('http://localhost:8080/ws'),
-      connectHeaders: {
-        Authorization: `Bearer ${token}`,
-      },
+      connectHeaders: { Authorization: `Bearer ${token}` },
       reconnectDelay: 5000,
       onConnect: () => {
         console.log('WebSocketProvider: Connection successful.');
+        
         const userDestination = '/user/queue/notifications';
-
+        
         stompClient.subscribe(userDestination, (message) => {
-          console.log('WebSocketProvider: [USER] Message received!', message.body);
           try {
             const notification = JSON.parse(message.body);
-            console.log('WebSocketProvider: [USER] Parsed notification:', notification);
-            
-            console.log('WebSocketProvider: [USER] Dispatching addNotification...');
             dispatch(addNotification(notification));
             toast.success(notification.message || "You have a new notification!");
             
-            const lowerCaseMessage = notification.message.toLowerCase();
+            const lowerCaseMessage = (notification.message || "").toLowerCase();
             if (lowerCaseMessage.includes('appointment') || lowerCaseMessage.includes('application')) {
-                console.log('WebSocketProvider: [USER] Refreshing user appointments.');
                 dispatch(fetchMyAppointments());
             }
           } catch (error) {
-            console.error("WebSocketProvider: [USER] Failed to process message.", error);
+            console.error("WebSocketProvider: Error processing user message:", error);
           }
         });
 
-        if (user.roles.includes('ROLE_ADMIN')) {
+        if (userRoles.includes('ADMIN')) {
           stompClient.subscribe('/topic/admin/new-appointments', (message) => {
-            console.log('WebSocketProvider: [ADMIN] Message received!', message.body);
             try {
                 toast( (t) => (<span onClick={() => toast.dismiss(t.id)}>{message.body}</span>), { icon: <InfoToastIcon /> });
-                console.log('WebSocketProvider: [ADMIN] Refreshing admin pending appointments.');
                 dispatch(fetchAppointmentsByStatus('PENDING'));
             } catch (error) {
-                console.error("WebSocketProvider: [ADMIN] Failed to process message.", error);
+                console.error("WebSocketProvider: Error processing admin message:", error);
             }
           });
         }
@@ -71,10 +74,9 @@ const WebSocketProvider = ({ children }) => {
     return () => {
       stompClient.deactivate();
     };
-  }, [token, user, dispatch]);
+  }, [token, dispatch]);
 
   return children;
 };
 
 export default WebSocketProvider;
-

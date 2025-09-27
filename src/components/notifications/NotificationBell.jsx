@@ -21,7 +21,6 @@ const NotificationBell = () => {
         }
     };
 
-    // FIX: Ensure 'notifications' is always treated as an array to prevent crashes
     const safeNotifications = Array.isArray(notifications) ? notifications : [];
 
     return (

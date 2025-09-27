@@ -8,7 +8,6 @@ const initialState = {
   error: null,
 };
 
-// --- Async Thunks ---
 export const fetchMyAppointments = createAsyncThunk('appointments/fetchMyAppointments', async (_, { rejectWithValue }) => {
     try {
       const response = await appointmentService.getMyAppointments();
@@ -60,8 +59,6 @@ const appointmentSlice = createSlice({
         state.status = 'succeeded';
         state.myAppointments = action.payload;
       })
-      // FIX: This no longer optimistically adds an object. It just resets status.
-      // The component will trigger a refetch for consistent data.
       .addCase(bookAppointment.pending, (state) => {
         state.status = 'loading';
       })

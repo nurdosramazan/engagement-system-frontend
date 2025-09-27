@@ -31,7 +31,6 @@ export const approveAdminAppointment = createAsyncThunk(
   }
 );
 
-// ... other thunks remain the same, using adminService.functionName ...
 export const rejectAdminAppointment = createAsyncThunk(
   'admin/rejectAppointment',
   async ({ id, reason }, { rejectWithValue }) => {

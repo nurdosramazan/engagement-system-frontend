@@ -94,34 +94,27 @@ const BookAppointmentPage = () => {
             toast.success('Your appointment request has been submitted successfully!');
             navigate('/dashboard');
         } catch (error) {
-            // **IMPROVEMENT**: Handle all error cases specifically
             if (error.fieldErrors) {
-                // Case 1: Validation errors from the backend (e.g., blank name)
                 const firstError = error.fieldErrors[0];
                 toast.error(`${firstError.defaultMessage}`);
             } else {
                 const errorMessage = error.message || 'An unexpected error occurred.';
                 
                 if (errorMessage.toLowerCase().includes('profile') || errorMessage.toLowerCase().includes('gender not provided')) {
-                    // Case 2: User profile is incomplete
                     toast.error('Your profile is incomplete. Please update it before booking.');
                     navigate('/profile');
                 } else if (errorMessage.toLowerCase().includes('witness')) {
-                    // Case 3: Witness combination is invalid
                     toast.error(`Booking Failed: ${errorMessage}`);
                 } else if (errorMessage.toLowerCase().includes('already have an appointment')) {
-                    // Case 4: User already has a pending/approved appointment
                     toast.error(errorMessage);
                     navigate('/dashboard');
                 } else {
-                    // Case 5: Any other generic error
                     toast.error(`Booking Failed: ${errorMessage}`);
                 }
             }
         }
     };
     
-    // Calendar Generation Logic is unchanged...
     const start = startOfMonth(currentMonth);
     const end = endOfMonth(currentMonth);
     const daysInMonth = eachDayOfInterval({ start, end });
@@ -133,7 +126,6 @@ const BookAppointmentPage = () => {
         <div>
             <h1 className="text-3xl font-bold text-gray-800 mb-6">Book an Appointment</h1>
             <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
-                {/* Calendar & Slot Picker */}
                 <div className="bg-white p-6 rounded-lg shadow-md">
                     <h2 className="text-xl font-semibold mb-4">1. Select a Date & Time</h2>
                     <div className="mb-6">
@@ -187,7 +179,6 @@ const BookAppointmentPage = () => {
                     )}
                 </div>
 
-                {/* Appointment Details Form */}
                 <div className={`bg-white p-6 rounded-lg shadow-md transition-opacity duration-500 ${selectedSlot ? 'opacity-100' : 'opacity-50'}`}>
                     <h2 className="text-xl font-semibold mb-4">2. Provide Details</h2>
                     <form onSubmit={handleSubmit} className="space-y-4">

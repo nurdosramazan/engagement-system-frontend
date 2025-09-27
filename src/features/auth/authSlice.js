@@ -2,12 +2,10 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axiosInstance from '../../api/axiosInstance';
 import { jwtDecode } from 'jwt-decode';
 
-// Helper to get user data from localStorage and process roles
 const getUserFromToken = (token) => {
   if (!token) return null;
   try {
     const decoded = jwtDecode(token);
-    // Remove the 'ROLE_' prefix for easier use in the frontend
     const roles = (decoded.roles || []).map(role => role.replace('ROLE_', ''));
     return {
       id: decoded.id,
@@ -15,7 +13,6 @@ const getUserFromToken = (token) => {
       roles: roles,
     };
   } catch (error) {
-    // If the token is invalid, remove it
     localStorage.removeItem('token');
     return null;
   }

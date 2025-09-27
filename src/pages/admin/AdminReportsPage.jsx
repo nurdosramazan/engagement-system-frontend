@@ -14,12 +14,10 @@ const AdminReportsPage = () => {
         try {
             const response = await adminService.getReport(formatType, startDate, endDate);
             
-            // Create a link to download the blob
             const url = window.URL.createObjectURL(new Blob([response.data]));
             const link = document.createElement('a');
             link.href = url;
             
-            // FIX: Use the correct file extension based on formatType
             const fileExtension = formatType === 'excel' ? 'xlsx' : 'pdf';
             const fileName = `appointments-report_${startDate}_to_${endDate}.${fileExtension}`;
             

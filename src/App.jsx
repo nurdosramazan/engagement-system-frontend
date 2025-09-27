@@ -21,18 +21,15 @@ function App() {
     <BrowserRouter>
       <WebSocketProvider>
         <Routes>
-          {/* Public Routes */}
           <Route path="/landing" element={<LandingPage />} />
           <Route path="/login" element={<LoginPage />} />
 
-          {/* User Routes - Corrected v6 Layout Syntax */}
           <Route element={<ProtectedRoute roles={['USER', 'ADMIN']}><UserLayout /></ProtectedRoute>}>
             <Route path="/dashboard" element={<UserDashboard />} />
             <Route path="/book-appointment" element={<BookAppointmentPage />} />
             <Route path="/profile" element={<UserProfilePage />} />
           </Route>
 
-          {/* Admin Routes - Corrected v6 Layout Syntax */}
           <Route path="/admin" element={<ProtectedRoute roles={['ADMIN']}><AdminLayout /></ProtectedRoute>}>
             <Route index element={<Navigate to="/admin/dashboard" replace />} />
             <Route path="dashboard" element={<AdminDashboard />} />
@@ -40,10 +37,8 @@ function App() {
             <Route path="generate-slots" element={<AdminSlotGenerationPage />} />
           </Route>
           
-          {/* Root path logic */}
           <Route path="/" element={token ? <Navigate to="/dashboard" replace /> : <Navigate to="/landing" replace />} />
 
-          {/* Catch-all route for 404 Not Found */}
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </WebSocketProvider>
