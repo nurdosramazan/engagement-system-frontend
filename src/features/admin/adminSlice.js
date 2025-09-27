@@ -1,5 +1,4 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-// FIX: Use a namespace import to get all named exports
 import * as adminService from '../../api/adminService';
 
 const initialState = {
@@ -60,7 +59,7 @@ export const cancelAdminAppointment = createAsyncThunk(
   'admin/cancelAppointment',
   async (appointmentId, { rejectWithValue }) => {
     try {
-        await adminService.cancelAppointment(appointmentId);
+        await adminService.cancelAdminAppointment(appointmentId);
         return appointmentId;
     } catch(error) {
         return rejectWithValue(error.response.data);
@@ -75,16 +74,9 @@ const adminSlice = createSlice({
   reducers: {},
   extraReducers: (builder) => {
     builder
-      .addCase(fetchAppointmentsByStatus.pending, (state) => {
-        state.status = 'loading';
-      })
       .addCase(fetchAppointmentsByStatus.fulfilled, (state, action) => {
         state.status = 'succeeded';
         state.appointments = action.payload;
-      })
-      .addCase(fetchAppointmentsByStatus.rejected, (state, action) => {
-        state.status = 'failed';
-        state.error = action.payload;
       })
       .addCase(approveAdminAppointment.fulfilled, (state, action) => {
         state.appointments = state.appointments.filter((app) => app.id !== action.payload);
@@ -94,9 +86,11 @@ const adminSlice = createSlice({
       })
       .addCase(completeAdminAppointment.fulfilled, (state, action) => {
         state.appointments = state.appointments.filter((app) => app.id !== action.payload);
+      })
+      .addCase(cancelAdminAppointment.fulfilled, (state, action) => {
+        state.appointments = state.appointments.filter((app) => app.id !== action.payload);
       });
   },
 });
 
 export default adminSlice.reducer;
-

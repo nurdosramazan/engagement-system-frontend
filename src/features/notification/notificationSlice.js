@@ -34,10 +34,11 @@ const notificationSlice = createSlice({
   name: 'notifications',
   initialState,
   reducers: {
-    // Reducer to add a new notification from a WebSocket message
     addNotification: (state, action) => {
-      state.notifications.unshift(action.payload); // Add to the top of the list
+      console.log('NotificationSlice: Reducer "addNotification" called with payload:', action.payload);
+      state.notifications.unshift(action.payload);
       state.unreadCount += 1;
+
     },
   },
   extraReducers: (builder) => {
@@ -56,3 +57,4 @@ const notificationSlice = createSlice({
 
 export const { addNotification } = notificationSlice.actions;
 export default notificationSlice.reducer;
+

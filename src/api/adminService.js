@@ -27,3 +27,6 @@ export const getReport = (format, startDate, endDate) => {
     });
 };
 
+export const cancelAdminAppointment = (id) => {
+    return axiosInstance.post(`/admin/appointments/${id}/cancel`);
+};

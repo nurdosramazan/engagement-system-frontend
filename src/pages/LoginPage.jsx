@@ -10,7 +10,7 @@ const LoginPage = () => {
   const [otpSent, setOtpSent] = useState(false);
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { status } = useSelector((state) => state.auth);
+  const { status, user } = useSelector((state) => state.auth);
 
   const handleRequestOtp = async (e) => {
     e.preventDefault();
@@ -29,12 +29,16 @@ const LoginPage = () => {
       await dispatch(verifyOtp({ phoneNumber, otp })).unwrap();
       toast.success('Login successful!');
       
-      const userRoles = JSON.parse(atob(localStorage.getItem('token').split('.')[1])).roles;
-      if (userRoles.includes('ROLE_ADMIN')) {
-          navigate('/admin/dashboard');
-      } else {
-          navigate('/dashboard');
-      }
+      // We need to access the user from the store *after* the dispatch is complete.
+      // A small delay ensures the state has updated before we read it.
+      setTimeout(() => {
+        const updatedUser = store.getState().auth.user;
+        if (updatedUser?.roles?.includes('ROLE_ADMIN')) {
+            navigate('/admin/dashboard');
+        } else {
+            navigate('/dashboard');
+        }
+      }, 100);
       
     } catch (error) {
       toast.error('Invalid or expired OTP.');
@@ -42,9 +46,9 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen">
-      <div className="p-8 bg-white rounded-lg shadow-md w-96">
-        <h1 className="text-2xl font-bold text-center mb-6">Engagement System Login</h1>
+    <div className="flex items-center justify-center min-h-screen bg-gray-50">
+      <div className="p-8 bg-white rounded-lg shadow-2xl w-96">
+        <h1 className="text-3xl font-bold text-center mb-6 text-gray-800">Engagement System</h1>
         {!otpSent ? (
           <form onSubmit={handleRequestOtp}>
             <label htmlFor="phone" className="block text-sm font-medium text-gray-700">Phone Number</label>
@@ -57,7 +61,7 @@ const LoginPage = () => {
               placeholder="+1234567890"
               required
             />
-            <button type="submit" disabled={status === 'loading'} className="w-full mt-4 bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 disabled:bg-indigo-300">
+            <button type="submit" disabled={status === 'loading'} className="w-full mt-4 bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 disabled:bg-indigo-300 font-semibold">
               {status === 'loading' ? 'Sending...' : 'Send Code'}
             </button>
           </form>
@@ -73,7 +77,7 @@ const LoginPage = () => {
               maxLength="6"
               required
             />
-            <button type="submit" disabled={status === 'loading'} className="w-full mt-4 bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 disabled:bg-green-300">
+            <button type="submit" disabled={status === 'loading'} className="w-full mt-4 bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 disabled:bg-green-300 font-semibold">
               {status === 'loading' ? 'Verifying...' : 'Login'}
             </button>
           </form>
@@ -84,3 +88,4 @@ const LoginPage = () => {
 };
 
 export default LoginPage;
+

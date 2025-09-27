@@ -14,7 +14,7 @@ export const fetchUserProfile = createAsyncThunk(
       const response = await userService.getUserProfile();
       return response.data.data;
     } catch (error) {
-      return rejectWithValue(error.response.data);
+      return rejectWithValue(error.response?.data?.message || 'Failed to fetch profile.');
     }
   }
 );
@@ -26,11 +26,13 @@ export const updateUserProfile = createAsyncThunk(
         const response = await userService.updateUserProfile(profileData);
         return response.data.data;
     } catch (error) {
-        return rejectWithValue(error.response.data);
+        if (error.response && error.response.data) {
+            return rejectWithValue(error.response.data.message || 'An error occurred during the update.');
+        }
+        return rejectWithValue('Could not connect to the server. Please check your network connection.');
     }
   }
 );
-
 
 const userSlice = createSlice({
   name: 'user',
@@ -49,11 +51,20 @@ const userSlice = createSlice({
         state.status = 'failed';
         state.error = action.payload;
       })
+      .addCase(updateUserProfile.pending, (state) => {
+        state.status = 'loading';
+      })
       .addCase(updateUserProfile.fulfilled, (state, action) => {
-        state.profile = action.payload;
         state.status = 'succeeded';
+        state.profile = action.payload;
+        state.error = null;
+      })
+      .addCase(updateUserProfile.rejected, (state, action) => {
+          state.status = 'failed';
+          state.error = action.payload;
       });
   },
 });
 
 export default userSlice.reducer;
+

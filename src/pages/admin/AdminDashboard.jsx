@@ -66,14 +66,14 @@ const AdminDashboard = () => {
 
     const handleRejectSubmit = (e) => {
         e.preventDefault();
-        if (!rejectionReason.trim()) {
-            toast.error('Reason cannot be empty.');
-            return;
-        }
-        dispatch(rejectAdminAppointment({ id: selectedApp.id, reason: rejectionReason }));
-        toast.error('Appointment rejected.');
-        setIsRejectionModalOpen(false);
-        setRejectionReason('');
+        if (!rejectionReason.trim()) { toast.error('Reason cannot be empty.'); return; }
+        dispatch(rejectAdminAppointment({ id: selectedApp.id, reason: rejectionReason })).unwrap()
+            .then(() => {
+                toast.error('Appointment rejected.');
+                setIsRejectionModalOpen(false);
+                setRejectionReason('');
+            })
+            .catch((err) => toast.error(err.message || 'Failed to reject.'));
     };
 
     const handleComplete = (id) => {
@@ -82,9 +82,15 @@ const AdminDashboard = () => {
     };
 
     const handleCancelSubmit = () => {
-        dispatch(cancelAdminAppointment(selectedApp.id));
-        toast.warn('Appointment has been cancelled.');
-        setIsCancelModalOpen(false);
+        dispatch(cancelAdminAppointment(selectedApp.id)).unwrap()
+            .then(() => {
+                toast.success('Appointment has been cancelled.');
+                setIsCancelModalOpen(false);
+            })
+            .catch((err) => {
+                toast.error(err.message || 'Failed to cancel appointment.');
+                setIsCancelModalOpen(false);
+            });
     };
 
     const handleDownloadDocument = async (app) => {

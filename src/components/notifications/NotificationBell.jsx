@@ -21,6 +21,9 @@ const NotificationBell = () => {
         }
     };
 
+    // FIX: Ensure 'notifications' is always treated as an array to prevent crashes
+    const safeNotifications = Array.isArray(notifications) ? notifications : [];
+
     return (
         <div className="relative">
             <button onClick={handleToggle} className="relative text-gray-600 hover:text-gray-800">
@@ -39,8 +42,8 @@ const NotificationBell = () => {
                 <div className="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-xl border z-50">
                     <div className="p-4 font-bold border-b">Notifications</div>
                     <div className="max-h-96 overflow-y-auto">
-                        {notifications.length > 0 ? (
-                            notifications.map(notif => (
+                        {safeNotifications.length > 0 ? (
+                            safeNotifications.map(notif => (
                                 <div key={notif.id} className={`p-4 border-b hover:bg-gray-50 ${!notif.isRead ? 'bg-indigo-50' : ''}`}>
                                     <p className="text-sm text-gray-800">{notif.message}</p>
                                     <p className="text-xs text-gray-500 mt-1">{formatDistanceToNow(new Date(notif.createdAt))} ago</p>
@@ -57,3 +60,4 @@ const NotificationBell = () => {
 };
 
 export default NotificationBell;
+
