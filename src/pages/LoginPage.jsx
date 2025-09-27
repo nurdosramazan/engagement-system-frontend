@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { requestOtp, verifyOtp } from '../features/auth/authSlice';
 import toast from 'react-hot-toast';
-import { jwtDecode } from 'jwt-decode'; // Import the JWT decoding library
+import { jwtDecode } from 'jwt-decode';
 
 const LoginPage = () => {
   const [phoneNumber, setPhoneNumber] = useState('+1');
@@ -27,12 +27,8 @@ const LoginPage = () => {
   const handleVerifyOtp = async (e) => {
     e.preventDefault();
     try {
-      // FIX: The `.unwrap()` function returns the action payload, which is the JWT token.
       const token = await dispatch(verifyOtp({ phoneNumber, otp })).unwrap();
       toast.success('Login successful!');
-      
-      // FIX: Decode the token we just received to get the user's roles.
-      // This is much safer than using `atob` and removes the need for `setTimeout` or direct store access.
       const decodedToken = jwtDecode(token);
       const userRoles = decodedToken.roles || [];
       

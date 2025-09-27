@@ -5,3 +5,11 @@
 body {
   background-color: #f8fafc;
 }
+
+.app-background {
+    background-image: url('/mosque-background.jpg');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+}
+

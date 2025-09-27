@@ -8,23 +8,28 @@ import Modal from '../../components/common/Modal';
 import { getAppointmentDocument } from '../../api/appointmentService';
 
 const AppointmentDetails = ({ app }) => (
-    <div className="space-y-4 text-sm">
-        <div><strong>Groom:</strong> {app.groomFirstName} {app.groomLastName}</div>
-        <div><strong>Bride:</strong> {app.brideFirstName} {app.brideLastName}</div>
+    <div className="space-y-4 text-sm text-gray-700">
+        <div className="grid grid-cols-2 gap-4">
+            <div><strong className="font-semibold text-gray-900">Groom:</strong> {app.groomFirstName} {app.groomLastName}</div>
+            <div><strong className="font-semibold text-gray-900">Bride:</strong> {app.brideFirstName} {app.brideLastName}</div>
+        </div>
         <hr/>
-        <div><strong>Witness 1:</strong> {app.witness1FirstName} {app.witness1LastName}</div>
-        <div><strong>Witness 2:</strong> {app.witness2FirstName} {app.witness2LastName}</div>
-        {app.witness3FirstName && <div><strong>Witness 3:</strong> {app.witness3FirstName} {app.witness3LastName}</div>}
+        <div className="grid grid-cols-2 gap-4">
+            <div><strong className="font-semibold text-gray-900">Witness 1:</strong> {app.witness1FirstName} {app.witness1LastName}</div>
+            <div><strong className="font-semibold text-gray-900">Witness 2:</strong> {app.witness2FirstName} {app.witness2LastName}</div>
+            {app.witness3FirstName && <div><strong className="font-semibold text-gray-900">Witness 3:</strong> {app.witness3FirstName} {app.witness3LastName}</div>}
+        </div>
         <hr/>
-        {app.notes && <div><strong>Notes:</strong> <p className="mt-1 text-gray-600">{app.notes}</p></div>}
-        {app.rejectionReason && <div className="p-3 bg-red-50 border border-red-200 rounded-md"><strong>Rejection Reason:</strong> <p className="mt-1 text-red-700">{app.rejectionReason}</p></div>}
-        <div><strong>Submitted On:</strong> {format(new Date(app.createdAt), 'PPpp')}</div>
+        {app.notes && <div><strong className="font-semibold text-gray-900">Notes:</strong><p className="mt-1 text-gray-600 bg-gray-50 p-2 rounded">{app.notes}</p></div>}
+        {app.rejectionReason && <div className="p-3 bg-red-50 border border-red-200 rounded-md"><strong className="font-semibold text-red-800">Rejection Reason:</strong> <p className="mt-1 text-red-700">{app.rejectionReason}</p></div>}
+        <div><strong className="font-semibold text-gray-900">Submitted On:</strong> {format(new Date(app.createdAt), 'PPpp')}</div>
     </div>
 );
 
 const UserDashboard = () => {
     const dispatch = useDispatch();
     const { myAppointments, status } = useSelector((state) => state.appointments);
+    const { user } = useSelector((state) => state.auth);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedApp, setSelectedApp] = useState(null);
 
@@ -38,7 +43,7 @@ const UserDashboard = () => {
     };
     
     const handleCancel = (id) => {
-        if (window.confirm('Are you sure you want to cancel this appointment?')) {
+        if (window.confirm('Are you sure you want to cancel this appointment? This action cannot be undone.')) {
             dispatch(cancelUserAppointment(id)).unwrap()
               .then(() => toast.success('Your appointment has been cancelled.'))
               .catch((err) => toast.error(err.message || 'Failed to cancel appointment.'));
@@ -76,6 +81,9 @@ const UserDashboard = () => {
         };
         return <span className={`px-3 py-1 text-xs font-semibold rounded-full ${styles[status]}`}>{status}</span>;
     };
+    
+    const upcomingAppointment = myAppointments?.find(app => app.status === 'APPROVED');
+    const pendingCount = myAppointments?.filter(app => app.status === 'PENDING').length || 0;
 
     return (
         <div>
@@ -83,19 +91,37 @@ const UserDashboard = () => {
                 {selectedApp && <AppointmentDetails app={selectedApp} />}
             </Modal>
 
+            <div className="mb-8 p-6 bg-white/50 backdrop-blur-sm rounded-lg shadow-lg">
+                <h1 className="text-3xl md:text-4xl font-bold text-gray-800">Welcome, {user?.phoneNumber}!</h1>
+                <p className="mt-2 text-gray-600">Here is a summary of your appointments. We wish you a blessed journey.</p>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                <div className="bg-white/50 backdrop-blur-sm p-6 rounded-lg shadow-lg">
+                    <h3 className="text-lg font-semibold text-gray-700">Upcoming Ceremony</h3>
+                    {upcomingAppointment ? (
+                        <p className="text-2xl font-bold text-indigo-600 mt-2">{format(new Date(upcomingAppointment.startTime), 'MMMM d, yyyy')}</p>
+                    ) : (
+                        <p className="text-gray-500 mt-2">No upcoming approved appointments.</p>
+                    )}
+                </div>
+                <div className="bg-white/50 backdrop-blur-sm p-6 rounded-lg shadow-lg">
+                    <h3 className="text-lg font-semibold text-gray-700">Pending Applications</h3>
+                    <p className="text-2xl font-bold text-yellow-600 mt-2">{pendingCount}</p>
+                </div>
+            </div>
+
             <div className="flex justify-between items-center mb-6">
-                <h1 className="text-3xl font-bold text-gray-800">My Appointments</h1>
+                <h2 className="text-2xl font-bold text-gray-800">Appointment History</h2>
                 <Link to="/book-appointment" className="px-5 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 font-semibold">
                     + Book New Appointment
                 </Link>
             </div>
-
-            {status === 'loading' && <p>Loading your appointments...</p>}
-
-            <div className="bg-white shadow-md rounded-lg overflow-hidden">
+            
+            <div className="bg-white/80 backdrop-blur-sm shadow-md rounded-lg overflow-hidden">
                 <div className="overflow-x-auto">
                     <table className="min-w-full divide-y divide-gray-200">
-                        <thead className="bg-gray-50">
+                        <thead className="bg-gray-50/50">
                             <tr>
                                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Ceremony Date</th>
                                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
@@ -125,7 +151,7 @@ const UserDashboard = () => {
                 </div>
             </div>
             {status === 'succeeded' && (!myAppointments || myAppointments.length === 0) &&
-                <div className="text-center mt-8 p-6 bg-gray-50 rounded-lg">
+                <div className="text-center mt-8 p-6 bg-white/50 backdrop-blur-sm rounded-lg">
                     <h3 className="text-lg font-medium text-gray-700">No appointments found.</h3>
                     <p className="text-gray-500 mt-1">Ready to book your special day?</p>
                 </div>
