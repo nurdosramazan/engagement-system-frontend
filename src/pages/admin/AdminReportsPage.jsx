@@ -1,75 +1,70 @@
 import React, { useState } from 'react';
-import { downloadReport } from '../../api/adminService';
 import toast from 'react-hot-toast';
+import * as adminService from '../../api/adminService';
+import { format } from 'date-fns';
 
 const AdminReportsPage = () => {
-    const [startDate, setStartDate] = useState('');
-    const [endDate, setEndDate] = useState('');
-    const [format, setFormat] = useState('pdf');
+    const [startDate, setStartDate] = useState(format(new Date(), 'yyyy-MM-dd'));
+    const [endDate, setEndDate] = useState(format(new Date(), 'yyyy-MM-dd'));
+    const [formatType, setFormatType] = useState('pdf');
     const [isLoading, setIsLoading] = useState(false);
 
-    const handleDownload = async (e) => {
-        e.preventDefault();
-        if (!startDate || !endDate) {
-            toast.error("Please select both a start and end date.");
-            return;
-        }
+    const handleDownload = async () => {
         setIsLoading(true);
         try {
-            const blob = await downloadReport(format, startDate, endDate);
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `appointments-report_${startDate}_to_${endDate}.${format}`;
-            document.body.appendChild(a);
-            a.click();
-            a.remove();
+            const response = await adminService.getReport(formatType, startDate, endDate);
+            
+            // Create a link to download the blob
+            const url = window.URL.createObjectURL(new Blob([response.data]));
+            const link = document.createElement('a');
+            link.href = url;
+            
+            // FIX: Use the correct file extension based on formatType
+            const fileExtension = formatType === 'excel' ? 'xlsx' : 'pdf';
+            const fileName = `appointments-report_${startDate}_to_${endDate}.${fileExtension}`;
+            
+            link.setAttribute('download', fileName);
+            document.body.appendChild(link);
+            link.click();
+            link.parentNode.removeChild(link);
             window.URL.revokeObjectURL(url);
-            toast.success("Report download started!");
+
+            toast.success('Report downloaded successfully!');
         } catch (error) {
-            toast.error("Failed to generate report.");
+            toast.error('Failed to download report.');
         } finally {
             setIsLoading(false);
         }
     };
 
     return (
-        <div>
-            <h1 className="text-3xl font-bold text-gray-800 mb-6">Generate Reports</h1>
-            <div className="max-w-xl mx-auto bg-white p-8 rounded-lg shadow-md">
-                <form onSubmit={handleDownload} className="space-y-6">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                        <div>
-                            <label htmlFor="startDate" className="block text-sm font-medium text-gray-700">Start Date</label>
-                            <input type="date" id="startDate" value={startDate} onChange={e => setStartDate(e.target.value)} required className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md"/>
-                        </div>
-                        <div>
-                            <label htmlFor="endDate" className="block text-sm font-medium text-gray-700">End Date</label>
-                            <input type="date" id="endDate" value={endDate} onChange={e => setEndDate(e.target.value)} required className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md"/>
-                        </div>
-                    </div>
-
+        <div className="p-6">
+            <h1 className="text-3xl font-bold mb-6">Generate Reports</h1>
+            <div className="bg-white p-6 rounded-lg shadow-md max-w-lg">
+                <div className="space-y-4">
                     <div>
-                        <span className="block text-sm font-medium text-gray-700">Format</span>
-                        <div className="mt-2 flex space-x-4">
-                            <label className="inline-flex items-center">
-                                <input type="radio" name="format" value="pdf" checked={format === 'pdf'} onChange={() => setFormat('pdf')} className="form-radio h-4 w-4 text-red-600"/>
-                                <span className="ml-2">PDF</span>
-                            </label>
-                             <label className="inline-flex items-center">
-                                <input type="radio" name="format" value="excel" checked={format === 'excel'} onChange={() => setFormat('excel')} className="form-radio h-4 w-4 text-red-600"/>
-                                <span className="ml-2">Excel (XLSX)</span>
-                            </label>
-                        </div>
+                        <label className="block text-sm font-medium text-gray-700">Start Date</label>
+                        <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className="mt-1 block w-full p-2 border rounded-md" />
                     </div>
-                    
-                    <button type="submit" disabled={isLoading} className="w-full bg-red-600 text-white py-2 px-4 rounded-md hover:bg-red-700 disabled:bg-red-300 font-semibold">
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700">End Date</label>
+                        <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} className="mt-1 block w-full p-2 border rounded-md" />
+                    </div>
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700">Format</label>
+                        <select value={formatType} onChange={(e) => setFormatType(e.target.value)} className="mt-1 block w-full p-2 border rounded-md">
+                            <option value="pdf">PDF</option>
+                            <option value="excel">Excel</option>
+                        </select>
+                    </div>
+                    <button onClick={handleDownload} disabled={isLoading} className="w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 disabled:bg-indigo-300">
                         {isLoading ? 'Generating...' : 'Download Report'}
                     </button>
-                </form>
+                </div>
             </div>
         </div>
     );
 };
 
 export default AdminReportsPage;
+

@@ -1,11 +1,10 @@
-import axiosInstance from "./axiosInstance";
+import axiosInstance from './axiosInstance';
 
-export const getUserProfile = async () => {
-    const response = await axiosInstance.get('/users/me');
-    return response.data.data;
+export const getUserProfile = () => {
+    return axiosInstance.get('/users/me');
 };
 
-export const updateUserProfile = async (profileData) => {
-    const response = await axiosInstance.put('/users/me/update-info', profileData);
-    return response.data.data;
+export const updateUserProfile = (profileData) => {
+    return axiosInstance.put('/users/me/update-info', profileData);
 };
+

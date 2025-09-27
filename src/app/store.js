@@ -3,6 +3,7 @@ import authReducer from '../features/auth/authSlice';
 import appointmentReducer from '../features/appointment/appointmentSlice';
 import userReducer from '../features/user/userSlice';
 import adminReducer from '../features/admin/adminSlice';
+import notificationReducer from '../features/notification/notificationSlice'; // Import new reducer
 
 export const store = configureStore({
   reducer: {
@@ -10,5 +11,7 @@ export const store = configureStore({
     appointments: appointmentReducer,
     user: userReducer,
     admin: adminReducer,
+    notifications: notificationReducer,
   },
 });
+

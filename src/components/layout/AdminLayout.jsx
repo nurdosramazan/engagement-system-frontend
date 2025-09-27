@@ -2,6 +2,7 @@ import React from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { logout } from '../../features/auth/authSlice';
+import NotificationBell from '../notifications/NotificationBell';
 
 const AdminDashboardIcon = () => (
     <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 17v-2a4 4 0 00-4-4H3a4 4 0 00-4 4v2m18 0v-2a4 4 0 00-4-4h-2a4 4 0 00-4 4v2m4 4h.01M12 6h.01M6 6h.01M18 6h.01M7 20h10a2 2 0 002-2V6a2 2 0 00-2-2H7a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
@@ -60,6 +61,7 @@ const AdminLayout = () => {
             <div className="flex-1 flex flex-col">
                 <header className="bg-white shadow-md p-4 flex justify-end items-center">
                     <div className="flex items-center">
+                        <NotificationBell />
                         <span className="text-gray-600 mr-4">
                             Welcome, <span className="font-semibold">{user?.phoneNumber || 'Admin'}</span>
                         </span>

@@ -10,6 +10,7 @@ import AdminReportsPage from './pages/admin/AdminReportsPage';
 import AdminSlotGenerationPage from './pages/admin/AdminSlotGenerationPage';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import WebSocketProvider from './components/notifications/WebSocketProvider';
+import NotFoundPage from './pages/NotFoundPage'; // Import the new page
 
 function App() {
   return (
@@ -18,21 +19,25 @@ function App() {
         <Routes>
           <Route path="/login" element={<LoginPage />} />
 
-          <Route path="/" element={<ProtectedRoute roles={['USER']}><UserLayout /></ProtectedRoute>}>
-            <Route index element={<Navigate to="/dashboard" />} />
+          {/* User Routes */}
+          {/* FIX: Allow ADMINs to access user routes as well */}
+          <Route path="/" element={<ProtectedRoute roles={['USER', 'ADMIN']}><UserLayout /></ProtectedRoute>}>
+            <Route index element={<Navigate to="/dashboard" replace />} />
             <Route path="dashboard" element={<UserDashboard />} />
             <Route path="book-appointment" element={<BookAppointmentPage />} />
             <Route path="profile" element={<UserProfilePage />} />
           </Route>
 
+          {/* Admin Routes */}
           <Route path="/admin" element={<ProtectedRoute roles={['ADMIN']}><AdminLayout /></ProtectedRoute>}>
-            <Route index element={<Navigate to="/admin/dashboard" />} />
+            <Route index element={<Navigate to="/admin/dashboard" replace />} />
             <Route path="dashboard" element={<AdminDashboard />} />
             <Route path="reports" element={<AdminReportsPage />} />
             <Route path="generate-slots" element={<AdminSlotGenerationPage />} />
           </Route>
           
-          <Route path="*" element={<Navigate to="/login" />} />
+          {/* FIX: Catch-all route for 404 Not Found */}
+          <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </WebSocketProvider>
     </BrowserRouter>

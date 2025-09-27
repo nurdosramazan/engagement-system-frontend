@@ -3,79 +3,89 @@ import { useDispatch, useSelector } from 'react-redux';
 import { fetchMyAppointments, cancelUserAppointment } from '../../features/appointment/appointmentSlice';
 import { format } from 'date-fns';
 import toast from 'react-hot-toast';
-
-const StatusBadge = ({ status }) => {
-    const baseClasses = "px-3 py-1 text-sm font-semibold rounded-full";
-    const statusClasses = {
-        PENDING: "bg-yellow-100 text-yellow-800",
-        APPROVED: "bg-green-100 text-green-800",
-        REJECTED: "bg-red-100 text-red-800",
-        COMPLETED: "bg-blue-100 text-blue-800",
-        CANCELLED: "bg-gray-100 text-gray-800",
-    };
-    return <span className={`${baseClasses} ${statusClasses[status] || ''}`}>{status}</span>;
-};
+import { Link } from 'react-router-dom';
 
 const UserDashboard = () => {
     const dispatch = useDispatch();
-    const { appointments, status } = useSelector((state) => state.appointments);
+    // Destructure myAppointments and provide a fallback empty array to prevent the error
+    const { myAppointments = [], status } = useSelector((state) => state.appointments);
 
     useEffect(() => {
-        if (status === 'idle') {
-            dispatch(fetchMyAppointments());
-        }
-    }, [status, dispatch]);
-    
+        dispatch(fetchMyAppointments());
+    }, [dispatch]);
+
     const handleCancel = (id) => {
-        if(window.confirm('Are you sure you want to cancel this appointment?')) {
-            dispatch(cancelUserAppointment(id))
-                .unwrap()
-                .then(() => toast.success("Appointment cancelled successfully!"))
-                .catch(() => toast.error("Failed to cancel appointment."));
+        if (window.confirm('Are you sure you want to cancel this appointment?')) {
+            dispatch(cancelUserAppointment(id));
+            toast.success('Your appointment has been cancelled.');
         }
     };
 
+    const renderStatusBadge = (status) => {
+        const baseClasses = "px-3 py-1 text-xs font-semibold rounded-full inline-block";
+        switch (status) {
+            case 'PENDING': return `${baseClasses} bg-yellow-100 text-yellow-800`;
+            case 'APPROVED': return `${baseClasses} bg-green-100 text-green-800`;
+            case 'REJECTED': return `${baseClasses} bg-red-100 text-red-800`;
+            case 'COMPLETED': return `${baseClasses} bg-blue-100 text-blue-800`;
+            case 'CANCELLED': return `${baseClasses} bg-gray-100 text-gray-800`;
+            default: return baseClasses;
+        }
+    }
+
     return (
         <div>
-            <h1 className="text-3xl font-bold text-gray-800 mb-6">My Appointments</h1>
-            {status === 'loading' && <p>Loading appointments...</p>}
-            {status === 'succeeded' && appointments.length === 0 && (
-                <p className="text-gray-600">You have no appointments scheduled.</p>
+            <div className="flex justify-between items-center mb-6">
+                <h1 className="text-3xl font-bold text-gray-800">My Appointments</h1>
+                <Link to="/book-appointment" className="px-5 py-2 bg-indigo-600 text-white font-semibold rounded-lg hover:bg-indigo-700 transition-colors">
+                    + Book New Appointment
+                </Link>
+            </div>
+
+            {status === 'loading' && <p>Loading your appointments...</p>}
+            
+            {status === 'succeeded' && myAppointments.length === 0 && (
+                <div className="text-center bg-white p-10 rounded-lg shadow-md">
+                    <h2 className="text-xl font-semibold text-gray-700">No Appointments Found</h2>
+                    <p className="text-gray-500 mt-2">You haven't booked any appointments yet. Get started now!</p>
+                    <Link to="/book-appointment" className="mt-4 inline-block px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">
+                        Book Your First Appointment
+                    </Link>
+                </div>
             )}
-            {status === 'succeeded' && appointments.length > 0 && (
-                <div className="bg-white shadow-md rounded-lg overflow-hidden">
-                    <table className="min-w-full divide-y divide-gray-200">
-                        <thead className="bg-gray-50">
-                            <tr>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date & Time</th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Spouse</th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody className="bg-white divide-y divide-gray-200">
-                            {appointments.map((app) => (
-                                <tr key={app.id}>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                        {format(new Date(app.startTime), 'MMMM d, yyyy @ h:mm a')}
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                        {app.groomFirstName} & {app.brideFirstName}
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap">
-                                        <StatusBadge status={app.status} />
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                        {(app.status === 'PENDING' || app.status === 'APPROVED') && (
-                                            <button onClick={() => handleCancel(app.id)} className="text-red-600 hover:text-red-900">
-                                                Cancel
-                                            </button>
-                                        )}
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
+
+            {status === 'succeeded' && myAppointments.length > 0 && (
+                <div className="space-y-4">
+                    {myAppointments.map((app) => (
+                        <div key={app.id} className="bg-white p-6 rounded-lg shadow-md flex flex-wrap justify-between items-center">
+                            <div className="flex-grow mb-4 md:mb-0">
+                                <div className="flex items-center mb-2">
+                                    <span className={renderStatusBadge(app.status)}>{app.status}</span>
+                                </div>
+                                <p className="text-lg font-semibold text-gray-800">
+                                    {app.groomFirstName} & {app.brideFirstName}
+                                </p>
+                                <p className="text-sm text-gray-600">
+                                    {format(new Date(app.startTime), 'EEEE, MMMM d, yyyy')} at {format(new Date(app.startTime), 'p')}
+                                </p>
+                                {app.status === 'REJECTED' && app.rejectionReason && (
+                                    <p className="text-sm text-red-600 mt-1">
+                                        <strong>Reason:</strong> {app.rejectionReason}
+                                    </p>
+                                )}
+                            </div>
+                            <div className="flex-shrink-0">
+                                {(app.status === 'PENDING' || app.status === 'APPROVED') && (
+                                    <button 
+                                        onClick={() => handleCancel(app.id)}
+                                        className="px-4 py-2 bg-red-100 text-red-700 font-semibold rounded-lg hover:bg-red-200 transition-colors text-sm"
+                                    >
+                                        Cancel Appointment
+                                    </button>
+                                )}
+                            </div>
+                        </div>
+                    ))}
                 </div>
             )}
         </div>

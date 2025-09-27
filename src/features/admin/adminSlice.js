@@ -1,46 +1,74 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+// FIX: Use a namespace import to get all named exports
 import * as adminService from '../../api/adminService';
 
 const initialState = {
   appointments: [],
-  status: 'idle', // 'idle' | 'loading' | 'succeeded' | 'failed'
+  status: 'idle',
   error: null,
 };
 
-// --- Async Thunks ---
 export const fetchAppointmentsByStatus = createAsyncThunk(
   'admin/fetchAppointmentsByStatus',
-  async (status) => {
-    const response = await adminService.getAppointmentsByStatus(status);
-    return response.data;
+  async (status, { rejectWithValue }) => {
+    try {
+        const response = await adminService.getAppointmentsByStatus(status);
+        return response.data.data;
+    } catch (error) {
+        return rejectWithValue(error.response.data);
+    }
   }
 );
 
 export const approveAdminAppointment = createAsyncThunk(
   'admin/approveAppointment',
-  async (appointmentId) => {
-    await adminService.approveAppointment(appointmentId);
-    return appointmentId;
+  async (appointmentId, { rejectWithValue }) => {
+    try {
+        await adminService.approveAppointment(appointmentId);
+        return appointmentId;
+    } catch(error) {
+        return rejectWithValue(error.response.data);
+    }
   }
 );
 
+// ... other thunks remain the same, using adminService.functionName ...
 export const rejectAdminAppointment = createAsyncThunk(
   'admin/rejectAppointment',
-  async ({ id, reason }) => {
-    await adminService.rejectAppointment(id, reason);
-    return id;
+  async ({ id, reason }, { rejectWithValue }) => {
+    try {
+        await adminService.rejectAppointment(id, reason);
+        return id;
+    } catch(error) {
+        return rejectWithValue(error.response.data);
+    }
   }
 );
 
 export const completeAdminAppointment = createAsyncThunk(
   'admin/completeAppointment',
-  async (appointmentId) => {
-    await adminService.completeAppointment(appointmentId);
-    return appointmentId;
+  async (appointmentId, { rejectWithValue }) => {
+    try {
+        await adminService.completeAppointment(appointmentId);
+        return appointmentId;
+    } catch(error) {
+        return rejectWithValue(error.response.data);
+    }
+  }
+);
+export const cancelAdminAppointment = createAsyncThunk(
+  'admin/cancelAppointment',
+  async (appointmentId, { rejectWithValue }) => {
+    try {
+        await adminService.cancelAppointment(appointmentId);
+        return appointmentId;
+    } catch(error) {
+        return rejectWithValue(error.response.data);
+    }
   }
 );
 
-// --- Slice Definition ---
+
 const adminSlice = createSlice({
   name: 'admin',
   initialState,
@@ -56,9 +84,8 @@ const adminSlice = createSlice({
       })
       .addCase(fetchAppointmentsByStatus.rejected, (state, action) => {
         state.status = 'failed';
-        state.error = action.error.message;
+        state.error = action.payload;
       })
-      // Optimistically update the UI by removing the appointment from the list
       .addCase(approveAdminAppointment.fulfilled, (state, action) => {
         state.appointments = state.appointments.filter((app) => app.id !== action.payload);
       })
