@@ -6,7 +6,7 @@ import toast from 'react-hot-toast';
 import { jwtDecode } from 'jwt-decode';
 
 const LoginPage = () => {
-  const [phoneNumber, setPhoneNumber] = useState('+1');
+  const [phoneNumber, setPhoneNumber] = useState('+7');
   const [otp, setOtp] = useState('');
   const [otpSent, setOtpSent] = useState(false);
   const dispatch = useDispatch();
@@ -56,7 +56,7 @@ const LoginPage = () => {
               value={phoneNumber}
               onChange={(e) => setPhoneNumber(e.target.value)}
               className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-              placeholder="+1234567890"
+              placeholder="+7777123456"
               required
             />
             <button type="submit" disabled={status === 'loading'} className="w-full mt-4 bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 disabled:bg-indigo-300 font-semibold">

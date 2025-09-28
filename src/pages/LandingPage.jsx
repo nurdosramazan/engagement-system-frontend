@@ -9,10 +9,10 @@ const LandingPage = () => {
             
             <div className="relative z-20 animate-fade-in-up">
                 <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight drop-shadow-lg">
-                    Begin Your Journey Together
+                    Astana grand mosque's engagement registration portal
                 </h1>
                 <p className="mt-6 max-w-2xl mx-auto text-lg md:text-xl text-gray-200 drop-shadow-md">
-                    Welcome to the official engagement system. Schedule your sacred ceremony with ease and grace. Our platform is designed to make your special moment as seamless as possible.
+                    Welcome! You can schedule your ceremony with this platform. Login to proceed.
                 </p>
                 <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
                     <Link

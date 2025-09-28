@@ -7,7 +7,7 @@ export default {
   theme: {
     extend: {
       backgroundImage: {
-        'landing-background': "url('/mosque-background.jpg')",
+        'landing-background': "url('/src/assets/mosque.jpg')",
       },
       animation: {
         'fade-in-up': 'fadeInUp 1s ease-out forwards',
