@@ -30,7 +30,7 @@ const WebSocketProvider = ({ children }) => {
     const userRoles = (decodedToken.roles || []).map(role => role.replace('ROLE_', ''));
     
     const stompClient = new Client({
-      webSocketFactory: () => new SockJS('http://localhost:8080/ws'),
+      webSocketFactory: () => new SockJS('https://engagement-system-production.up.railway.app/ws'),
       connectHeaders: { Authorization: `Bearer ${token}` },
       reconnectDelay: 5000,
       onConnect: () => {
