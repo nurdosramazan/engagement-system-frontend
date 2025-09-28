@@ -93,12 +93,11 @@ const UserDashboard = () => {
 
             <div className="mb-8 p-6 bg-white/50 backdrop-blur-sm rounded-lg shadow-lg">
                 <h1 className="text-3xl md:text-4xl font-bold text-gray-800">Welcome, {user?.phoneNumber}!</h1>
-                <p className="mt-2 text-gray-600">Here is a summary of your appointments. We wish you a blessed journey.</p>
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
                 <div className="bg-white/50 backdrop-blur-sm p-6 rounded-lg shadow-lg">
-                    <h3 className="text-lg font-semibold text-gray-700">Upcoming Ceremony</h3>
+                    <h3 className="text-lg font-semibold text-gray-700">Upcoming ceremony</h3>
                     {upcomingAppointment ? (
                         <p className="text-2xl font-bold text-indigo-600 mt-2">{format(new Date(upcomingAppointment.startTime), 'MMMM d, yyyy')}</p>
                     ) : (
@@ -106,15 +105,15 @@ const UserDashboard = () => {
                     )}
                 </div>
                 <div className="bg-white/50 backdrop-blur-sm p-6 rounded-lg shadow-lg">
-                    <h3 className="text-lg font-semibold text-gray-700">Pending Applications</h3>
+                    <h3 className="text-lg font-semibold text-gray-700">Pending applications</h3>
                     <p className="text-2xl font-bold text-yellow-600 mt-2">{pendingCount}</p>
                 </div>
             </div>
 
             <div className="flex justify-between items-center mb-6">
-                <h2 className="text-2xl font-bold text-gray-800">Appointment History</h2>
+                <h2 className="text-2xl font-bold text-gray-800">Appointment history</h2>
                 <Link to="/book-appointment" className="px-5 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 font-semibold">
-                    + Book New Appointment
+                    + Book new appointment
                 </Link>
             </div>
             
@@ -123,7 +122,7 @@ const UserDashboard = () => {
                     <table className="min-w-full divide-y divide-gray-200">
                         <thead className="bg-gray-50/50">
                             <tr>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Ceremony Date</th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Ceremony date</th>
                                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
                                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
                             </tr>
