@@ -45,7 +45,7 @@ const UserDashboard = () => {
     const handleCancel = (id) => {
         if (window.confirm('Are you sure you want to cancel this appointment? This action cannot be undone.')) {
             dispatch(cancelUserAppointment(id)).unwrap()
-              .then(() => toast.success('Your appointment has been cancelled.'))
+              .then()
               .catch((err) => toast.error(err.message || 'Failed to cancel appointment.'));
         }
     };

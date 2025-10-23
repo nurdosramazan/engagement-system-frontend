@@ -91,7 +91,6 @@ const BookAppointmentPage = () => {
 
         try {
             await dispatch(bookAppointment(data)).unwrap();
-            toast.success('Your appointment request has been submitted successfully!');
             navigate('/dashboard');
         } catch (error) {
             if (error.fieldErrors) {
