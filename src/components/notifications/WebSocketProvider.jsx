@@ -51,9 +51,7 @@ const WebSocketProvider = ({ children }) => {
             toast.success(notification.message || "You have a new notification!");
 
             const lowerCaseMessage = (notification.message || "").toLowerCase();
-            if (lowerCaseMessage.includes('appointment') || lowerCaseMessage.includes('application')) {
-              dispatch(fetchMyAppointments());
-            }
+            dispatch(fetchMyAppointments());
           } catch (error) {
             console.error("WebSocketProvider: Error processing user message:", error);
           }

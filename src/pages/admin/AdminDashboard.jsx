@@ -7,10 +7,11 @@ import {
     completeAdminAppointment,
     cancelAdminAppointment,
 } from '../../features/admin/adminSlice';
-import { format, formatDistanceToNow } from 'date-fns';
+import { format } from 'date-fns';
 import toast from 'react-hot-toast';
 import Modal from '../../components/common/Modal';
 import { getAppointmentDocument } from '../../api/appointmentService';
+import { motion } from 'framer-motion';
 
 const AlertTriangleIcon = () => <svg className="w-5 h-5 inline-block ml-1 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>;
 const formatHistory = (history) => {
@@ -89,6 +90,13 @@ const AdminDashboard = () => {
     const [adminNotes, setAdminNotes] = useState('');
 
     const [formErrors, setFormErrors] = useState({});
+    const filterOptions = [
+        { label: 'Pending', value: 'PENDING' },
+        { label: 'Approved', value: 'APPROVED' },
+        { label: 'Completed', value: 'COMPLETED' },
+        { label: 'Rejected', value: 'REJECTED' },
+        { label: 'Cancelled', value: 'CANCELLED' },
+    ];
 
     useEffect(() => {
         dispatch(fetchAppointmentsByStatus(selectedStatus));
@@ -300,14 +308,30 @@ const AdminDashboard = () => {
             </Modal>
 
             <h1 className="text-3xl font-bold mb-6">Admin Dashboard</h1>
-            <div className="mb-4">
-                <select value={selectedStatus} onChange={(e) => setSelectedStatus(e.target.value)} className="p-2 border rounded-md">
-                    <option value="PENDING">Pending</option>
-                    <option value="APPROVED">Approved</option>
-                    <option value="REJECTED">Rejected</option>
-                    <option value="COMPLETED">Completed</option>
-                    <option value="CANCELLED">Cancelled</option>
-                </select>
+            <div className="mb-6 bg-white p-4 rounded-lg shadow-md">
+                <div className="flex items-center gap-2 overflow-x-auto">
+                    {filterOptions.map((option) => (
+                        <motion.button
+                            key={option.value}
+                            onClick={() => setSelectedStatus(option.value)}
+                            className={`relative px-4 py-2 rounded-full text-sm font-semibold whitespace-nowrap ${selectedStatus === option.value
+                                ? 'text-white'
+                                : 'text-gray-700 hover:bg-gray-100'
+                                }`}
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                        >
+                            {selectedStatus === option.value && (
+                                <motion.div
+                                    layoutId="activePill"
+                                    className="absolute inset-0 bg-indigo-600 rounded-full"
+                                    transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+                                />
+                            )}
+                            <span className="relative z-10">{option.label}</span>
+                        </motion.button>
+                    ))}
+                </div>
             </div>
 
 

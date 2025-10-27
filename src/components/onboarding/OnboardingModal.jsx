@@ -82,22 +82,19 @@ const GenderStep = ({ formData, setFormData, setStep, handleSubmit }) => {
             <h2 className="text-2xl font-bold text-gray-800 mb-4">Your Gender</h2>
             <p className="text-gray-600 mb-6">This is required for the marriage certificate.</p>
 
-            {/* --- NEW UI --- */}
             <div className="flex gap-4">
-                {/* Male Card */}
                 <motion.button
                     type="button"
                     onClick={() => setFormData({ ...formData, gender: 'MALE' })}
                     className={`relative flex-1 p-6 border-2 rounded-xl text-center cursor-pointer transition-all ${formData.gender === 'MALE' ? 'border-indigo-600 shadow-lg' : 'border-gray-300'
                         }`}
-                    whileHover={{ scale: 1.03, y: -5 }} // Animate on hover
+                    whileHover={{ scale: 1.03, y: -5 }}
                     animate={formData.gender === 'MALE' ? { scale: 1.02 } : { scale: 1 }}
                     transition={{ type: 'spring', stiffness: 400, damping: 20 }}
                 >
                     <MaleIcon />
                     <span className="font-semibold text-lg text-gray-800">Male</span>
 
-                    {/* Animated checkmark */}
                     <AnimatePresence>
                         {formData.gender === 'MALE' && (
                             <motion.div
@@ -113,20 +110,18 @@ const GenderStep = ({ formData, setFormData, setStep, handleSubmit }) => {
                     </AnimatePresence>
                 </motion.button>
 
-                {/* Female Card */}
                 <motion.button
                     type="button"
                     onClick={() => setFormData({ ...formData, gender: 'FEMALE' })}
                     className={`relative flex-1 p-6 border-2 rounded-xl text-center cursor-pointer transition-all ${formData.gender === 'FEMALE' ? 'border-pink-600 shadow-lg' : 'border-gray-300'
                         }`}
-                    whileHover={{ scale: 1.03, y: -5 }} // Animate on hover
+                    whileHover={{ scale: 1.03, y: -5 }}
                     animate={formData.gender === 'FEMALE' ? { scale: 1.02 } : { scale: 1 }}
                     transition={{ type: 'spring', stiffness: 400, damping: 20 }}
                 >
                     <FemaleIcon />
                     <span className="font-semibold text-lg text-gray-800">Female</span>
 
-                    {/* Animated checkmark */}
                     <AnimatePresence>
                         {formData.gender === 'FEMALE' && (
                             <motion.div
@@ -142,7 +137,6 @@ const GenderStep = ({ formData, setFormData, setStep, handleSubmit }) => {
                     </AnimatePresence>
                 </motion.button>
             </div>
-            {/* --- END NEW UI --- */}
 
             <div className="flex gap-4 mt-8">
                 <button
