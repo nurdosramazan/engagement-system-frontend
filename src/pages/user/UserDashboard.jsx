@@ -13,13 +13,13 @@ const AppointmentDetails = ({ app }) => (
             <div><strong className="font-semibold text-gray-900">Groom:</strong> {app.groomFirstName} {app.groomLastName}</div>
             <div><strong className="font-semibold text-gray-900">Bride:</strong> {app.brideFirstName} {app.brideLastName}</div>
         </div>
-        <hr/>
+        <hr />
         <div className="grid grid-cols-2 gap-4">
             <div><strong className="font-semibold text-gray-900">Witness 1:</strong> {app.witness1FirstName} {app.witness1LastName}</div>
             <div><strong className="font-semibold text-gray-900">Witness 2:</strong> {app.witness2FirstName} {app.witness2LastName}</div>
             {app.witness3FirstName && <div><strong className="font-semibold text-gray-900">Witness 3:</strong> {app.witness3FirstName} {app.witness3LastName}</div>}
         </div>
-        <hr/>
+        <hr />
         {app.notes && <div><strong className="font-semibold text-gray-900">Notes:</strong><p className="mt-1 text-gray-600 bg-gray-50 p-2 rounded">{app.notes}</p></div>}
         {app.rejectionReason && <div className="p-3 bg-red-50 border border-red-200 rounded-md"><strong className="font-semibold text-red-800">Rejection Reason:</strong> <p className="mt-1 text-red-700">{app.rejectionReason}</p></div>}
         <div><strong className="font-semibold text-gray-900">Submitted On:</strong> {format(new Date(app.createdAt), 'PPpp')}</div>
@@ -57,14 +57,13 @@ const UserDashboard = () => {
             return;
         }
         dispatch(cancelUserAppointment({ id: selectedApp.id, reason: cancelReason }))
-          .unwrap()
-          .then((result) => {
-              toast.success(result.apiResponse.message || 'Appointment cancelled.');
-              setIsCancelModalOpen(false);
-          })
-          .catch((err) => {
-              toast.error(err.message || 'Failed to cancel appointment.');
-          });
+            .unwrap()
+            .then((result) => {
+                setIsCancelModalOpen(false);
+            })
+            .catch((err) => {
+                toast.error(err.message || 'Failed to cancel appointment.');
+            });
     };
 
     const handleDownloadDocument = async (app) => {
@@ -98,7 +97,7 @@ const UserDashboard = () => {
         };
         return <span className={`px-3 py-1 text-xs font-semibold rounded-full ${styles[status]}`}>{status}</span>;
     };
-    
+
     const upcomingAppointment = myAppointments?.find(app => app.status === 'APPROVED');
     const pendingCount = myAppointments?.filter(app => app.status === 'PENDING').length || 0;
 
@@ -133,7 +132,7 @@ const UserDashboard = () => {
             <div className="mb-8 p-6 bg-white/50 backdrop-blur-sm rounded-lg shadow-lg">
                 <h1 className="text-3xl md:text-4xl font-bold text-gray-800">Welcome, {user?.phoneNumber}!</h1>
             </div>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
                 <div className="bg-white/50 backdrop-blur-sm p-6 rounded-lg shadow-lg">
                     <h3 className="text-lg font-semibold text-gray-700">Upcoming ceremony</h3>
@@ -155,7 +154,7 @@ const UserDashboard = () => {
                     + Book new appointment
                 </Link>
             </div>
-            
+
             <div className="bg-white/80 backdrop-blur-sm shadow-md rounded-lg overflow-hidden">
                 <div className="overflow-x-auto">
                     <table className="min-w-full divide-y divide-gray-200">

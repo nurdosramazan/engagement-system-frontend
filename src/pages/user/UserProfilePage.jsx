@@ -2,9 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchUserProfile, updateUserProfile } from '../../features/user/userSlice';
 import toast from 'react-hot-toast';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 const UserProfilePage = () => {
     const dispatch = useDispatch();
+    const navigate = useNavigate();
+    const location = useLocation();
     const { profile, status, error } = useSelector(state => state.user);
     const [formData, setFormData] = useState({
         firstName: '',
@@ -12,7 +15,8 @@ const UserProfilePage = () => {
         gender: 'MALE',
     });
     const [initialLoad, setInitialLoad] = useState(true);
-
+    const cameFromBooking = location.state?.fromBooking;
+    const bookingDataToRestore = location.state?.bookingData;
 
     useEffect(() => {
         if (status === 'idle') {
@@ -35,17 +39,19 @@ const UserProfilePage = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const resultActionPayload = await dispatch(updateUserProfile(formData)).unwrap();
-            toast.success(resultActionPayload.message || 'Profile updated successfully!');
+            await dispatch(updateUserProfile(formData)).unwrap();
+            if (cameFromBooking && bookingDataToRestore) {
+                toast.success('Profile complete! Resuming booking...', { duration: 3000 });
+                navigate('/book-appointment', {
+                    state: { restoredBookingData: bookingDataToRestore }
+                });
+            }
+
         } catch (error) {
-            if (error && error.fieldErrors && Array.isArray(error.fieldErrors) && error.fieldErrors.length > 0) {
-                toast.error(error.fieldErrors[0].defaultMessage || error.message || 'Validation failed.');
-            } else if (error && typeof error.message === 'string') {
-                toast.error(error.message);
-            } else if (typeof error === 'string') {
-                toast.error(error);
+            if (error?.fieldErrors) {
+                toast.error(error.fieldErrors[0].defaultMessage || 'Validation failed.');
             } else {
-                toast.error('Failed to update profile.');
+                toast.error(error?.message || 'Failed to update profile.');
             }
         }
     };
@@ -63,6 +69,11 @@ const UserProfilePage = () => {
     return (
         <div>
             <h1 className="text-3xl font-bold text-gray-800 mb-6">My Profile</h1>
+            {cameFromBooking && (
+                <div className="mb-4 p-4 bg-yellow-100 text-yellow-800 border border-yellow-200 rounded-md">
+                    Please complete your profile details (First Name, Last Name, Gender) before booking an appointment.
+                </div>
+            )}
             <div className="max-w-xl bg-white p-8 rounded-lg shadow-md">
                 <form onSubmit={handleSubmit} className="space-y-6">
                     <div>
@@ -103,11 +114,7 @@ const UserProfilePage = () => {
                             <option value="FEMALE">Female</option>
                         </select>
                     </div>
-                    {status === 'failed' && error && (
-                        <p className="text-sm text-red-600">
-                            {typeof error === 'object' ? error.message : error}
-                        </p>
-                    )}
+                    {status === 'failed' && error && !error.fieldErrors && <p className="text-sm text-red-600">{error.message || error}</p>}
                     <button
                         type="submit"
                         disabled={status === 'loading'}

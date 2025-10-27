@@ -1,18 +1,20 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchAvailableSlots, bookAppointment } from '../../features/appointment/appointmentSlice';
 import { fetchUserProfile } from '../../features/user/userSlice';
 import { format, addMonths, subMonths, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, isPast } from 'date-fns';
 import toast from 'react-hot-toast';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 const CalendarIcon = () => <svg className="w-5 h-5 mr-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>;
 const ClockIcon = () => <svg className="w-5 h-5 ml-2 mr-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>;
 const InfoIcon = () => <svg className="w-5 h-5 mr-2 text-blue-500" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd"></path></svg>;
+const AlertTriangleIcon = () => <svg className="h-5 w-5 flex-shrink-0 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>;
 
 const BookAppointmentPage = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
+    const location = useLocation();
     const { availableSlots, status: appointmentStatus } = useSelector((state) => state.appointments);
 
     const [currentMonth, setCurrentMonth] = useState(new Date());
@@ -30,36 +32,109 @@ const BookAppointmentPage = () => {
         document: null,
     });
 
+    const [formErrors, setFormErrors] = useState({});
+    const fileInputRef = useRef(null);
+
+    const MAX_NAME_LENGTH = 20;
+    const MIN_NAME_LENGTH = 2;
+    const MAX_NOTES_LENGTH = 500;
+    const ALLOWED_FILE_TYPES = ['application/pdf', 'image/jpeg', 'image/png'];
+
     useEffect(() => {
-        // Fetch user profile on component mount
+        const restoredData = location.state?.restoredBookingData;
+        if (restoredData) {
+            console.log("Restoring booking data:", restoredData);
+            setFormData({
+                spouseFirstName: restoredData.formData?.spouseFirstName || '',
+                spouseLastName: restoredData.formData?.spouseLastName || '',
+                witnesses: restoredData.formData?.witnesses || [],
+                notes: restoredData.formData?.notes || '',
+                document: null,
+            });
+            setSelectedSlot(restoredData.selectedSlot || null);
+            if (restoredData.selectedSlot?.startTime) {
+                const slotDate = new Date(restoredData.selectedSlot.startTime);
+                setSelectedDate(slotDate);
+                setCurrentMonth(startOfMonth(slotDate));
+            }
+
+            navigate('.', { replace: true, state: {} });
+        }
+    }, [location.state, navigate]);
+
+    useEffect(() => {
         dispatch(fetchUserProfile());
-        dispatch(fetchAvailableSlots({ year: currentMonth.getFullYear(), month: currentMonth.getMonth() + 1 }));
-    }, [currentMonth, dispatch]);
+        if (!location.state?.restoredBookingData) {
+            dispatch(fetchAvailableSlots({ year: currentMonth.getFullYear(), month: currentMonth.getMonth() + 1 }));
+        }
+    }, [currentMonth, dispatch, location.state]);
+
+    const validateForm = () => {
+        const newErrors = {};
+        const nameRegex = /^[a-zA-Zа-яА-ЯёЁ'][a-zA-Zа-яА-ЯёЁ' -]*$/;
+
+        if (!formData.spouseFirstName?.trim() || formData.spouseFirstName.trim().length < MIN_NAME_LENGTH || formData.spouseFirstName.trim().length > MAX_NAME_LENGTH || !nameRegex.test(formData.spouseFirstName)) {
+            newErrors.spouseFirstName = `First name must be ${MIN_NAME_LENGTH}-${MAX_NAME_LENGTH} letters.`;
+        }
+        if (!formData.spouseLastName?.trim() || formData.spouseLastName.trim().length < MIN_NAME_LENGTH || formData.spouseLastName.trim().length > MAX_NAME_LENGTH || !nameRegex.test(formData.spouseLastName)) {
+            newErrors.spouseLastName = `Last name must be ${MIN_NAME_LENGTH}-${MAX_NAME_LENGTH} letters.`;
+        }
+
+        formData.witnesses.forEach((w, i) => {
+            if (!w.firstName?.trim() || w.firstName.trim().length < MIN_NAME_LENGTH || w.firstName.trim().length > MAX_NAME_LENGTH || !nameRegex.test(w.firstName)) {
+                newErrors[`witnessFirstName${i}`] = `First name must be ${MIN_NAME_LENGTH}-${MAX_NAME_LENGTH} letters.`;
+            }
+            if (!w.lastName?.trim() || w.lastName.trim().length < MIN_NAME_LENGTH || w.lastName.trim().length > MAX_NAME_LENGTH || !nameRegex.test(w.lastName)) {
+                newErrors[`witnessLastName${i}`] = `Last name must be ${MIN_NAME_LENGTH}-${MAX_NAME_LENGTH} letters.`;
+            }
+        });
+
+        if (!formData.document) {
+            newErrors.document = "Document is required.";
+        } else if (!ALLOWED_FILE_TYPES.includes(formData.document.type)) {
+            newErrors.document = "Invalid file type (PDF, JPG, PNG only).";
+        }
+
+        if (formData.notes && formData.notes.length > MAX_NOTES_LENGTH) {
+            newErrors.notes = `Notes cannot exceed ${MAX_NOTES_LENGTH} characters.`;
+        }
+
+        setFormErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
+    };
 
     const handleFormChange = (e) => {
         const { name, value } = e.target;
         setFormData(prev => ({ ...prev, [name]: value }));
+        if (formErrors[name]) {
+            setFormErrors(prev => ({ ...prev, [name]: undefined }));
+        }
     };
 
     const handleWitnessChange = (index, e) => {
         const { name, value } = e.target;
+        const fieldName = name;
+        const errorKey = `witness${fieldName.charAt(0).toUpperCase() + fieldName.slice(1)}${index}`;
         const updatedWitnesses = [...formData.witnesses];
         updatedWitnesses[index] = { ...updatedWitnesses[index], [name]: value };
         setFormData(prev => ({ ...prev, witnesses: updatedWitnesses }));
-    };
 
-    const ALLOWED_TYPES = ['application/pdf', 'image/jpeg', 'image/png'];
+        if (formErrors[errorKey]) {
+            setFormErrors(prev => ({ ...prev, [errorKey]: undefined }));
+        }
+    };
 
     const handleFileChange = (e) => {
         const file = e.target.files[0];
         if (file) {
-            if (!ALLOWED_TYPES.includes(file.type)) {
-                toast.error('Invalid file type. Please upload PDF, JPG, or PNG.');
+            if (!ALLOWED_FILE_TYPES.includes(file.type)) {
+                setFormErrors(prev => ({ ...prev, document: "Invalid file type (PDF, JPG, PNG only)." }));
                 e.target.value = null;
                 setFormData(prev => ({ ...prev, document: null }));
-                return;
+            } else {
+                setFormData(prev => ({ ...prev, document: file }));
+                setFormErrors(prev => ({ ...prev, document: undefined }));
             }
-            setFormData(prev => ({ ...prev, document: file }));
         } else {
             setFormData(prev => ({ ...prev, document: null }));
         }
@@ -81,12 +156,14 @@ const BookAppointmentPage = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setFormErrors({});
+
         if (!selectedSlot) {
             toast.error('Please select an appointment time slot.');
             return;
         }
-        if (!formData.document) {
-            toast.error('Please upload the required document.');
+        if (!validateForm()) {
+            toast.error('Please fix the errors in the form.');
             return;
         }
 
@@ -95,10 +172,14 @@ const BookAppointmentPage = () => {
 
         const requestData = {
             timeSlotId: selectedSlot.id,
-            spouseFirstName: formData.spouseFirstName,
-            spouseLastName: formData.spouseLastName,
-            witnesses: formData.witnesses,
-            notes: formData.notes,
+            spouseFirstName: formData.spouseFirstName.trim(),
+            spouseLastName: formData.spouseLastName.trim(),
+            witnesses: formData.witnesses.map(w => ({
+                ...w,
+                firstName: w.firstName.trim(),
+                lastName: w.lastName.trim()
+            })),
+            notes: formData.notes.trim(),
         };
         data.append('request', new Blob([JSON.stringify(requestData)], { type: 'application/json' }));
 
@@ -106,23 +187,40 @@ const BookAppointmentPage = () => {
             await dispatch(bookAppointment(data)).unwrap();
             navigate('/dashboard');
         } catch (error) {
-            if (error.fieldErrors) {
-                const firstError = error.fieldErrors[0];
-                toast.error(`${firstError.defaultMessage}`);
-            } else {
-                const errorMessage = error.message || 'An unexpected error occurred.';
+            const errorMessage = error?.message || 'An unexpected error occurred.';
+            const isProfileError = errorMessage.toLowerCase().includes('profile') || errorMessage.toLowerCase().includes('gender not provided');
 
-                if (errorMessage.toLowerCase().includes('profile') || errorMessage.toLowerCase().includes('gender not provided')) {
-                    toast.error('Your profile is incomplete. Please update it before booking.');
-                    navigate('/profile');
-                } else if (errorMessage.toLowerCase().includes('witness')) {
-                    toast.error(`Booking Failed: ${errorMessage}`);
-                } else if (errorMessage.toLowerCase().includes('already have an appointment')) {
-                    toast.error(errorMessage);
-                    navigate('/dashboard');
-                } else {
-                    toast.error(`Booking Failed: ${errorMessage}`);
-                }
+            if (isProfileError) {
+                toast.error('Your profile is incomplete. Please update it to continue.', { duration: 5000 });
+                navigate('/profile', {
+                    state: {
+                        fromBooking: true,
+                        bookingData: {
+                            formData: {
+                                spouseFirstName: formData.spouseFirstName,
+                                spouseLastName: formData.spouseLastName,
+                                witnesses: formData.witnesses,
+                                notes: formData.notes,
+                            },
+                            selectedSlot: selectedSlot,
+                        }
+                    }
+                });
+            } else if (error?.fieldErrors) {
+                toast.error(error.fieldErrors[0].defaultMessage || 'Please check the form data.');
+                const backendErrors = {};
+                error.fieldErrors.forEach(err => {
+                    let key = err.field;
+                    if (key.startsWith('witnesses')) {
+                        const match = key.match(/witnesses\[(\d+)]\.(firstName|lastName)/);
+                        if (match) key = `witness${match[2].charAt(0).toUpperCase() + match[2].slice(1)}${match[1]}`;
+                    }
+                    backendErrors[key] = err.defaultMessage;
+                });
+                setFormErrors(backendErrors);
+
+            } else {
+                toast.error(`Booking Failed: ${errorMessage}`);
             }
         }
     };
@@ -194,9 +292,9 @@ const BookAppointmentPage = () => {
                     )}
                 </div>
 
-                <div className={`bg-white p-6 rounded-lg shadow-md transition-opacity duration-500 ${selectedSlot ? 'opacity-100' : 'opacity-50'}`}>
+                <div className={`bg-white p-6 rounded-lg shadow-md transition-opacity duration-500 ${selectedSlot ? 'opacity-100' : 'opacity-50 pointer-events-none'}`}>
                     <h2 className="text-xl font-semibold mb-4">2. Provide Details</h2>
-                    <form onSubmit={handleSubmit} className="space-y-4">
+                    <form onSubmit={handleSubmit} className="space-y-4 noValidate">
                         <div>
                             <h3 className="font-medium mb-2">Selected Appointment</h3>
                             {selectedSlot ? (
@@ -215,11 +313,15 @@ const BookAppointmentPage = () => {
 
                         <div>
                             <label className="block text-sm font-medium text-gray-700">Spouse's First Name</label>
-                            <input type="text" name="spouseFirstName" value={formData.spouseFirstName} onChange={handleFormChange} required className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md" />
+                            <input type="text" name="spouseFirstName" value={formData.spouseFirstName} onChange={handleFormChange} required
+                                className={`mt-1 block w-full px-3 py-2 border rounded-md ${formErrors.spouseFirstName ? 'border-red-500' : 'border-gray-300'}`} />
+                            {formErrors.spouseFirstName && <p className="mt-1 text-xs text-red-500">{formErrors.spouseFirstName}</p>}
                         </div>
                         <div>
                             <label className="block text-sm font-medium text-gray-700">Spouse's Last Name</label>
-                            <input type="text" name="spouseLastName" value={formData.spouseLastName} onChange={handleFormChange} required className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md" />
+                            <input type="text" name="spouseLastName" value={formData.spouseLastName} onChange={handleFormChange} required
+                                className={`mt-1 block w-full px-3 py-2 border rounded-md ${formErrors.spouseLastName ? 'border-red-500' : 'border-gray-300'}`} />
+                            {formErrors.spouseLastName && <p className="mt-1 text-xs text-red-500">{formErrors.spouseLastName}</p>}
                         </div>
 
                         <div>
@@ -230,9 +332,17 @@ const BookAppointmentPage = () => {
                             </div>
                             {formData.witnesses.map((witness, index) => (
                                 <div key={index} className="grid grid-cols-1 md:grid-cols-3 gap-2 mb-2 p-3 border rounded-md relative">
-                                    <input type="text" name="firstName" placeholder="First Name" value={witness.firstName} onChange={e => handleWitnessChange(index, e)} required className="block w-full px-3 py-2 border border-gray-300 rounded-md" />
-                                    <input type="text" name="lastName" placeholder="Last Name" value={witness.lastName} onChange={e => handleWitnessChange(index, e)} required className="block w-full px-3 py-2 border border-gray-300 rounded-md" />
-                                    <select name="gender" value={witness.gender} onChange={e => handleWitnessChange(index, e)} required className="block w-full px-3 py-2 border border-gray-300 rounded-md">
+                                    <div>
+                                        <input type="text" name="firstName" placeholder="First Name" value={witness.firstName} onChange={e => handleWitnessChange(index, e)} required
+                                            className={`block w-full px-3 py-2 border rounded-md ${formErrors[`witnessFirstName${index}`] ? 'border-red-500' : 'border-gray-300'}`} />
+                                        {formErrors[`witnessFirstName${index}`] && <p className="mt-1 text-xs text-red-500">{formErrors[`witnessFirstName${index}`]}</p>}
+                                    </div>
+                                    <div>
+                                        <input type="text" name="lastName" placeholder="Last Name" value={witness.lastName} onChange={e => handleWitnessChange(index, e)} required
+                                            className={`block w-full px-3 py-2 border rounded-md ${formErrors[`witnessLastName${index}`] ? 'border-red-500' : 'border-gray-300'}`} />
+                                        {formErrors[`witnessLastName${index}`] && <p className="mt-1 text-xs text-red-500">{formErrors[`witnessLastName${index}`]}</p>}
+                                    </div>
+                                    <select name="gender" value={witness.gender} onChange={e => handleWitnessChange(index, e)} required className="block w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50">
                                         <option value="MALE">Male</option>
                                         <option value="FEMALE">Female</option>
                                     </select>
@@ -248,12 +358,24 @@ const BookAppointmentPage = () => {
 
                         <div>
                             <label className="block text-sm font-medium text-gray-700">Notes (Optional)</label>
-                            <textarea name="notes" value={formData.notes} onChange={handleFormChange} rows="3" className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md"></textarea>
+                            <textarea name="notes" value={formData.notes} onChange={handleFormChange} rows="3" maxLength={MAX_NOTES_LENGTH}
+                                className={`mt-1 block w-full px-3 py-2 border rounded-md ${formErrors.notes ? 'border-red-500' : 'border-gray-300'}`}></textarea>
+                            <p className={`text-xs text-right mt-1 ${formData.notes.length >= MAX_NOTES_LENGTH ? 'text-red-500' : 'text-gray-500'}`}>
+                                {MAX_NOTES_LENGTH - formData.notes.length} characters remaining
+                            </p>
+                            {formErrors.notes && <p className="mt-1 text-xs text-red-500">{formErrors.notes}</p>}
                         </div>
 
                         <div>
                             <label className="block text-sm font-medium text-gray-700">Marriage Document (PDF, JPG, PNG)</label>
-                            <input type="file" onChange={handleFileChange} required accept=".pdf, image/jpeg, image/png" className="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100" />
+                            <div className="flex items-center bg-yellow-50 text-yellow-800 text-sm p-3 rounded-lg my-2 border border-yellow-200">
+                                <AlertTriangleIcon />
+                                <span className="ml-2">Please upload correctly. **You cannot change this file after submission.**</span>
+                            </div>
+                            <input type="file" ref={fileInputRef} onChange={handleFileChange} required accept=".pdf, image/jpeg, image/png"
+                                className={`mt-1 block w-full text-sm rounded-md border p-2 ${formErrors.document ? 'border-red-500' : 'border-gray-300'} text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 cursor-pointer`} />
+                            {formData.document && <p className="mt-1 text-xs text-green-600">Selected: {formData.document.name}</p>}
+                            {formErrors.document && <p className="mt-1 text-xs text-red-500">{formErrors.document}</p>}
                         </div>
 
 
