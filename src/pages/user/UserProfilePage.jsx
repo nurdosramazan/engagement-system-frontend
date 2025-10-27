@@ -9,6 +9,7 @@ const UserProfilePage = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const { profile, status, error } = useSelector(state => state.user);
+    const { user } = useSelector(state => state.auth);
     const [formData, setFormData] = useState({
         firstName: '',
         lastName: '',
@@ -39,7 +40,8 @@ const UserProfilePage = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            await dispatch(updateUserProfile(formData)).unwrap();
+            const resultActionPayload = await dispatch(updateUserProfile(formData)).unwrap();
+            toast.success(resultActionPayload.message || 'Profile updated successfully!');
             if (cameFromBooking && bookingDataToRestore) {
                 toast.success('Profile complete! Resuming booking...', { duration: 3000 });
                 navigate('/book-appointment', {
@@ -76,6 +78,17 @@ const UserProfilePage = () => {
             )}
             <div className="max-w-xl bg-white p-8 rounded-lg shadow-md">
                 <form onSubmit={handleSubmit} className="space-y-6">
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700">
+                            Phone Number (Login ID)
+                        </label>
+                        <input
+                            type="text"
+                            value={user?.phoneNumber || 'Loading...'}
+                            disabled
+                            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-100 text-gray-500 cursor-not-allowed"
+                        />
+                    </div>
                     <div>
                         <label htmlFor="firstName" className="block text-sm font-medium text-gray-700">First Name</label>
                         <input
@@ -118,7 +131,7 @@ const UserProfilePage = () => {
                     <button
                         type="submit"
                         disabled={status === 'loading'}
-                        className="w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 disabled:bg-indigo-300"
+                        className="w-full bg-indigo-600 text-white py-3 px-4 rounded-md font-semibold hover:bg-indigo-700 disabled:bg-indigo-300"
                     >
                         {status === 'loading' ? 'Saving...' : 'Save Changes'}
                     </button>

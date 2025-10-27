@@ -6,6 +6,9 @@ import toast from 'react-hot-toast';
 import { jwtDecode } from 'jwt-decode';
 import OtpInput from 'react-otp-input';
 import { Link } from 'react-router-dom';
+import 'react-phone-number-input/style.css';
+import PhoneInput, { isValidPhoneNumber } from 'react-phone-number-input';
+
 
 const PhoneIcon = () => <svg className="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M2 3a1 1 0 011-1h1.586a1 1 0 01.992.658l.128.513a1 1 0 01-.41 1.144l-.432.324a1 1 0 00-.472 1.33C4.694 8.21 7.79 11.306 9.876 12.31c.39.186.848.11 1.156-.226l.324-.432a1 1 0 011.144-.41l.513.128A1 1 0 0114.414 12H16a1 1 0 011 1v3.5a1 1 0 01-1 1A13.001 13.001 0 012 3.5a1 1 0 011-1z" clipRule="evenodd" /></svg>;
 const SpinnerIcon = () => <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>;
@@ -64,19 +67,35 @@ const LoginPage = () => {
   const { status, error, otpMessage, usedChannel, lastOtpRequestTime } = useSelector((state) => state.auth);
   const errorMessage = error?.message;
   const [otpError, setOtpError] = useState(false);
+  const [defaultCountry, setDefaultCountry] = useState('KZ');
 
   const RESEND_WAIT_SECONDS = 120;
   const canResendAt = useMemo(() => {
     return lastOtpRequestTime ? lastOtpRequestTime + RESEND_WAIT_SECONDS * 1000 : 0;
   }, [lastOtpRequestTime]);
-  const [canResend, setCanResend] = useState(Date.now() >= canResendAt);
+  const [canResend, setCanResend] = useState(true);
+
 
   const handleTimerComplete = useCallback(() => {
     setCanResend(true);
   }, []);
+
   useEffect(() => {
     setCanResend(Date.now() >= canResendAt);
   }, [canResendAt]);
+
+  useEffect(() => {
+    fetch('http://ip-api.com/json/?fields=countryCode')
+      .then(response => response.json())
+      .then(data => {
+        if (data && data.countryCode) {
+          setDefaultCountry(data.countryCode);
+        }
+      })
+      .catch(error => {
+        console.warn('Failed to fetch country from IP, defaulting to KZ.', error);
+      });
+  }, []);
 
   useEffect(() => {
     dispatch(resetAuthStatus());
@@ -91,13 +110,13 @@ const LoginPage = () => {
   const handleRequestOtp = async (e) => {
     e?.preventDefault();
     setOtpError(false);
-    if (!validatePhoneNumber(countryCode, phoneNumber)) {
+    if (!phoneNumber || !isValidPhoneNumber(phoneNumber)) {
       toast.error('Please enter a valid phone number including country code.');
       return;
     }
     setCanResend(false);
     try {
-      await dispatch(requestOtp(fullPhoneNumber)).unwrap();
+      await dispatch(requestOtp(phoneNumber)).unwrap();
     } catch (rejectedValue) {
       toast.error(rejectedValue?.message || 'Failed to send OTP.');
       if (!rejectedValue?.isRateLimitError) {
@@ -121,7 +140,7 @@ const LoginPage = () => {
     console.log('[LoginPage] Attempting to verify OTP...');
     try {
       const token = await dispatch(verifyOtp({
-        phoneNumber: fullPhoneNumber,
+        phoneNumber: phoneNumber,
         otp: otpToVerify,
         channel: usedChannel
       })).unwrap();
@@ -159,49 +178,20 @@ const LoginPage = () => {
             Sign in to your account
           </h2>
         </div>
-        <div className="text-center text-sm">
-          <Link
-            to="/"
-            className="font-medium text-indigo-600 hover:text-indigo-500"
-          >
-            &larr; Back to Home Page
-          </Link>
-        </div>
         {!isOtpScreen ? (
           <form onSubmit={handleRequestOtp} className="mt-8 space-y-6">
-            <input type="hidden" name="remember" defaultValue="true" />
-            <div className="rounded-md shadow-sm -space-y-px">
-              <div>
-                <label htmlFor="phone-number" className="sr-only">Phone Number</label>
-                <div className="relative flex items-center">
-                  <span className="absolute left-3 top-1/2 transform -translate-y-1/2 z-10">
-                    <PhoneIcon />
-                  </span>
-                  <input
-                    id="country-code"
-                    name="country-code"
-                    type="text"
-                    value={countryCode}
-                    onChange={(e) => setCountryCode(e.target.value.startsWith('+') ? e.target.value : '+' + e.target.value)}
-                    required
-                    className={`${inputBaseStyle} rounded-r-none pl-10 w-24 text-center z-0`}
-                    placeholder="+7"
-                    aria-label="Country Code"
-                  />
-                  <input
-                    id="phone-number"
-                    name="phone-number"
-                    type="tel"
-                    autoComplete="tel-national"
-                    value={phoneNumber}
-                    onChange={(e) => setPhoneNumber(e.target.value.replace(/\D/g, ''))}
-                    required
-                    className={`${inputBaseStyle} rounded-l-none flex-1 z-0`}
-                    placeholder="Phone Number"
-                    aria-label="Phone Number"
-                  />
-                </div>
-              </div>
+            <div>
+              <label htmlFor="phone-number" className="sr-only">Phone Number</label>
+              <PhoneInput
+                id="phone-number"
+                placeholder="Enter phone number"
+                value={phoneNumber}
+                onChange={setPhoneNumber}
+                defaultCountry={defaultCountry}
+                international
+                withCountryCallingCode
+                className="phone-input-container"
+              />
             </div>
             {status === 'failed' && errorMessage && !otpMessage && (
               <p className="text-sm text-red-600 text-center">{errorMessage}</p>
@@ -279,6 +269,14 @@ const LoginPage = () => {
             </div>
           </form>
         )}
+        <div className="text-center text-sm">
+          <Link
+            to="/"
+            className="font-medium text-indigo-600 hover:text-indigo-500"
+          >
+            &larr; Back to Home Page
+          </Link>
+        </div>
       </div>
     </div>
   );

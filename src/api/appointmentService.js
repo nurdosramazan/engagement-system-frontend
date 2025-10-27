@@ -1,28 +1,30 @@
-import axiosInstance from './axiosInstance';
+import axiosInstance from "./axiosInstance";
 
 export const getMyAppointments = () => {
-  return axiosInstance.get('/appointments/my-appointments');
+  return axiosInstance.get("/appointments/my-appointments");
 };
 
 export const getAvailableSlots = (year, month) => {
-  return axiosInstance.get('/appointments/available-slots', { params: { year, month } });
+  return axiosInstance.get("/appointments/available-slots", {
+    params: { year, month },
+  });
 };
 
-export const createAppointment = (formData) => {
-  return axiosInstance.post('/appointments', formData, {
+export const createAppointment = (appointmentData, onUploadProgress) => {
+  return axiosInstance.post("/appointments", appointmentData, {
     headers: {
-      'Content-Type': 'multipart/form-data',
+      "Content-Type": "multipart/form-data",
     },
+    onUploadProgress: onUploadProgress,
   });
 };
 
 export const cancelUserAppointment = (id, reason) => {
-    return axiosInstance.post(`/appointments/${id}/cancel`, { reason });
+  return axiosInstance.post(`/appointments/${id}/cancel`, { reason });
 };
 
 export const getAppointmentDocument = (id) => {
-    return axiosInstance.get(`/appointments/${id}/document`, {
-        responseType: 'blob',
-    });
+  return axiosInstance.get(`/appointments/${id}/document`, {
+    responseType: "blob",
+  });
 };
-

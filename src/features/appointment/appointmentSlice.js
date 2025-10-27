@@ -1,78 +1,115 @@
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import * as appointmentService from '../../api/appointmentService';
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import * as appointmentService from "../../api/appointmentService";
 
 const initialState = {
   myAppointments: [],
   availableSlots: [],
-  status: 'idle',
+  status: "idle",
   error: null,
+  uploadProgress: 0,
 };
 
-export const fetchMyAppointments = createAsyncThunk('appointments/fetchMyAppointments', async (_, { rejectWithValue }) => {
+export const fetchMyAppointments = createAsyncThunk(
+  "appointments/fetchMyAppointments",
+  async (_, { rejectWithValue }) => {
     try {
       const response = await appointmentService.getMyAppointments();
       return response.data.data;
-    } catch (error) { return rejectWithValue(error.response.data); }
-});
+    } catch (error) {
+      return rejectWithValue(error.response.data);
+    }
+  }
+);
 
-export const fetchAvailableSlots = createAsyncThunk('appointments/fetchAvailableSlots', async ({ year, month }, { rejectWithValue }) => {
+export const fetchAvailableSlots = createAsyncThunk(
+  "appointments/fetchAvailableSlots",
+  async ({ year, month }, { rejectWithValue }) => {
     try {
       const response = await appointmentService.getAvailableSlots(year, month);
       return response.data.data;
-    } catch (error) { return rejectWithValue(error.response.data); }
-});
+    } catch (error) {
+      return rejectWithValue(error.response.data);
+    }
+  }
+);
 
-export const bookAppointment = createAsyncThunk('appointments/bookAppointment', async (appointmentData, { rejectWithValue }) => {
+export const bookAppointment = createAsyncThunk(
+  "appointments/bookAppointment",
+  async (appointmentData, { rejectWithValue, dispatch }) => {
     try {
-      const response = await appointmentService.createAppointment(appointmentData);
+      const onUploadProgress = (progressEvent) => {
+        const { loaded, total } = progressEvent;
+        const percent = Math.floor((loaded * 100) / total);
+        dispatch(setUploadProgress(percent));
+      };
+      const response = await appointmentService.createAppointment(
+        appointmentData,
+        onUploadProgress
+      );
       return response.data.data;
     } catch (error) {
       if (error.response?.data?.data) {
-        return rejectWithValue({ message: error.response.data.message, fieldErrors: error.response.data.data });
+        return rejectWithValue({
+          message: error.response.data.message,
+          fieldErrors: error.response.data.data,
+        });
       }
       return rejectWithValue(error.response.data);
     }
-});
+  }
+);
 
 export const cancelUserAppointment = createAsyncThunk(
-  'appointments/cancelUserAppointment',
+  "appointments/cancelUserAppointment",
   async ({ id, reason }, { rejectWithValue }) => {
     try {
-        const response = await appointmentService.cancelUserAppointment(id, reason);
-        return { apiResponse: response.data, id };
-    } catch(error) {
-        return rejectWithValue(error.response?.data);
+      const response = await appointmentService.cancelUserAppointment(
+        id,
+        reason
+      );
+      return { apiResponse: response.data, id };
+    } catch (error) {
+      return rejectWithValue(error.response?.data);
     }
   }
 );
 
 const appointmentSlice = createSlice({
-  name: 'appointments',
+  name: "appointments",
   initialState,
-  reducers: {},
+  reducers: {
+    setUploadProgress: (state, action) => {
+      state.uploadProgress = action.payload;
+    },
+  },
   extraReducers: (builder) => {
     builder
       .addCase(fetchMyAppointments.pending, (state) => {
-        state.status = 'loading';
+        state.status = "loading";
       })
       .addCase(fetchMyAppointments.fulfilled, (state, action) => {
-        state.status = 'succeeded';
+        state.status = "succeeded";
         state.myAppointments = action.payload;
       })
       .addCase(bookAppointment.pending, (state) => {
-        state.status = 'loading';
+        state.status = "loading";
+        state.uploadProgress = 0;
       })
       .addCase(bookAppointment.fulfilled, (state) => {
-        state.status = 'succeeded';
+        state.status = "succeeded";
+        state.uploadProgress = 0;
       })
       .addCase(bookAppointment.rejected, (state, action) => {
-        state.status = 'failed';
+        state.status = "failed";
         state.error = action.payload;
+        state.uploadProgress = 0;
       })
       .addCase(cancelUserAppointment.fulfilled, (state, action) => {
-        const index = state.myAppointments.findIndex(app => app.id === action.payload.id);
+        const index = state.myAppointments.findIndex(
+          (app) => app.id === action.payload.id
+        );
         if (index !== -1) {
-            state.myAppointments[index].status = 'CANCELLED';
+          state.myAppointments[index].status = "CANCELLED";
         }
       })
       .addCase(fetchAvailableSlots.fulfilled, (state, action) => {
@@ -81,4 +118,5 @@ const appointmentSlice = createSlice({
   },
 });
 
+export const { setUploadProgress } = appointmentSlice.actions;
 export default appointmentSlice.reducer;

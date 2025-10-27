@@ -3,6 +3,7 @@ import { NavLink, Outlet, useNavigate, Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { logout } from '../../features/auth/authSlice';
 import NotificationBell from '../notifications/NotificationBell';
+import Footer from '../layout/Footer';
 
 const AdminDashboardIcon = () => <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 17v-2a4 4 0 00-4-4H3a4 4 0 00-4 4v2m18 0v-2a4 4 0 00-4-4h-2a4 4 0 00-4 4v2m4 4h.01M12 6h.01M6 6h.01M18 6h.01M7 20h10a2 2 0 002-2V6a2 2 0 00-2-2H7a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>;
 const ReportsIcon = () => <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>;
@@ -29,35 +30,32 @@ const LogIcon = () => (
 );
 
 const AdminLayout = () => {
-    const dispatch = useDispatch();
-    const navigate = useNavigate();
-    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-    const { user } = useSelector((state) => state.auth);
-    const isSuperAdmin = user?.roles?.includes('SUPERADMIN');
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const { user } = useSelector((state) => state.auth);
+  const isSuperAdmin = user?.roles?.includes('SUPERADMIN');
 
-    const handleLogout = () => {
-        dispatch(logout());
-        navigate('/login');
-    };
-    
-    const navLinkClasses = ({ isActive }) =>
-    `flex items-center px-4 py-3 text-gray-700 hover:bg-red-100 rounded-lg transition-colors duration-200 ${
-      isActive ? 'bg-red-100 text-red-700 font-bold' : 'font-medium'
+  const handleLogout = () => {
+    dispatch(logout());
+    navigate('/login');
+  };
+
+  const navLinkClasses = ({ isActive }) =>
+    `flex items-center px-4 py-3 text-gray-700 hover:bg-red-100 rounded-lg transition-colors duration-200 ${isActive ? 'bg-red-100 text-red-700 font-bold' : 'font-medium'
     }`;
 
-    return (
+  return (
     <div className="relative min-h-screen md:flex">
       <div
-        className={`fixed inset-0 bg-black opacity-50 z-20 md:hidden ${
-          isSidebarOpen ? 'block' : 'hidden'
-        }`}
+        className={`fixed inset-0 bg-black opacity-50 z-20 md:hidden ${isSidebarOpen ? 'block' : 'hidden'
+          }`}
         onClick={() => setIsSidebarOpen(false)}
       ></div>
 
       <aside
-        className={`fixed inset-y-0 left-0 bg-white shadow-lg w-64 transform ${
-          isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
-        } md:relative md:translate-x-0 transition-transform duration-300 ease-in-out z-30`}
+        className={`fixed inset-y-0 left-0 bg-white shadow-lg w-64 transform ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
+          } md:relative md:translate-x-0 transition-transform duration-300 ease-in-out z-30`}
       >
         <div className="p-6 border-b border-gray-200">
           <h1 className="text-3xl font-extrabold text-red-600 tracking-wider">
@@ -123,6 +121,7 @@ const AdminLayout = () => {
         <main className="flex-1 p-4 sm:p-8 overflow-y-auto bg-gray-50">
           <Outlet />
         </main>
+        <Footer />
       </div>
     </div>
   );

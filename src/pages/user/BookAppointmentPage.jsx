@@ -5,6 +5,7 @@ import { fetchUserProfile } from '../../features/user/userSlice';
 import { format, addMonths, subMonths, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, isPast } from 'date-fns';
 import toast from 'react-hot-toast';
 import { useNavigate, useLocation } from 'react-router-dom';
+import Modal from '../../components/common/Modal';
 
 const CalendarIcon = () => <svg className="w-5 h-5 mr-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>;
 const ClockIcon = () => <svg className="w-5 h-5 ml-2 mr-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>;
@@ -20,6 +21,9 @@ const BookAppointmentPage = () => {
     const [currentMonth, setCurrentMonth] = useState(new Date());
     const [selectedDate, setSelectedDate] = useState(null);
     const [selectedSlot, setSelectedSlot] = useState(null);
+    const { uploadProgress } = useSelector((state) => state.appointments);
+    const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+    const [hasAgreed, setHasAgreed] = useState(false);
 
     const [formData, setFormData] = useState({
         spouseFirstName: '',
@@ -154,18 +158,8 @@ const BookAppointmentPage = () => {
         setFormData(prev => ({ ...prev, witnesses: updatedWitnesses }));
     };
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
+    const executeBooking = async () => {
         setFormErrors({});
-
-        if (!selectedSlot) {
-            toast.error('Please select an appointment time slot.');
-            return;
-        }
-        if (!validateForm()) {
-            toast.error('Please fix the errors in the form.');
-            return;
-        }
 
         const data = new FormData();
         data.append('file', formData.document);
@@ -223,6 +217,33 @@ const BookAppointmentPage = () => {
                 toast.error(`Booking Failed: ${errorMessage}`);
             }
         }
+    };
+
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        setFormErrors({});
+
+        if (!selectedSlot) {
+            toast.error('Please select an appointment time slot.');
+            return;
+        }
+        if (!validateForm()) {
+            toast.error('Please fix the errors in the form.');
+            return;
+        }
+
+        setHasAgreed(false);
+        setIsConfirmModalOpen(true);
+    };
+
+    const handleConfirmSubmit = (e) => {
+        e.preventDefault();
+        if (!hasAgreed) {
+            toast.error('You must agree to the rules to continue.');
+            return;
+        }
+        setIsConfirmModalOpen(false);
+        executeBooking();
     };
 
     const changeMonth = (newMonth) => {
@@ -378,12 +399,76 @@ const BookAppointmentPage = () => {
                             {formErrors.document && <p className="mt-1 text-xs text-red-500">{formErrors.document}</p>}
                         </div>
 
-
-
+                        {appointmentStatus === 'loading' && uploadProgress > 0 && (
+                            <div className="w-full bg-gray-200 rounded-full mt-4">
+                                <div
+                                    className="bg-indigo-600 text-xs font-medium text-blue-100 text-center p-0.5 leading-none rounded-full transition-all duration-300"
+                                    style={{ width: `${uploadProgress}%` }}
+                                >
+                                    {uploadProgress}%
+                                </div>
+                            </div>
+                        )}
                         <button type="submit" disabled={appointmentStatus === 'loading' || !selectedSlot} className="w-full bg-indigo-600 text-white py-3 px-4 rounded-md hover:bg-indigo-700 disabled:bg-indigo-300 font-semibold text-lg">
                             {appointmentStatus === 'loading' ? 'Submitting...' : 'Submit Application'}
                         </button>
                     </form>
+                    <Modal
+                        isOpen={isConfirmModalOpen}
+                        onClose={() => setIsConfirmModalOpen(false)}
+                        title="Confirm Your Booking"
+                    >
+                        <form onSubmit={handleConfirmSubmit}>
+                            <div className="space-y-4">
+                                <p>Please review your selection:</p>
+                                <div className="p-4 bg-gray-100 rounded-md">
+                                    <strong>Time:</strong>{' '}
+                                    {selectedSlot ? format(new Date(selectedSlot.startTime), 'PPpp') : 'N/A'}
+                                </div>
+
+                                <div>
+                                    <h4 className="font-semibold mb-2">Rules & Regulations</h4>
+                                    <div className="h-32 overflow-y-auto border p-3 text-sm text-gray-600">
+                                        <p>1. All attendees must arrive 15 minutes early.</p>
+                                        <p>2. Valid identification is required for the couple and witnesses.</p>
+                                        <p>3. Modest attire is mandatory within the mosque premises.</p>
+                                        <p>4. The uploaded document must be the original, valid marriage permit.</p>
+                                        <p>5. (Add more rules here...)</p>
+                                    </div>
+                                </div>
+
+                                <div className="flex items-center gap-2">
+                                    <input
+                                        type="checkbox"
+                                        id="agreeRules"
+                                        checked={hasAgreed}
+                                        onChange={(e) => setHasAgreed(e.target.checked)}
+                                        className="h-4 w-4 text-indigo-600 border-gray-300 rounded"
+                                    />
+                                    <label htmlFor="agreeRules" className="text-sm font-medium text-gray-700">
+                                        I have read and agree to the rules and regulations.
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div className="mt-6 flex justify-end gap-3">
+                                <button
+                                    type="button"
+                                    onClick={() => setIsConfirmModalOpen(false)}
+                                    className="px-4 py-2 bg-gray-200 rounded-md"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    type="submit"
+                                    disabled={!hasAgreed}
+                                    className="px-4 py-2 bg-indigo-600 text-white rounded-md disabled:bg-indigo-300"
+                                >
+                                    Confirm & Book
+                                </button>
+                            </div>
+                        </form>
+                    </Modal>
                 </div>
             </div>
         </div>
