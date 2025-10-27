@@ -5,6 +5,7 @@ import { requestOtp, verifyOtp, resetAuthStatus } from '../features/auth/authSli
 import toast from 'react-hot-toast';
 import { jwtDecode } from 'jwt-decode';
 import OtpInput from 'react-otp-input';
+import { Link } from 'react-router-dom';
 
 const PhoneIcon = () => <svg className="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M2 3a1 1 0 011-1h1.586a1 1 0 01.992.658l.128.513a1 1 0 01-.41 1.144l-.432.324a1 1 0 00-.472 1.33C4.694 8.21 7.79 11.306 9.876 12.31c.39.186.848.11 1.156-.226l.324-.432a1 1 0 011.144-.41l.513.128A1 1 0 0114.414 12H16a1 1 0 011 1v3.5a1 1 0 01-1 1A13.001 13.001 0 012 3.5a1 1 0 011-1z" clipRule="evenodd" /></svg>;
 const SpinnerIcon = () => <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>;
@@ -157,6 +158,14 @@ const LoginPage = () => {
           <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
             Sign in to your account
           </h2>
+        </div>
+        <div className="text-center text-sm">
+          <Link
+            to="/"
+            className="font-medium text-indigo-600 hover:text-indigo-500"
+          >
+            &larr; Back to Home Page
+          </Link>
         </div>
         {!isOtpScreen ? (
           <form onSubmit={handleRequestOtp} className="mt-8 space-y-6">

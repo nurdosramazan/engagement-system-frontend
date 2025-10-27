@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { fetchNotifications, markAsRead } from '../../features/notification/notificationSlice';
 import { formatDistanceToNow } from 'date-fns';
@@ -9,14 +9,36 @@ const NotificationBell = () => {
     const dispatch = useDispatch();
     const { notifications, unreadCount } = useSelector((state) => state.notifications);
     const [isOpen, setIsOpen] = useState(false);
+    const dropdownRef = useRef(null);
+    const buttonRef = useRef(null);
 
     useEffect(() => {
         dispatch(fetchNotifications());
     }, [dispatch]);
 
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (
+                buttonRef.current && !buttonRef.current.contains(event.target) &&
+                dropdownRef.current && !dropdownRef.current.contains(event.target)
+            ) {
+                setIsOpen(false);
+            }
+        };
+        if (isOpen) {
+            document.addEventListener('mousedown', handleClickOutside);
+        } else {
+            document.removeEventListener('mousedown', handleClickOutside);
+        }
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, [isOpen]);
+
     const handleToggle = () => {
-        setIsOpen(!isOpen);
-        if (!isOpen && unreadCount > 0) {
+        const nextState = !isOpen;
+        setIsOpen(nextState);
+        if (nextState && unreadCount > 0) {
             dispatch(markAsRead());
         }
     };
@@ -25,7 +47,11 @@ const NotificationBell = () => {
 
     return (
         <div className="relative">
-            <button onClick={handleToggle} className="relative text-gray-600 hover:text-gray-800">
+            <button
+                ref={buttonRef}
+                onClick={handleToggle}
+                className="relative text-gray-600 hover:text-gray-800 focus:outline-none"
+            >
                 <BellIcon />
                 {unreadCount > 0 && (
                     <span className="absolute -top-2 -right-2 flex h-5 w-5">
@@ -38,14 +64,18 @@ const NotificationBell = () => {
             </button>
 
             {isOpen && (
-                <div className="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-xl border z-50">
+                <div
+                    ref={dropdownRef}
+                    className="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-xl border z-50 animate-fade-in-down"
+                >
                     <div className="p-4 font-bold border-b">Notifications</div>
                     <div className="max-h-96 overflow-y-auto">
                         {safeNotifications.length > 0 ? (
                             safeNotifications.map(notif => (
                                 <div key={notif.id} className={`p-4 border-b hover:bg-gray-50 ${!notif.isRead ? 'bg-indigo-50' : ''}`}>
                                     <p className="text-sm text-gray-800">{notif.message}</p>
-                                    <p className="text-xs text-gray-500 mt-1">{formatDistanceToNow(new Date(notif.createdAt))} ago</p>
+                                    <p className="text-xs text-gray-500 mt-1">{formatDistanceToNow(new Date(notif.createdAt), { addSuffix: true })}
+                                    </p>
                                 </div>
                             ))
                         ) : (
