@@ -5,6 +5,6 @@ export const getUserProfile = () => {
 };
 
 export const updateUserProfile = (profileData) => {
-    return axiosInstance.put('/users/me/update-info', profileData);
+    return axiosInstance.put('/users/me', profileData);
 };
 

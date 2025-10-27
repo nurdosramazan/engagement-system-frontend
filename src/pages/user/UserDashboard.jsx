@@ -30,8 +30,10 @@ const UserDashboard = () => {
     const dispatch = useDispatch();
     const { myAppointments, status } = useSelector((state) => state.appointments);
     const { user } = useSelector((state) => state.auth);
-    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
+    const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
     const [selectedApp, setSelectedApp] = useState(null);
+    const [cancelReason, setCancelReason] = useState('');
 
     useEffect(() => {
         dispatch(fetchMyAppointments());
@@ -39,15 +41,30 @@ const UserDashboard = () => {
 
     const handleViewDetails = (app) => {
         setSelectedApp(app);
-        setIsModalOpen(true);
+        setIsDetailsModalOpen(true);
     };
-    
-    const handleCancel = (id) => {
-        if (window.confirm('Are you sure you want to cancel this appointment? This action cannot be undone.')) {
-            dispatch(cancelUserAppointment(id)).unwrap()
-              .then()
-              .catch((err) => toast.error(err.message || 'Failed to cancel appointment.'));
+
+    const handleCancelClick = (app) => {
+        setSelectedApp(app);
+        setCancelReason('');
+        setIsCancelModalOpen(true);
+    };
+
+    const handleCancelSubmit = (e) => {
+        e.preventDefault();
+        if (!cancelReason.trim()) {
+            toast.error('Please provide a reason for cancellation.');
+            return;
         }
+        dispatch(cancelUserAppointment({ id: selectedApp.id, reason: cancelReason }))
+          .unwrap()
+          .then((result) => {
+              toast.success(result.apiResponse.message || 'Appointment cancelled.');
+              setIsCancelModalOpen(false);
+          })
+          .catch((err) => {
+              toast.error(err.message || 'Failed to cancel appointment.');
+          });
     };
 
     const handleDownloadDocument = async (app) => {
@@ -87,8 +104,30 @@ const UserDashboard = () => {
 
     return (
         <div>
-            <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title={`Appointment #${selectedApp?.id}`}>
+            <Modal isOpen={isDetailsModalOpen} onClose={() => setIsDetailsModalOpen(false)} title={`Appointment #${selectedApp?.id}`}>
                 {selectedApp && <AppointmentDetails app={selectedApp} />}
+            </Modal>
+
+            <Modal isOpen={isCancelModalOpen} onClose={() => setIsCancelModalOpen(false)} title={`Cancel Appointment #${selectedApp?.id}`}>
+                <form onSubmit={handleCancelSubmit}>
+                    <p className="mb-4">Please provide a reason for cancelling this appointment:</p>
+                    <textarea
+                        value={cancelReason}
+                        onChange={(e) => setCancelReason(e.target.value)}
+                        className="w-full p-2 border rounded-md"
+                        placeholder="Reason..."
+                        rows="4"
+                        required
+                    />
+                    <div className="mt-6 flex justify-end gap-3">
+                        <button type="button" onClick={() => setIsCancelModalOpen(false)} className="px-4 py-2 bg-gray-200 rounded-md">
+                            Back
+                        </button>
+                        <button type="submit" className="px-4 py-2 bg-red-600 text-white rounded-md">
+                            Confirm Cancellation
+                        </button>
+                    </div>
+                </form>
             </Modal>
 
             <div className="mb-8 p-6 bg-white/50 backdrop-blur-sm rounded-lg shadow-lg">
@@ -140,7 +179,7 @@ const UserDashboard = () => {
                                         <button onClick={() => handleViewDetails(app)} className="text-indigo-600 hover:text-indigo-900">Details</button>
                                         <button onClick={() => handleDownloadDocument(app)} className="text-gray-600 hover:text-gray-900">Document</button>
                                         {(app.status === 'PENDING' || app.status === 'APPROVED') && (
-                                            <button onClick={() => handleCancel(app.id)} className="text-red-600 hover:text-red-900">Cancel</button>
+                                            <button onClick={() => handleCancelClick(app)} className="text-red-600 hover:text-red-900">Cancel</button>
                                         )}
                                     </td>
                                 </tr>

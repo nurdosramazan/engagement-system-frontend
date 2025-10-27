@@ -13,6 +13,8 @@ import AdminSlotGenerationPage from './pages/admin/AdminSlotGenerationPage';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import WebSocketProvider from './components/notifications/WebSocketProvider';
 import NotFoundPage from './pages/NotFoundPage';
+import AdminSchedulePage from './pages/admin/AdminSchedulePage';
+import SuperAdminPage from './pages/superadmin/SuperAdminPage';
 
 function App() {
   const { token } = useSelector((state) => state.auth);
@@ -30,15 +32,18 @@ function App() {
             <Route path="/profile" element={<UserProfilePage />} />
           </Route>
 
-          <Route path="/admin" element={<ProtectedRoute roles={['ADMIN']}><AdminLayout /></ProtectedRoute>}>
+          <Route path="/admin" element={<ProtectedRoute roles={['ADMIN', 'SUPERADMIN']}><AdminLayout /></ProtectedRoute>}>
             <Route index element={<Navigate to="/admin/dashboard" replace />} />
             <Route path="dashboard" element={<AdminDashboard />} />
+            <Route path="schedule" element={<AdminSchedulePage />} />
             <Route path="reports" element={<AdminReportsPage />} />
             <Route path="generate-slots" element={<AdminSlotGenerationPage />} />
+            <Route path="logs" element={<ProtectedRoute roles={['SUPERADMIN']}> <SuperAdminPage /> </ProtectedRoute>} />
           </Route>
-          
+
           <Route path="/" element={token ? <Navigate to="/dashboard" replace /> : <Navigate to="/landing" replace />} />
 
+          <Route path="/not-found" element={<NotFoundPage />} />
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </WebSocketProvider>

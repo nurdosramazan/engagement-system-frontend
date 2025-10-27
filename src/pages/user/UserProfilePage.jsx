@@ -5,27 +5,28 @@ import toast from 'react-hot-toast';
 
 const UserProfilePage = () => {
     const dispatch = useDispatch();
-    const { profile, status } = useSelector(state => state.user);
+    const { profile, status, error } = useSelector(state => state.user);
     const [formData, setFormData] = useState({
         firstName: '',
         lastName: '',
         gender: 'MALE',
     });
+    const [initialLoad, setInitialLoad] = useState(true);
+
 
     useEffect(() => {
-        // Fetch profile if it's not already loaded
-        if (!profile) {
+        if (status === 'idle') {
             dispatch(fetchUserProfile());
         }
-        // Once profile is loaded, populate the form
         if (profile) {
             setFormData({
                 firstName: profile.firstName || '',
                 lastName: profile.lastName || '',
                 gender: profile.gender || 'MALE',
             });
+            setInitialLoad(false);
         }
-    }, [dispatch, profile]);
+    }, [dispatch, profile, status]);
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -34,15 +35,29 @@ const UserProfilePage = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            await dispatch(updateUserProfile(formData)).unwrap();
-            toast.success('Profile updated successfully!');
+            const resultActionPayload = await dispatch(updateUserProfile(formData)).unwrap();
+            toast.success(resultActionPayload.message || 'Profile updated successfully!');
         } catch (error) {
-            toast.error(error || 'Failed to update profile.');
+            if (error && error.fieldErrors && Array.isArray(error.fieldErrors) && error.fieldErrors.length > 0) {
+                toast.error(error.fieldErrors[0].defaultMessage || error.message || 'Validation failed.');
+            } else if (error && typeof error.message === 'string') {
+                toast.error(error.message);
+            } else if (typeof error === 'string') {
+                toast.error(error);
+            } else {
+                toast.error('Failed to update profile.');
+            }
         }
     };
-    
-    if (status === 'loading' && !profile) {
+
+    if (initialLoad && status === 'loading') {
         return <p>Loading profile...</p>;
+    }
+    if (initialLoad && status === 'failed') {
+        return <p className="text-red-500">Error loading profile: {error}</p>;
+    }
+    if (!profile && !initialLoad) {
+        return <p className="text-red-500">Could not load profile data. Please try again later.</p>;
     }
 
     return (
@@ -88,6 +103,11 @@ const UserProfilePage = () => {
                             <option value="FEMALE">Female</option>
                         </select>
                     </div>
+                    {status === 'failed' && error && (
+                        <p className="text-sm text-red-600">
+                            {typeof error === 'object' ? error.message : error}
+                        </p>
+                    )}
                     <button
                         type="submit"
                         disabled={status === 'loading'}

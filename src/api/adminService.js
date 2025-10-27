@@ -12,12 +12,22 @@ export const rejectAppointment = (id, reason) => {
   return axiosInstance.post(`/admin/appointments/${id}/reject`, { reason });
 };
 
-export const completeAppointment = (id) => {
-  return axiosInstance.post(`/admin/appointments/${id}/complete`);
+export const completeAppointment = (id, adminNotes) => {
+  return axiosInstance.post(`/admin/appointments/${id}/complete`, { adminNotes });
+};
+
+export const cancelAdminAppointment = (id, reason) => {
+  return axiosInstance.post(`/admin/appointments/${id}/cancel`, { reason });
 };
 
 export const generateSlotsForMonth = (year, month) => {
     return axiosInstance.post('/admin/time-slots/generate', { year, month });
+};
+
+export const getAppointmentSchedule = (startDate, endDate) => {
+  return axiosInstance.get('/admin/appointments/schedule', {
+    params: { startDate, endDate },
+  });
 };
 
 export const getReport = (format, startDate, endDate) => {
@@ -25,8 +35,4 @@ export const getReport = (format, startDate, endDate) => {
         params: { startDate, endDate },
         responseType: 'blob',
     });
-};
-
-export const cancelAdminAppointment = (id) => {
-    return axiosInstance.post(`/admin/appointments/${id}/cancel`);
 };

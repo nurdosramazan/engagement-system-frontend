@@ -12,9 +12,9 @@ const ProtectedRoute = ({ children, roles }) => {
   const hasRequiredRole = user.roles.some(role => roles.includes(role.replace('ROLE_', '')));
 
   if (!hasRequiredRole) {
-    return <Navigate to="/login" replace />;
+    return <Navigate to="/not-found" replace />;
   }
-  
+
   return children;
 };
 

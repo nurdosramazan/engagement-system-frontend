@@ -16,8 +16,8 @@ export const createAppointment = (formData) => {
   });
 };
 
-export const cancelUserAppointment = (id) => {
-    return axiosInstance.post(`/appointments/${id}/cancel`);
+export const cancelUserAppointment = (id, reason) => {
+    return axiosInstance.post(`/appointments/${id}/cancel`, { reason });
 };
 
 export const getAppointmentDocument = (id) => {
