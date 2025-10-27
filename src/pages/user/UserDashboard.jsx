@@ -10,12 +10,12 @@ import { fetchUserProfile } from '../../features/user/userSlice';
 
 const AppointmentDetails = ({ app }) => (
     <div className="space-y-4 text-sm text-gray-700">
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div><strong className="font-semibold text-gray-900">Groom:</strong> {app.groomFirstName} {app.groomLastName}</div>
             <div><strong className="font-semibold text-gray-900">Bride:</strong> {app.brideFirstName} {app.brideLastName}</div>
         </div>
         <hr />
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div><strong className="font-semibold text-gray-900">Witness 1:</strong> {app.witness1FirstName} {app.witness1LastName}</div>
             <div><strong className="font-semibold text-gray-900">Witness 2:</strong> {app.witness2FirstName} {app.witness2LastName}</div>
             {app.witness3FirstName && <div><strong className="font-semibold text-gray-900">Witness 3:</strong> {app.witness3FirstName} {app.witness3LastName}</div>}
@@ -144,7 +144,7 @@ const UserDashboard = () => {
         : "Welcome!";
 
     return (
-        <div className="p-6">
+        <div className="p-4 sm:p-6">
             <Modal isOpen={isDetailsModalOpen} onClose={() => setIsDetailsModalOpen(false)} title={selectedApp ? `Appointment Details (${format(new Date(selectedApp.startTime), 'MMM d, yyyy')})` : 'Details'}>
                 {selectedApp && <AppointmentDetails app={selectedApp} />}
             </Modal>
@@ -178,11 +178,8 @@ const UserDashboard = () => {
                 </form>
             </Modal>
 
-            <div className="mb-8 p-6 bg-white/50 backdrop-blur-sm rounded-lg shadow-lg">
-                <h1 className="text-3xl md:text-4xl font-bold text-gray-800">{welcomeMessage}</h1>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            <h1 className="text-3xl md:text-4xl font-bold text-gray-800">{welcomeMessage}</h1>
+            <div className="grid grid-cols-1 gap-6 mb-8">
                 <div className="bg-white/50 backdrop-blur-sm p-6 rounded-lg shadow-lg">
                     <h3 className="text-lg font-semibold text-gray-700">Upcoming ceremony</h3>
                     {upcomingAppointment ? (
@@ -191,20 +188,46 @@ const UserDashboard = () => {
                         <p className="text-gray-500 mt-2">No upcoming approved appointments.</p>
                     )}
                 </div>
-                <div className="bg-white/50 backdrop-blur-sm p-6 rounded-lg shadow-lg">
-                    <h3 className="text-lg font-semibold text-gray-700">Pending applications</h3>
-                    <p className="text-2xl font-bold text-yellow-600 mt-2">{pendingCount}</p>
-                </div>
             </div>
 
-            <div className="flex justify-between items-center mb-6">
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
                 <h1 className="text-3xl font-bold">My Appointments</h1>
-                <Link to="/book-appointment" className="px-5 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 font-semibold">
+                <Link
+                    to="/book-appointment"
+                    className="w-full sm:w-auto text-center px-5 py-3 sm:py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-7l00 font-semibold"
+                >
                     + Book new appointment
                 </Link>
             </div>
 
-            <div className="bg-white/80 backdrop-blur-sm shadow-md rounded-lg overflow-hidden">
+            <div className="space-y-4 md:hidden">
+                {(myAppointments || []).map((app) => (
+                    <div key={app.id} className="bg-white/80 backdrop-blur-sm shadow-md rounded-lg p-4">
+                        <div className="flex flex-col sm:flex-row justify-between sm:items-center">
+                            <div>
+                                <p className="text-sm font-semibold text-indigo-600">
+                                    {format(new Date(app.startTime), 'PPpp')}
+                                </p>
+                                <div className="mt-2">
+                                    {renderStatusBadge(app.status)}
+                                </div>
+                            </div>
+
+                            <div className="flex-shrink-0 mt-4 sm:mt-0 sm:ml-4">
+                                <div className="flex items-center justify-end space-x-3">
+                                    <button onClick={() => handleViewDetails(app)} className="text-indigo-600 hover:text-indigo-900 text-sm font-medium">Details</button>
+                                    <button onClick={() => handleDownloadDocument(app)} className="text-blue-600 hover:text-gray-900 text-sm font-medium">Document</button>
+                                    {(app.status === 'PENDING' || app.status === 'APPROVED') && (
+                                        <button onClick={() => handleCancelClick(app)} className="text-red-600 hover:text-red-900 text-sm font-medium">Cancel</button>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                ))}
+            </div>
+
+            <div className="hidden md:block bg-white/80 backdrop-blur-sm shadow-md rounded-lg overflow-hidden">
                 <div className="overflow-x-auto">
                     <table className="min-w-full divide-y divide-gray-200">
                         <thead className="bg-gray-50/50">
@@ -236,6 +259,7 @@ const UserDashboard = () => {
                     </table>
                 </div>
             </div>
+
             {status === 'succeeded' && (!myAppointments || myAppointments.length === 0) &&
                 <div className="text-center mt-8 p-6 bg-white/50 backdrop-blur-sm rounded-lg">
                     <h3 className="text-lg font-medium text-gray-700">No appointments found.</h3>

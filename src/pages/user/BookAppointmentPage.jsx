@@ -417,6 +417,7 @@ const BookAppointmentPage = () => {
                         isOpen={isConfirmModalOpen}
                         onClose={() => setIsConfirmModalOpen(false)}
                         title="Confirm Your Booking"
+                        size="md"
                     >
                         <form onSubmit={handleConfirmSubmit}>
                             <div className="space-y-4">

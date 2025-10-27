@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { NavLink, Outlet, useNavigate, Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { NavLink, Outlet, useNavigate, Link, useLocation } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { logout } from '../../features/auth/authSlice';
 import NotificationBell from '../notifications/NotificationBell';
@@ -32,9 +32,14 @@ const LogIcon = () => (
 const AdminLayout = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const location = useLocation();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const { user } = useSelector((state) => state.auth);
   const isSuperAdmin = user?.roles?.includes('SUPERADMIN');
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [location.pathname]);
 
   const handleLogout = () => {
     dispatch(logout());
@@ -66,24 +71,24 @@ const AdminLayout = () => {
           </h1>
         </div>
         <nav className="mt-6 px-4 space-y-2">
-          <NavLink to="/admin/dashboard" className={navLinkClasses}>
+          <NavLink to="/admin/dashboard" className={navLinkClasses} onClick={() => setIsSidebarOpen(false)}>
             {' '}
             <AdminDashboardIcon /> <span className="ml-4">Dashboard</span>
           </NavLink>
-          <NavLink to="/admin/schedule" className={navLinkClasses}>
+          <NavLink to="/admin/schedule" className={navLinkClasses} onClick={() => setIsSidebarOpen(false)}>
             {' '}
             <ScheduleIcon /> <span className="ml-4">Schedule</span>
           </NavLink>
-          <NavLink to="/admin/reports" className={navLinkClasses}>
+          <NavLink to="/admin/reports" className={navLinkClasses} onClick={() => setIsSidebarOpen(false)}>
             {' '}
             <ReportsIcon /> <span className="ml-4">Reports</span>
           </NavLink>
-          <NavLink to="/admin/generate-slots" className={navLinkClasses}>
+          <NavLink to="/admin/generate-slots" className={navLinkClasses} onClick={() => setIsSidebarOpen(false)}>
             {' '}
             <SlotsIcon /> <span className="ml-4">Generate slots</span>
           </NavLink>
           {isSuperAdmin && (
-            <NavLink to="/admin/logs" className={navLinkClasses}>
+            <NavLink to="/admin/logs" className={navLinkClasses} onClick={() => setIsSidebarOpen(false)}>
               <LogIcon /> <span className="ml-4">Application Logs</span>
             </NavLink>
           )}
