@@ -1,0 +1,405 @@
+{
+  "app_title": "Astana Grand Mosque",
+  "admin_panel": "Admin Panel",
+  "nav": {
+    "dashboard": "Dashboard",
+    "book": "Book Appointment",
+    "book_short": "Book",
+    "profile": "My Profile",
+    "profile_short": "Profile",
+    "admin_panel": "Admin Panel",
+    "admin_dashboard": "Dashboard",
+    "schedule": "Schedule",
+    "reports": "Reports",
+    "generate_slots": "Generate Slots",
+    "logs": "Application Logs",
+    "user_view": "Switch to user view"
+  },
+  "header": {
+    "admin_view": "Administrator View"
+  },
+  "api": {
+    "slots_generated": "Successfully generated {{count}} new time slots for {{year}}-{{month}}.",
+    "appointments_fetched": "Appointments fetched successfully",
+    "schedule_fetched": "Schedule fetched successfully",
+    "appointment_approved": "Appointment approved successfully",
+    "appointment_rejected": "Appointment rejected successfully",
+    "appointment_completed": "Appointment marked as completed successfully",
+    "appointment_cancelled_admin": "Appointment cancelled successfully by admin",
+    "user_appointments_fetched": "User appointments fetched successfully",
+    "slots_fetched": "Available slots fetched successfully",
+    "appointment_created": "Appointment request submitted successfully",
+    "appointment_cancelled_user": "Your appointment has been successfully cancelled",
+    "otp_sent": "OTP has been sent via WhatsApp",
+    "login_success": "Login successful",
+    "notifications_fetched": "Notifications fetched successfully",
+    "notifications_read": "All notifications marked as read",
+    "logs_listed": "Log files listed successfully",
+    "profile_fetched": "User profile fetched successfully",
+    "profile_updated": "Profile updated successfully"
+  },
+  "buttons": {
+    "save": "Save Changes",
+    "logout": "Logout",
+    "cancel": "Cancel",
+    "confirm": "Confirm & Book",
+    "details": "Details"
+  },
+  "welcome": "Welcome, {{name}}!",
+  "errors": {
+    "AUTH_INVALID_OTP": "Invalid or expired OTP.",
+    "PROFILE_INCOMPLETE": "Your profile is incomplete. Please update it.",
+    "EXISTING_APPOINTMENT": "You already have a pending or approved appointment.",
+    "INVALID_WITNESSES": "Witnesses must be 2 males or 1 male and 2 females.",
+
+    "validation_invalid_data": "Invalid data provided. Please check the fields.",
+    "invalid_request_body": "Invalid request body format. Please check your data.",
+    "access_denied": "You do not have permission to perform this action.",
+    "unexpected_server_error": "An unexpected server error occurred. Please try again later.",
+
+    "OTP_SEND_FAILED_WHATSAPP": "Failed to send OTP via WhatsApp. Please try again.",
+    "OTP_SEND_FAILED_SMS_FALLBACK": "Failed to send OTP via WhatsApp or SMS. Please try again.",
+    "FILE_EMPTY": "Failed to store empty file.",
+    "FILE_INVALID_TYPE": "Invalid file type. Only JPG, PNG, and PDF are allowed.",
+    "FILE_PATH_INVALID": "Cannot store file outside current directory.",
+    "FILE_STORAGE_FAILED": "Failed to store file.",
+    "FILE_NOT_FOUND": "Could not read file.",
+    "USER_NOT_FOUND": "User not found.",
+    "TIMESLOT_NOT_AVAILABLE": "Time slot is not available or does not exist.",
+    "APPOINTMENT_NOT_FOUND": "Appointment not found.",
+    "ADMIN_NOT_FOUND": "Admin user not found.",
+    "CANNOT_COMPLETE_APPOINTMENT": "Cannot complete an appointment that is not approved.",
+    "CANNOT_CANCEL_APPOINTMENT": "Cannot cancel an appointment that is not pending or approved.",
+    "INVALID_DATE_RANGE": "Start date cannot be after end date.",
+    "CANNOT_PROCESS_APPOINTMENT": "Cannot approve/reject an appointment that is not pending.",
+
+    "AUTH_RATE_LIMIT": "Please wait before requesting another OTP.",
+    "SLOTS_TOO_FAR_FUTURE": "Cannot generate time slots more than 2 years into the future.",
+    "SLOTS_PAST_MONTH": "Cannot generate time slots for a past month."
+  },
+  "notifications": {
+    "appointment_created": "Your application for {{dateTime}} has been submitted for review.",
+    "appointment_approved": "Your application for {{dateTime}} has been approved!",
+    "appointment_rejected": "Your application for {{dateTime}} was rejected. Reason: {{reason}}",
+    "appointment_completed": "Congratulations! Your ceremony for {{dateTime}} is complete.",
+    "appointment_cancelled": "Your application for {{dateTime}} has been cancelled. Reason: {{reason}}",
+    "admin_new_appointment": "A new application has arrived from: {{phone}}",
+    "appointment_reminder": "Reminder: Your marriage ceremony is at {{dateTime}}. Address: {{address}}"
+  },
+  "onboarding": {
+    "name": {
+      "title": "Your Name",
+      "description": "Please provide your full legal name.",
+      "first_name_placeholder": "First Name",
+      "last_name_placeholder": "Last Name",
+      "error_min_length": "First and last name must be at least 2 characters."
+    },
+    "gender": {
+      "title": "Your Gender",
+      "description": "This is required for the marriage certificate.",
+      "male": "Male",
+      "female": "Female"
+    },
+    "buttons": {
+      "next": "Next",
+      "back": "Back",
+      "save": "Save & Continue",
+      "skip": "Skip for now"
+    }
+  },
+  "footer": {
+    "contact": {
+      "title": "Mosque Contact",
+      "name": "Astana Grand Mosque",
+      "address": "123 Holy St, Astana, Kazakhstan"
+    },
+    "support": {
+      "title": "Technical Support",
+      "description": "For technical issues with the website:"
+    },
+    "copyright": "© {{year}} Neke Booking. All rights reserved.",
+    "notifications_title": "Notifications",
+    "notifications_empty": "No notifications yet."
+  },
+  "admin_dashboard": {
+    "title": "Admin Dashboard",
+    "loading": "Loading appointments...",
+    "empty": "No appointments found for this status.",
+    "history": {
+      "total": "Total",
+      "approved": "Approved",
+      "rejected": "Rejected",
+      "cancelled": "Cancelled",
+      "completed": "Completed",
+      "not_available": "N/A"
+    },
+    "details": {
+      "title": "Details for Appointment #{{id}}",
+      "applicant_phone": "Applicant Phone:",
+      "applicant_history": "Applicant History:",
+      "groom": "Groom:",
+      "bride": "Bride:",
+      "witnesses": "Witnesses:",
+      "user_notes": "User Notes:",
+      "history_status": "History & Status",
+      "submitted": "Submitted:",
+      "rejected_by": "Rejected By:",
+      "approved_by": "Approved By:",
+      "rejection_reason": "Rejection Reason:",
+      "completed_by": "Completed By:",
+      "admin_notes": "Admin Notes:",
+      "cancelled_by": "Cancelled By:",
+      "cancellation_reason": "Cancellation Reason:"
+    },
+    "filters": {
+      "pending": "Pending",
+      "approved": "Approved",
+      "completed": "Completed",
+      "rejected": "Rejected",
+      "cancelled": "Cancelled"
+    },
+    "table": {
+      "applicant": "Applicant",
+      "datetime": "Date & Time",
+      "status": "Status",
+      "actions": "Actions",
+      "details": "Details",
+      "document": "Document",
+      "approve": "Approve",
+      "reject": "Reject",
+      "complete": "Complete",
+      "cancel": "Cancel"
+    },
+    "modals": {
+      "reject_title": "Reject Appointment #{{id}}",
+      "cancel_title": "Cancel Appointment #{{id}}",
+      "complete_title": "Complete Appointment #{{id}}",
+      "reason_placeholder": "Provide a reason...",
+      "reason_cancellation_placeholder": "Reason for cancellation...",
+      "admin_notes_placeholder": "Admin notes...",
+      "cancel_confirm_message": "Are you sure you want to cancel this appointment? Please provide a reason.",
+      "complete_message": "Enter administrative notes (optional).",
+      "chars_remaining": "{{count}} characters remaining",
+      "button_back": "Back",
+      "button_submit_rejection": "Submit Rejection",
+      "button_submit_cancellation": "Yes, Cancel Appointment",
+      "button_submit_completion": "Mark as Complete"
+    },
+    "toasts": {
+      "downloading": "Downloading document...",
+      "download_success": "Document downloaded!",
+      "download_error": "Could not download document.",
+      "approve_fail": "Failed to approve.",
+      "reject_fail": "Failed to reject.",
+      "complete_fail": "Failed to complete.",
+      "cancel_fail": "Failed to cancel."
+    },
+    "validation": {
+      "reason_empty": "Reason cannot be empty.",
+      "reason_cancellation_empty": "Reason for cancellation cannot be empty.",
+      "reason_length": "Reason cannot exceed {{count}} characters.",
+      "notes_length": "Admin notes cannot exceed {{count}} characters."
+    }
+  },
+  "dashboard": {
+    "status": {
+      "pending": "Pending",
+      "approved": "Approved",
+      "completed": "Completed",
+      "rejected": "Rejected",
+      "cancelled": "Cancelled"
+    }
+  },
+  "admin_reports": {
+    "title": "Generate Reports",
+    "description": "Select a date range and format to download.",
+    "date_range_label": "Date Range",
+    "format_label": "Format",
+    "format_pdf": "PDF",
+    "format_excel": "Excel",
+    "button_loading": "Generating...",
+    "button_submit": "Download Report",
+    "toasts": {
+      "download_success": "Report downloaded successfully!",
+      "download_fail": "Failed to download report."
+    }
+  },
+  "admin_schedule": {
+    "title": "Appointment Schedule",
+    "filter_title": "Filter Calendar",
+    "button_previous": "< Previous",
+    "button_next": "Next >",
+    "timezone_note": "All times are shown in Astana Time (UTC+5)",
+    "table_header_time": "Time",
+    "loading": "Loading schedule...",
+    "empty": "No appointments scheduled for this week.",
+    "fetch_error": "Failed to fetch schedule."
+  },
+  "admin_slots": {
+    "title": "Generate Time Slots",
+    "description": "Select a month and year to generate available 30-minute appointment slots. This process will skip any slots that already exist.",
+    "year_label": "Year",
+    "month_label": "Month",
+    "validation": {
+      "invalid_input": "Please enter a valid year and month (1-12).",
+      "past_month": "Cannot generate slots for a past month."
+    },
+    "button_loading": "Generating...",
+    "button_submit": "Generate Slots for {{month}} {{year}}",
+    "toasts": {
+      "generate_fail": "Failed to generate slots."
+    }
+  },
+  "months": {
+    "january": "January",
+    "february": "February",
+    "march": "March",
+    "april": "April",
+    "may": "May",
+    "june": "June",
+    "july": "July",
+    "august": "August",
+    "september": "September",
+    "october": "October",
+    "november": "November",
+    "december": "December"
+  },
+  "booking": {
+    "title": "Book an Appointment",
+    "calendar": {
+      "title": "1. Select a Date & Time",
+      "days": ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
+      "available_slots": "Available Slots for {{date}}",
+      "no_slots": "No available slots for this day.",
+      "button_previous": "<",
+      "button_next": ">"
+    },
+    "form": {
+      "title": "2. Provide Details",
+      "selected_appointment": "Selected Appointment",
+      "no_selection": "Please select a date and time slot first.",
+      "spouse_first_name": "Spouse's First Name",
+      "spouse_last_name": "Spouse's Last Name",
+      "witnesses_title": "Witnesses",
+      "witnesses_info": "Must be 2 males, or 1 male and 2 females.",
+      "witness_first_name_placeholder": "First Name",
+      "witness_last_name_placeholder": "Last Name",
+      "gender_male": "Male",
+      "gender_female": "Female",
+      "add_witness": "+ Add a 3rd witness",
+      "notes_label": "Notes (Optional)",
+      "notes_chars_remaining": "{{count}} characters remaining",
+      "document_label": "Marriage Document (PDF, JPG, PNG)",
+      "document_warning": "Please upload correctly. **You cannot change this file after submission.**",
+      "document_selected": "Selected: {{filename}}",
+      "upload_progress": "{{progress}}%",
+      "button_loading": "Submitting...",
+      "button_submit": "Submit Application"
+    },
+    "modal": {
+      "title": "Confirm Your Booking",
+      "review": "Please review your selection:",
+      "time_label": "Time:",
+      "rules_title": "Rules & Regulations",
+      "rules": [
+        "1. All attendees must arrive 15 minutes early.",
+        "2. Valid identification is required for the couple and witnesses.",
+        "3. Modest attire is mandatory within the mosque premises.",
+        "4. The uploaded document must be the original, valid marriage permit."
+      ],
+      "agree_checkbox": "I have read and agree to the rules and regulations."
+    },
+    "validation": {
+      "name_length": "{{field}} must be {{min}}-{{max}} letters.",
+      "document_required": "Document is required.",
+      "document_invalid_type": "Invalid file type (PDF, JPG, PNG only).",
+      "notes_length": "Notes cannot exceed {{count}} characters.",
+      "select_slot": "Please select an appointment time slot.",
+      "fix_errors": "Please fix the errors in the form.",
+      "agree_rules": "You must agree to the rules to continue.",
+      "profile_incomplete": "Your profile is incomplete. Please update it to continue.",
+      "booking_failed": "Booking Failed: {{message}}"
+    }
+  },
+  "user_dashboard": {
+    "welcome_user": "Welcome, {{name}}!",
+    "welcome_guest": "Welcome!",
+    "upcoming_ceremony": "Upcoming ceremony",
+    "no_upcoming": "No upcoming approved appointments.",
+    "my_appointments": "My Appointments",
+    "book_new": "+ Book new appointment",
+    "table": {
+      "date": "Ceremony date",
+      "status": "Status",
+      "actions": "Actions",
+      "details": "Details",
+      "document": "Document",
+      "cancel": "Cancel"
+    },
+    "empty": {
+      "title": "No appointments found.",
+      "prompt": "Ready to book your special day?"
+    },
+    "details_modal_title": "Appointment Details ({{date}})",
+    "cancel_modal_title": "Cancel Appointment ({{date}})",
+    "cancel_modal_prompt": "Please provide a reason for cancelling this appointment.",
+    "cancel_modal_reason_placeholder": "Reason...",
+    "cancel_modal_button_confirm": "Confirm Cancellation",
+    "toasts": {
+      "cancel_fail": "Failed to cancel appointment.",
+      "downloading": "Downloading document...",
+      "download_success": "Document downloaded!",
+      "download_error": "Could not download document."
+    },
+    "validation": {
+      "reason_required": "A reason for cancellation is required.",
+      "reason_length": "Reason cannot exceed {{count}} characters."
+    }
+  },
+  "profile": {
+    "title": "My Profile",
+    "loading": "Loading profile...",
+    "error_loading": "Error loading profile: {{message}}",
+    "error_unexpected": "Could not load profile data. Please try again later.",
+    "booking_incomplete_warning": "Please complete your profile details (First Name, Last Name, Gender) before booking an appointment.",
+    "phone_label": "Phone Number (Login ID)",
+    "phone_loading": "Loading...",
+    "first_name_label": "First Name",
+    "last_name_label": "Last Name",
+    "gender_label": "Gender",
+    "gender_male": "Male",
+    "gender_female": "Female",
+    "button_loading": "Saving...",
+    "button_save": "Save Changes",
+    "toast_resume_booking": "Profile complete! Resuming booking...",
+    "toast_update_fail_validation": "Validation failed.",
+    "toast_update_fail_general": "Failed to update profile."
+  },
+  "landing": {
+    "title": "Astana grand mosque's engagement registration portal",
+    "description": "Welcome! You can schedule your ceremony with this platform. Login to proceed.",
+    "login_button": "Login"
+  },
+  "login": {
+    "title": "Sign in to your account",
+    "phone_label": "Phone Number",
+    "phone_placeholder": "Enter phone number",
+    "otp_label": "Verification Code",
+    "button_send_code": "Send Verification Code",
+    "button_sending": "Sending Code...",
+    "button_resend": "Resend Code",
+    "button_resend_in": "Resend Code in {{seconds}}s",
+    "otp_title": "Enter Verification Code",
+    "otp_prompt": "Enter the 6-digit code sent to {{phoneNumber}}.",
+    "button_verify": "Verify Code",
+    "button_verifying": "Verifying...",
+    "change_number_link": "Change phone number",
+    "back_home_link": "← Back to Home Page",
+    "validation_invalid_phone": "Please enter a valid phone number including country code."
+  },
+  "not_found": {
+    "title": "Page Not Found",
+    "description": "Sorry, the page you are looking for does not exist or you don't have permission to view it.",
+    "button_home": "Return to Home"
+  }
+}

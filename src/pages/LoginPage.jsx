@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { requestOtp, verifyOtp, resetAuthStatus } from '../features/auth/authSlice';
@@ -8,25 +8,18 @@ import OtpInput from 'react-otp-input';
 import { Link } from 'react-router-dom';
 import 'react-phone-number-input/style.css';
 import PhoneInput, { isValidPhoneNumber } from 'react-phone-number-input';
+import { useTranslation } from 'react-i18next';
 
-
-const PhoneIcon = () => <svg className="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M2 3a1 1 0 011-1h1.586a1 1 0 01.992.658l.128.513a1 1 0 01-.41 1.144l-.432.324a1 1 0 00-.472 1.33C4.694 8.21 7.79 11.306 9.876 12.31c.39.186.848.11 1.156-.226l.324-.432a1 1 0 011.144-.41l.513.128A1 1 0 0114.414 12H16a1 1 0 011 1v3.5a1 1 0 01-1 1A13.001 13.001 0 012 3.5a1 1 0 011-1z" clipRule="evenodd" /></svg>;
 const SpinnerIcon = () => <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>;
 
-const inputBaseStyle = "appearance-none relative block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm transition duration-150 ease-in-out";
 const buttonBaseStyle = "group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-md text-white focus:outline-none focus:ring-2 focus:ring-offset-2 transition duration-150 ease-in-out disabled:opacity-60 disabled:cursor-not-allowed";
 const primaryButtonStyle = `${buttonBaseStyle} bg-indigo-600 hover:bg-indigo-700 focus:ring-indigo-500`;
 const successButtonStyle = `${buttonBaseStyle} bg-green-600 hover:bg-green-700 focus:ring-green-500`;
 const linkButtonStyle = "font-medium text-indigo-600 hover:text-indigo-500 disabled:text-gray-400";
 const secondaryLinkButtonStyle = "font-medium text-gray-600 hover:text-gray-900";
 
-const validatePhoneNumber = (code, number) => {
-  const codeRegex = /^\+\d{1,3}$/;
-  const numberRegex = /^\d{7,12}$/;
-  return codeRegex.test(code) && numberRegex.test(number);
-};
 
-const CountdownTimer = ({ targetTime, onComplete }) => {
+const CountdownTimer = ({ targetTime, onComplete, t }) => {
   const calculateTimeLeft = useCallback(() => {
     const now = Date.now();
     const difference = targetTime - now;
@@ -53,10 +46,11 @@ const CountdownTimer = ({ targetTime, onComplete }) => {
     return () => clearInterval(timer);
   }, [timeLeft, calculateTimeLeft, onComplete]);
 
-  return <span>{timeLeft}s</span>;
+  return <span>{t('login.button_resend_in', { seconds: timeLeft })}</span>;
 };
 
 const LoginPage = () => {
+  const { t } = useTranslation();
   const [countryCode, setCountryCode] = useState('+7');
   const [phoneNumber, setPhoneNumber] = useState('');
   const fullPhoneNumber = `${countryCode}${phoneNumber}`;
@@ -68,6 +62,8 @@ const LoginPage = () => {
   const errorMessage = error?.message;
   const [otpError, setOtpError] = useState(false);
   const [defaultCountry, setDefaultCountry] = useState('KZ');
+  const timerRef = useRef(null);
+
 
   const RESEND_WAIT_SECONDS = 120;
   const canResendAt = useMemo(() => {
@@ -81,7 +77,21 @@ const LoginPage = () => {
   }, []);
 
   useEffect(() => {
-    setCanResend(Date.now() >= canResendAt);
+    const checkCanResend = () => {
+      const now = Date.now();
+      setCanResend(now >= canResendAt);
+    };
+    checkCanResend();
+
+    if (Date.now() < canResendAt) {
+      timerRef.current = setInterval(checkCanResend, 1000);
+    } else {
+      if (timerRef.current) clearInterval(timerRef.current);
+    }
+
+    return () => {
+      if (timerRef.current) clearInterval(timerRef.current);
+    };
   }, [canResendAt]);
 
   useEffect(() => {
@@ -111,15 +121,19 @@ const LoginPage = () => {
     e?.preventDefault();
     setOtpError(false);
     if (!phoneNumber || !isValidPhoneNumber(phoneNumber)) {
-      toast.error('Please enter a valid phone number including country code.');
+      toast.error(t('login.validation_invalid_phone'));
       return;
     }
     setCanResend(false);
     try {
       await dispatch(requestOtp(phoneNumber)).unwrap();
     } catch (rejectedValue) {
-      toast.error(rejectedValue?.message || 'Failed to send OTP.');
-      if (!rejectedValue?.isRateLimitError) {
+      const errorKey = rejectedValue?.message || 'errors.OTP_GENERIC_FAIL';
+      const isRateLimit = errorKey === 'AUTH_RATE_LIMIT';
+      const remainingSeconds = isRateLimit ? Math.max(0, Math.floor((canResendAt - Date.now()) / 1000)) : 0;
+      toast.error(t(errorKey, { seconds: remainingSeconds }));
+
+      if (!isRateLimit) {
         setCanResend(true);
       }
     }
@@ -135,20 +149,20 @@ const LoginPage = () => {
 
   const handleVerifyOtp = async (e, otpToVerify = otp) => {
     e?.preventDefault();
-    if (otpToVerify.length !== 6 || !usedChannel) return;
+    if (otpToVerify.length !== 6 || !phoneNumber) return;
 
     console.log('[LoginPage] Attempting to verify OTP...');
     try {
-      const token = await dispatch(verifyOtp({
+      const resultAction = await dispatch(verifyOtp({
         phoneNumber: phoneNumber,
         otp: otpToVerify,
         channel: usedChannel
       })).unwrap();
 
       console.log('[LoginPage] OTP Verification successful.');
-      toast.success('Login successful!');
+      toast.success(t('api.login_success'));
       setOtpError(false);
-      const decodedToken = jwtDecode(token);
+      const decodedToken = jwtDecode(resultAction.token);
       const userRoles = decodedToken.roles || [];
 
       const targetPath = userRoles.includes('ROLE_ADMIN') || userRoles.includes('ROLE_SUPERADMIN')
@@ -162,29 +176,34 @@ const LoginPage = () => {
 
     } catch (rejectedValue) {
       console.error('[LoginPage] OTP Verification failed:', rejectedValue);
-      toast.error(rejectedValue?.message || 'Invalid or expired OTP.');
+      const errorKey = rejectedValue?.message || 'errors.AUTH_INVALID_OTP';
+      toast.error(t(errorKey));
       setOtpError(true);
     }
   };
 
   const isLoading = status === 'loading' || status === 'verifying';
-  const isOtpScreen = status === 'otp_requested' || (status === 'failed' && otpMessage) || status === 'verifying';
+  const isOtpScreen = status === 'otp_requested' || (status === 'failed' && error?.isOtpError) || status === 'verifying';
+
+  const remainingRateLimitSeconds = useMemo(() => {
+    return Math.max(0, Math.floor((canResendAt - Date.now()) / 1000));
+  }, [canResendAt, canResend]);
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 px-4 py-12">
       <div className="w-full max-w-md space-y-8 p-8 md:p-10 bg-white rounded-xl shadow-lg">
         <div>
           <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            Sign in to your account
+            {t('login.title')}
           </h2>
         </div>
         {!isOtpScreen ? (
           <form onSubmit={handleRequestOtp} className="mt-8 space-y-6">
             <div>
-              <label htmlFor="phone-number" className="sr-only">Phone Number</label>
+              <label htmlFor="phone-number" className="sr-only">{t('login.phone_label')}</label>
               <PhoneInput
                 id="phone-number"
-                placeholder="Enter phone number"
+                placeholder={t('login.phone_placeholder')}
                 value={phoneNumber}
                 onChange={setPhoneNumber}
                 defaultCountry={defaultCountry}
@@ -193,35 +212,35 @@ const LoginPage = () => {
                 className="phone-input-container"
               />
             </div>
-            {status === 'failed' && errorMessage && !otpMessage && (
-              <p className="text-sm text-red-600 text-center">{errorMessage}</p>
+            {status === 'failed' && error?.message && !error?.isOtpError && !error?.isRateLimitError && (
+              <p className="text-sm text-red-600 text-center">{t(error.message)}</p>
             )}
             <div>
               <button type="submit" disabled={isLoading || !canResend} className={primaryButtonStyle}>
                 <span className="absolute left-0 inset-y-0 flex items-center pl-3">
                   {isLoading && <SpinnerIcon />}
                 </span>
-                {isLoading ? 'Sending Code...' : (canResend ? 'Send Verification Code' : 'Resend Code in ')}
-                {!isLoading && !canResend && <CountdownTimer targetTime={canResendAt} onComplete={handleTimerComplete} />}
+                {isLoading ? t('login.button_sending') :
+                  (canResend ? t('login.button_send_code') : t('login.button_resend_in', { seconds: remainingRateLimitSeconds }))}
               </button>
             </div>
             {status === 'failed' && error?.isRateLimitError && !canResend && (
               <p className="text-sm text-orange-600 text-center">
-                {errorMessage} Try again in <CountdownTimer targetTime={canResendAt} onComplete={handleTimerComplete} />.
+                {t('errors.AUTH_RATE_LIMIT', { seconds: remainingRateLimitSeconds })}
               </p>
             )}
           </form>
         ) : (
           <form onSubmit={handleVerifyOtp} className="mt-8 space-y-6">
             <div className="text-center">
-              <h3 className="text-xl font-semibold text-gray-800">Enter Verification Code</h3>
+              <h3 className="text-xl font-semibold text-gray-800">{t('login.otp_title')}</h3>
               <p className="mt-2 text-sm text-gray-600">
-                {otpMessage || `Enter the 6-digit code sent to ${fullPhoneNumber}.`}
+                {t('login.otp_prompt', { phoneNumber: phoneNumber })}
               </p>
             </div>
 
             <div>
-              <label htmlFor="otp" className="sr-only">Verification Code</label>
+              <label htmlFor="otp" className="sr-only">{t('login.otp_label')}</label>
               <OtpInput
                 value={otp}
                 onChange={handleOtpChange}
@@ -233,16 +252,16 @@ const LoginPage = () => {
                 shouldAutoFocus
               />
             </div>
-            {status === 'failed' && errorMessage && otpMessage && (
-              <p className="text-sm text-red-600 text-center">{errorMessage}</p>
+            {status === 'failed' && error?.isOtpError && (
+              <p className="text-sm text-red-600 text-center">{t(error.message || 'errors.AUTH_INVALID_OTP')}</p>
             )}
 
             <div>
-              <button type="submit" disabled={isLoading || status === 'succeeded'} className={successButtonStyle}>
+              <button type="submit" disabled={isLoading || status === 'succeeded' || otp.length !== 6} className={successButtonStyle}>
                 <span className="absolute left-0 inset-y-0 flex items-center pl-3">
                   {status === 'verifying' && <SpinnerIcon />}
                 </span>
-                {status === 'verifying' ? 'Verifying...' : 'Verify Code'}
+                {status === 'verifying' ? t('login.button_verifying') : t('login.button_verify')}
               </button>
             </div>
 
@@ -253,18 +272,18 @@ const LoginPage = () => {
                 disabled={isLoading || !canResend}
                 className={linkButtonStyle}
               >
-                {isLoading ? 'Sending...' : (canResend ? 'Resend Code' : 'Resend Code in ')}
-                {!isLoading && !canResend && <CountdownTimer targetTime={canResendAt} onComplete={handleTimerComplete} />}
-              </button>
+                {isLoading ? t('login.button_sending') :
+                  (canResend ? t('login.button_resend') : t('login.button_resend_in', { seconds: remainingRateLimitSeconds }))}</button>
               <button
                 type="button"
                 onClick={() => {
                   dispatch(resetAuthStatus());
                   setOtp('');
+                  setPhoneNumber('');
                 }}
                 className={secondaryLinkButtonStyle}
               >
-                Change phone number
+                {t('login.change_number_link')}
               </button>
             </div>
           </form>
@@ -274,7 +293,7 @@ const LoginPage = () => {
             to="/"
             className="font-medium text-indigo-600 hover:text-indigo-500"
           >
-            &larr; Back to Home Page
+            {t('login.back_home_link')}
           </Link>
         </div>
       </div>

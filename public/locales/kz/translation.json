@@ -1,0 +1,404 @@
+{
+  "app_title": "Республикалық Бас Мешіт",
+  "admin_panel": "Админ панелі",
+  "nav": {
+    "dashboard": "Бақылау тақтасы",
+    "book": "Кездесуді брондау",
+    "book_short": "Брондау",
+    "profile": "Менің профилім",
+    "profile_short": "Профиль",
+    "admin_panel": "Әкімші панелі",
+    "admin_dashboard": "Басқару беті",
+    "schedule": "График",
+    "reports": "Есеп беру",
+    "generate_slots": "Жаңа слоттар",
+    "logs": "Қосымша журналдары",
+    "user_view": "Пайдаланушы көрінісіне ауысу"
+  },
+  "header": {
+    "admin_view": "Админ көрінісі"
+  },
+  "api": {
+    "slots_generated": "{{year}}-{{month}} үшін {{count}} жаңа уақыт аралығы сәтті жасалды.",
+    "appointments_fetched": "Кездесулер сәтті алынды",
+    "schedule_fetched": "Кесте сәтті алынды",
+    "appointment_approved": "Кездесу сәтті расталды",
+    "appointment_rejected": "Кездесуден сәтті бас тартылды",
+    "appointment_completed": "Кездесу сәтті аяқталды деп белгіленді",
+    "appointment_cancelled_admin": "Кездесу әкімшімен сәтті болдырылды",
+    "user_appointments_fetched": "Пайдаланушы кездесулері сәтті алынды",
+    "slots_fetched": "Қолжетімді слоттар сәтті алынды",
+    "appointment_created": "Кездесуге өтінім сәтті жіберілді",
+    "appointment_cancelled_user": "Кездесуіңіз сәтті болдырылды",
+    "otp_sent": "OTP WhatsApp арқылы жіберілді",
+    "login_success": "Кіру сәтті аяқталды",
+    "notifications_fetched": "Хабарламалар сәтті алынды",
+    "notifications_read": "Барлық хабарламалар оқылды деп белгіленді",
+    "logs_listed": "Лог файлдары сәтті тізімделді",
+    "profile_fetched": "Пайдаланушы профилі сәтті алынды",
+    "profile_updated": "Профиль сәтті жаңартылды"
+  },
+  "buttons": {
+    "save": "Өзгерістерді сақтау",
+    "logout": "Шығу",
+    "cancel": "Болдырмау",
+    "confirm": "Растау және брондау",
+    "details": "Толығырақ"
+  },
+  "welcome": "Қош келдіңіз, {{name}}!",
+  "errors": {
+    "AUTH_INVALID_OTP": "Жарамсыз немесе мерзімі өткен OTP.",
+    "PROFILE_INCOMPLETE": "Профиліңіз толық емес. Жаңартыңыз.",
+    "EXISTING_APPOINTMENT": "Сізде қазірдің өзінде қаралмаған немесе расталған кездесу бар.",
+    "INVALID_WITNESSES": "Куәгерлер 2 ер адам немесе 1 ер және 2 әйел болуы керек.",
+
+    "validation_invalid_data": "Жарамсыз деректер берілді. Өрістерді тексеріңіз.",
+    "invalid_request_body": "Сұрау денесінің пішімі жарамсыз. Деректеріңізді тексеріңіз.",
+    "access_denied": "Бұл әрекетті орындауға рұқсатыңыз жоқ.",
+    "unexpected_server_error": "Күтпеген сервер қатесі орын алды. Кейінірек қайталап көріңіз.",
+
+    "OTP_SEND_FAILED_WHATSAPP": "WhatsApp арқылы OTP жіберу сәтсіз аяқталды. Қайталап көріңіз.",
+    "OTP_SEND_FAILED_SMS_FALLBACK": "WhatsApp немесе SMS арқылы OTP жіберу сәтсіз аяқталды. Қайталап көріңіз.",
+    "FILE_EMPTY": "Бос файлды сақтау мүмкін болмады.",
+    "FILE_INVALID_TYPE": "Файл түрі жарамсыз. Тек JPG, PNG және PDF рұқсат етілген.",
+    "FILE_PATH_INVALID": "Файлды ағымдағы каталогтан тыс сақтау мүмкін емес.",
+    "FILE_STORAGE_FAILED": "Файлды сақтау мүмкін болмады.",
+    "FILE_NOT_FOUND": "Файлды оқу мүмкін болмады.",
+    "USER_NOT_FOUND": "Қолданушы табылмады.",
+    "TIMESLOT_NOT_AVAILABLE": "Уақыт слоты қолжетімсіз немесе базада жоқ.",
+    "APPOINTMENT_NOT_FOUND": "Appointment not found.",
+    "ADMIN_NOT_FOUND": "Admin user not found.",
+    "CANNOT_COMPLETE_APPOINTMENT": "Cannot complete an appointment that is not approved.",
+    "CANNOT_CANCEL_APPOINTMENT": "Cannot cancel an appointment that is not pending or approved.",
+    "INVALID_DATE_RANGE": "Start date cannot be after end date.",
+    "CANNOT_PROCESS_APPOINTMENT": "Cannot approve/reject an appointment that is not pending.",
+
+    "AUTH_RATE_LIMIT": "Басқа OTP кодын сұрамас бұрын күте тұрыңыз.",
+    "SLOTS_TOO_FAR_FUTURE": "Уақыт аралықтарын болашаққа 2 жылдан артық жасау мүмкін емес.",
+    "SLOTS_PAST_MONTH": "Өткен айға уақыт аралықтарын жасау мүмкін емес."
+  },
+  "notifications": {
+    "appointment_created": "Сіздің {{dateTime}} уақытына өтініміңіз тексеруге жіберілді.",
+    "appointment_approved": "Сіздің {{dateTime}} уақытына өтініміңіз қабылданды!",
+    "appointment_rejected": "Сіздің {{dateTime}} уақытына өтініміңіз қабылданбады! Себебі: {{reason}}",
+    "appointment_completed": "Құттықтаймыз! Сіздің {{dateTime}} уақытындағы рәсіміңіз сәтті аяқталды.",
+    "appointment_cancelled": "Сіздің {{dateTime}} уақытына өтініміңіз қайтарып алынды. Себебі: {{reason}}",
+    "admin_new_appointment": "Жаңа өтінім келді: {{phone}}",
+    "appointment_reminder": "Еске салу: Сіздің неке қию рәсіміңіздің уақыты: {{dateTime}}. Мекенжай: {{address}}"
+  },
+  "onboarding": {
+    "name": {
+      "title": "Сіздің атыңыз",
+      "description": "Толық заңды аты-жөніңізді енгізіңіз.",
+      "first_name_placeholder": "Аты",
+      "last_name_placeholder": "Тегі",
+      "error_min_length": "Аты мен тегі кем дегенде 2 таңбадан тұруы керек."
+    },
+    "gender": {
+      "title": "Сіздің жынысыңыз",
+      "description": "Бұл неке куәлігі үшін қажет.",
+      "male": "Ер",
+      "female": "Әйел"
+    },
+    "buttons": {
+      "next": "Келесі",
+      "back": "Артқа",
+      "save": "Сақтау және жалғастыру",
+      "skip": "Әзірше өткізіп жіберу"
+    }
+  },
+  "footer": {
+    "contact": {
+      "title": "Мешіт байланыстары",
+      "name": "Республикалық Бас Мешіт",
+      "address": "123 Қасиетті к-сі, Астана, Қазақстан"
+    },
+    "support": {
+      "title": "Техникалық қолдау",
+      "description": "Веб-сайттағы техникалық мәселелер бойынша:"
+    },
+    "copyright": "© {{year}} Neke Booking. Барлық құқықтар қорғалған.",
+    "notifications_title": "Хабарламалар",
+    "notifications_empty": "Әзірге хабарламалар жоқ."
+  },
+  "admin_dashboard": {
+    "title": "Әкімші тақтасы",
+    "loading": "Кездесулер жүктелуде...",
+    "empty": "Бұл мәртебе бойынша кездесулер табылмады.",
+    "history": {
+      "total": "Барлығы",
+      "approved": "Расталған",
+      "rejected": "Қабылданбаған",
+      "cancelled": "Болдырылған",
+      "completed": "Аяқталған",
+      "not_available": "Жоқ"
+    },
+    "details": {
+      "title": "Кездесу #{{id}} мәліметтері",
+      "applicant_phone": "Өтініш беруші телефоны:",
+      "applicant_history": "Өтініш беруші тарихы:",
+      "groom": "Күйеу жігіт:",
+      "bride": "Қалыңдық:",
+      "witnesses": "Куәгерлер:",
+      "user_notes": "Пайдаланушы жазбалары:",
+      "history_status": "Тарихы және мәртебесі",
+      "submitted": "Жіберілді:",
+      "rejected_by": "Қабылдамаған:",
+      "approved_by": "Растаған:",
+      "rejection_reason": "Бас тарту себебі:",
+      "completed_by": "Аяқтаған:",
+      "admin_notes": "Әкімші жазбалары:",
+      "cancelled_by": "Болдырған:",
+      "cancellation_reason": "Болдыру себебі:"
+    },
+    "filters": {
+      "pending": "Күтілуде",
+      "approved": "Расталды",
+      "completed": "Аяқталды",
+      "rejected": "Қабылданбады",
+      "cancelled": "Болдырылды"
+    },
+    "table": {
+      "applicant": "Өтініш беруші",
+      "datetime": "Күні мен уақыты",
+      "status": "Мәртебесі",
+      "actions": "Әрекеттер",
+      "details": "Толығырақ",
+      "document": "Құжат",
+      "approve": "Растау",
+      "reject": "Бас тарту",
+      "complete": "Аяқтау",
+      "cancel": "Болдыру"
+    },
+    "modals": {
+      "reject_title": "Кездесуден #{{id}} бас тарту",
+      "cancel_title": "Кездесуді #{{id}} болдыру",
+      "complete_title": "Кездесуді #{{id}} аяқтау",
+      "reason_placeholder": "Себебін көрсетіңіз...",
+      "reason_cancellation_placeholder": "Болдыру себебі...",
+      "admin_notes_placeholder": "Әкімші жазбалары...",
+      "cancel_confirm_message": "Сіз бұл кездесуден бас тартқыңыз келетініне сенімдісіз бе? Себебін көрсетіңіз.",
+      "complete_message": "Әкімші жазбаларын енгізіңіз (міндетті емес).",
+      "chars_remaining": "{{count}} таңба қалды",
+      "button_back": "Артқа",
+      "button_submit_rejection": "Бас тартуды жіберу",
+      "button_submit_cancellation": "Иә, кездесуді болдыру",
+      "button_submit_completion": "Аяқталды деп белгілеу"
+    },
+    "toasts": {
+      "downloading": "Құжат жүктелуде...",
+      "download_success": "Құжат сәтті жүктелді!",
+      "download_error": "Құжатты жүктеу мүмкін болмады.",
+      "approve_fail": "Растау сәтсіз аяқталды.",
+      "reject_fail": "Бас тарту сәтсіз аяқталды.",
+      "complete_fail": "Аяқтау сәтсіз аяқталды.",
+      "cancel_fail": "Болдыру сәтсіз аяқталды."
+    },
+    "validation": {
+      "reason_empty": "Себебін енгізу міндетті.",
+      "reason_cancellation_empty": "Болдыру себебін енгізу міндетті.",
+      "reason_length": "Себебі {{count}} таңбадан аспауы керек.",
+      "notes_length": "Әкімші жазбалары {{count}} таңбадан аспауы керек."
+    }
+  },
+  "dashboard": {
+    "status": {
+      "pending": "Күтілуде",
+      "approved": "Расталды",
+      "completed": "Аяқталды",
+      "rejected": "Қабылданбады",
+      "cancelled": "Болдырылды"
+    }
+  },
+  "admin_reports": {
+    "title": "Есептерді құру",
+    "description": "Жүктеп алу үшін күн аралығын және пішімді таңдаңыз.",
+    "date_range_label": "Күн аралығы",
+    "format_label": "Пішім",
+    "format_pdf": "PDF",
+    "format_excel": "Excel",
+    "button_loading": "Құрылуда...",
+    "button_submit": "Есепті жүктеп алу",
+    "toasts": {
+      "download_success": "Есеп сәтті жүктелді!",
+      "download_fail": "Есепті жүктеп алу сәтсіз аяқталды."
+    }
+  },
+  "admin_schedule": {
+    "title": "Кездесу кестесі",
+    "filter_title": "Күнтізбені сүзу",
+    "button_previous": "< Алдыңғы",
+    "button_next": "Келесі >",
+    "timezone_note": "Барлық уақыт Астана уақытымен (UTC+5) көрсетілген",
+    "table_header_time": "Уақыт",
+    "loading": "Кесте жүктелуде...",
+    "empty": "Бұл аптаға жоспарланған кездесулер жоқ.",
+    "fetch_error": "Кестені алу сәтсіз аяқталды."
+  },
+  "admin_slots": {
+    "title": "Уақыт аралықтарын жасау",
+    "description": "Қолжетімді 30 минуттық кездесу аралықтарын жасау үшін ай мен жылды таңдаңыз. Бұл процесс бұрыннан бар аралықтарды өткізіп жібереді.",
+    "year_label": "Жыл",
+    "month_label": "Ай",
+    "validation": {
+      "invalid_input": "Жарамды жыл мен айды (1-12) енгізіңіз.",
+      "past_month": "Өткен айға уақыт аралықтарын жасау мүмкін емес."
+    },
+    "button_loading": "Жасалуда...",
+    "button_submit": "{{month}} {{year}} үшін аралықтарды жасау",
+    "toasts": {
+      "generate_fail": "Аралықтарды жасау сәтсіз аяқталды."
+    }
+  },
+  "months": {
+    "january": "Қаңтар",
+    "february": "Ақпан",
+    "march": "Наурыз",
+    "april": "Сәуір",
+    "may": "Мамыр",
+    "june": "Маусым",
+    "july": "Шілде",
+    "august": "Тамыз",
+    "september": "Қыркүйек",
+    "october": "Қазан",
+    "november": "Қараша",
+    "december": "Желтоқсан"
+  },
+  "booking": {
+    "title": "Кездесуді брондау",
+    "calendar": {
+      "title": "1. Күн мен уақытты таңдаңыз",
+      "days": ["Жс", "Дс", "Сс", "Ср", "Бс", "Жм", "Сб"],
+      "available_slots": "{{date}} күніне қолжетімді аралықтар",
+      "no_slots": "Бұл күнге қолжетімді аралықтар жоқ.",
+      "button_previous": "<",
+      "button_next": ">"
+    },
+    "form": {
+      "title": "2. Мәліметтерді енгізіңіз",
+      "selected_appointment": "Таңдалған кездесу",
+      "no_selection": "Алдымен күн мен уақыт аралығын таңдаңыз.",
+      "spouse_first_name": "Жұбайының аты",
+      "spouse_last_name": "Жұбайының тегі",
+      "witnesses_title": "Куәгерлер",
+      "witnesses_info": "2 ер адам немесе 1 ер және 2 әйел болуы керек.",
+      "witness_first_name_placeholder": "Аты",
+      "witness_last_name_placeholder": "Тегі",
+      "gender_male": "Ер",
+      "gender_female": "Әйел",
+      "add_witness": "+ 3-ші куәгерді қосу",
+      "notes_label": "Ескертпелер (Міндетті емес)",
+      "notes_chars_remaining": "{{count}} таңба қалды",
+      "document_label": "Неке құжаты (PDF, JPG, PNG)",
+      "document_warning": "Дұрыс жүктеңіз. **Жібергеннен кейін бұл файлды өзгерте алмайсыз.**",
+      "document_selected": "Таңдалды: {{filename}}",
+      "upload_progress": "{{progress}}%",
+      "button_loading": "Жіберуде...",
+      "button_submit": "Өтінімді жіберу"
+    },
+    "modal": {
+      "title": "Брондауды растаңыз",
+      "review": "Таңдауыңызды тексеріңіз:",
+      "time_label": "Уақыт:",
+      "rules_title": "Ережелер мен талаптар",
+      "rules": [
+        "1. Барлық қатысушылар 15 минут ерте келуі керек.",
+        "2. Жұп пен куәгерлер үшін жарамды жеке куәлік қажет.",
+        "3. Мешіт аумағында ұстамды киім кию міндетті.",
+        "4. Жүктелген құжат түпнұсқа, жарамды неке рұқсаты болуы керек."
+      ],
+      "agree_checkbox": "Ережелер мен талаптарды оқып, келісемін."
+    },
+    "validation": {
+      "name_length": "{{field}} {{min}}-{{max}} әріптен тұруы керек.",
+      "document_required": "Құжатты жүктеу міндетті.",
+      "document_invalid_type": "Файл түрі жарамсыз (Тек PDF, JPG, PNG).",
+      "notes_length": "Ескертпелер {{count}} таңбадан аспауы керек.",
+      "select_slot": "Кездесу уақытын таңдаңыз.",
+      "fix_errors": "Пішіндегі қателерді түзетіңіз.",
+      "agree_rules": "Жалғастыру үшін ережелермен келісуіңіз керек.",
+      "profile_incomplete": "Профиліңіз толық емес. Жалғастыру үшін оны жаңартыңыз.",
+      "booking_failed": "Брондау сәтсіз аяқталды: {{message}}"
+    }
+  },
+  "user_dashboard": {
+    "welcome_user": "Қош келдіңіз, {{name}}!",
+    "welcome_guest": "Қош келдіңіз!",
+    "upcoming_ceremony": "Алдағы рәсім",
+    "no_upcoming": "Алда расталған кездесулер жоқ.",
+    "my_appointments": "Менің кездесулерім",
+    "book_new": "+ Жаңа кездесу брондау",
+    "table": {
+      "date": "Рәсім күні",
+      "status": "Мәртебесі",
+      "actions": "Әрекеттер",
+      "details": "Толығырақ",
+      "document": "Құжат",
+      "cancel": "Болдыру"
+    },
+    "empty": {
+      "title": "Кездесулер табылмады.",
+      "prompt": "Ерекше күніңізді брондауға дайынсыз ба?"
+    },
+    "details_modal_title": "Кездесу мәліметтері ({{date}})",
+    "cancel_modal_title": "Кездесуден бас тарту ({{date}})",
+    "cancel_modal_prompt": "Бұл кездесуден бас тарту себебін көрсетіңіз.",
+    "cancel_modal_reason_placeholder": "Себебі...",
+    "cancel_modal_button_confirm": "Бас тартуды растау",
+    "toasts": {
+      "cancel_fail": "Кездесуді болдыру сәтсіз аяқталды.",
+      "downloading": "Құжат жүктелуде...",
+      "download_success": "Құжат сәтті жүктелді!",
+      "download_error": "Құжатты жүктеу мүмкін болмады."
+    },
+    "validation": {
+      "reason_required": "Болдыру себебін көрсету міндетті.",
+      "reason_length": "Себебі {{count}} таңбадан аспауы керек."
+    }
+  },
+  "profile": {
+    "title": "Менің профилім",
+    "loading": "Профиль жүктелуде...",
+    "error_loading": "Профильді жүктеу қатесі: {{message}}",
+    "error_unexpected": "Профиль деректерін жүктеу мүмкін болмады. Кейінірек қайталап көріңіз.",
+    "booking_incomplete_warning": "Кездесуді брондамас бұрын профиль мәліметтеріңізді (Аты, Тегі, Жынысы) толтырыңыз.",
+    "phone_label": "Телефон нөмірі (Логин)",
+    "phone_loading": "Жүктелуде...",
+    "first_name_label": "Аты",
+    "last_name_label": "Тегі",
+    "gender_label": "Жынысы",
+    "gender_male": "Ер",
+    "gender_female": "Әйел",
+    "button_loading": "Сақталуда...",
+    "button_save": "Өзгерістерді сақтау",
+    "toast_resume_booking": "Профиль толтырылды! Брондауды жалғастыру...",
+    "toast_update_fail_validation": "Тексеру сәтсіз аяқталды.",
+    "toast_update_fail_general": "Профильді жаңарту сәтсіз аяқталды."
+  },
+  "landing": {
+    "title": "Астана Орталық мешітінің неке қию рәсіміне тіркелу порталы",
+    "description": "Қош келдіңіз! Осы платформа арқылы рәсіміңізді жоспарлай аласыз. Жалғастыру үшін кіріңіз.",
+    "login_button": "Кіру"
+  },
+  "login": {
+    "title": "Аккаунтыңызға кіріңіз",
+    "phone_label": "Телефон нөмірі",
+    "phone_placeholder": "Телефон нөмірін енгізіңіз",
+    "otp_label": "Растау коды",
+    "button_send_code": "Растау кодын жіберу",
+    "button_sending": "Код жіберуде...",
+    "button_resend": "Кодты қайта жіберу",
+    "button_resend_in": "Кодты {{seconds}} секундтан кейін қайта жіберу",
+    "otp_title": "Растау кодын енгізіңіз",
+    "otp_prompt": "{{phoneNumber}} нөміріне жіберілген 6 таңбалы кодты енгізіңіз.",
+    "button_verify": "Кодты растау",
+    "button_verifying": "Тексеруде...",
+    "change_number_link": "Телефон нөмірін өзгерту",
+    "back_home_link": "← Басты бетке оралу"
+  },
+  "not_found": {
+    "title": "Бет табылмады",
+    "description": "Кешіріңіз, сіз іздеген бет жоқ немесе оны көруге рұқсатыңыз жоқ.",
+    "button_home": "Басты бетке оралу"
+  }
+}

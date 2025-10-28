@@ -6,6 +6,8 @@ import { Provider } from 'react-redux';
 import { store } from './app/store.js';
 import { Toaster } from 'react-hot-toast';
 import axiosInstance from './api/axiosInstance.js';
+import './i18n';
+import { Suspense } from 'react';
 
 axiosInstance.interceptors.request.use(
   (config) => {
@@ -23,7 +25,9 @@ axiosInstance.interceptors.request.use(
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <Provider store={store}>
-      <App />
+      <Suspense fallback="Loading...">
+        <App />
+      </Suspense>
       <Toaster position="top-right" />
     </Provider>
   </React.StrictMode>,

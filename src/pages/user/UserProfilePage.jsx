@@ -4,6 +4,7 @@ import { fetchUserProfile, updateUserProfile } from '../../features/user/userSli
 import toast from 'react-hot-toast';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 
 const MaleIcon = () => (
     <svg className="w-12 h-12 mx-auto text-indigo-500 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -22,6 +23,7 @@ const CheckIcon = () => (
 );
 
 const UserProfilePage = () => {
+    const { t } = useTranslation();
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const location = useLocation();
@@ -57,10 +59,10 @@ const UserProfilePage = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const resultActionPayload = await dispatch(updateUserProfile(formData)).unwrap();
-            toast.success(resultActionPayload.message || 'Profile updated successfully!');
+            const result = await dispatch(updateUserProfile(formData)).unwrap();
+            toast.success(t(result.message || 'api.profile_updated'));
             if (cameFromBooking && bookingDataToRestore) {
-                toast.success('Profile complete! Resuming booking...', { duration: 3000 });
+                toast.success(t('profile.toast_resume_booking'), { duration: 3000 });
                 navigate('/book-appointment', {
                     state: { restoredBookingData: bookingDataToRestore }
                 });
@@ -68,46 +70,48 @@ const UserProfilePage = () => {
 
         } catch (error) {
             if (error?.fieldErrors) {
-                toast.error(error.fieldErrors[0].defaultMessage || 'Validation failed.');
+                const errorKey = error.fieldErrors[0].defaultMessage;
+                toast.error(t(`errors.${errorKey}`, t('profile.toast_update_fail_validation')));
             } else {
-                toast.error(error?.message || 'Failed to update profile.');
+                const errorKey = error?.message || 'profile.toast_update_fail_general';
+                toast.error(t(`errors.${errorKey}`, t(errorKey)));
             }
         }
     };
 
     if (initialLoad && status === 'loading') {
-        return <p>Loading profile...</p>;
+        return <p>{t('profile.loading')}</p>;
     }
     if (initialLoad && status === 'failed') {
-        return <p className="text-red-500">Error loading profile: {error}</p>;
+        return <p className="text-red-500">{t('profile.error_loading', { message: error })}</p>;
     }
     if (!profile && !initialLoad) {
-        return <p className="text-red-500">Could not load profile data. Please try again later.</p>;
+        return <p className="text-red-500">{t('profile.error_unexpected')}</p>;
     }
 
     return (
         <div>
-            <h1 className="text-3xl font-bold text-gray-800 mb-6">My Profile</h1>
+            <h1 className="text-3xl font-bold text-gray-800 mb-6">{t('profile.title')}</h1>
             {cameFromBooking && (
                 <div className="mb-4 p-4 bg-yellow-100 text-yellow-800 border border-yellow-200 rounded-md">
-                    Please complete your profile details (First Name, Last Name, Gender) before booking an appointment.
+                    {t('profile.booking_incomplete_warning')}
                 </div>
             )}
             <div className="max-w-xl bg-white p-8 rounded-lg shadow-lg mx-auto">
                 <form onSubmit={handleSubmit} className="space-y-6">
                     <div>
                         <label className="block text-sm font-medium text-gray-700">
-                            Phone Number (Login ID)
+                            {t('profile.phone_label')}
                         </label>
                         <input
                             type="text"
-                            value={user?.phoneNumber || 'Loading...'}
+                            value={user?.phoneNumber || t('profile.phone_loading')}
                             disabled
                             className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-100 text-gray-500 cursor-not-allowed"
                         />
                     </div>
                     <div>
-                        <label className="block text-sm font-medium text-gray-700">First Name</label>
+                        <label className="block text-sm font-medium text-gray-700">{t('profile.first_name_label')}</label>
                         <input
                             type="text"
                             name="firstName"
@@ -117,7 +121,7 @@ const UserProfilePage = () => {
                         />
                     </div>
                     <div>
-                        <label className="block text-sm font-medium text-gray-700">Last Name</label>
+                        <label className="block text-sm font-medium text-gray-700">{t('profile.last_name_label')}</label>
                         <input
                             type="text"
                             name="lastName"
@@ -128,7 +132,7 @@ const UserProfilePage = () => {
                     </div>
 
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Gender</label>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">{t('profile.gender_label')}</label>
                         <div className="flex gap-4">
                             <motion.button
                                 type="button"
@@ -138,7 +142,7 @@ const UserProfilePage = () => {
                                 whileHover={{ scale: 1.03 }}
                             >
                                 <MaleIcon />
-                                <span className="font-semibold text-gray-800">Male</span>
+                                <span className="font-semibold text-gray-800">{t('profile.gender_male')}</span>
                                 <AnimatePresence>
                                     {formData.gender === 'MALE' && (
                                         <motion.div
@@ -158,7 +162,7 @@ const UserProfilePage = () => {
                                 whileHover={{ scale: 1.03 }}
                             >
                                 <FemaleIcon />
-                                <span className="font-semibold text-gray-800">Female</span>
+                                <span className="font-semibold text-gray-800">{t('profile.gender_female')}</span>
                                 <AnimatePresence>
                                     {formData.gender === 'FEMALE' && (
                                         <motion.div
@@ -172,13 +176,14 @@ const UserProfilePage = () => {
                             </motion.button>
                         </div>
                     </div>
-                    {status === 'failed' && error && !error.fieldErrors && <p className="text-sm text-red-600">{error.message || error}</p>}
+                    {status === 'failed' && error && !error.fieldErrors && <p className="text-sm text-red-600">{t(`errors.${error.message}`, error.message)}</p>
+                    }
                     <button
                         type="submit"
                         disabled={status === 'loading'}
                         className="w-full bg-indigo-600 text-white py-3 px-4 rounded-md font-semibold hover:bg-indigo-700 disabled:bg-indigo-300"
                     >
-                        {status === 'loading' ? 'Saving...' : 'Save Changes'}
+                        {status === 'loading' ? t('profile.button_loading') : t('profile.button_save')}
                     </button>
                 </form>
             </div>

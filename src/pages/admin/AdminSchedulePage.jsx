@@ -9,6 +9,9 @@ import {
 import { getAppointmentSchedule } from '../../api/adminService';
 import toast from 'react-hot-toast';
 import { motion } from 'framer-motion';
+import { enUS, kk, ru } from 'date-fns/locale';
+import { useTranslation } from 'react-i18next';
+import { useDateFormatter } from '../../hooks/useDateFormatter';
 
 const ClockIcon = () => (
   <svg
@@ -49,11 +52,18 @@ const LoaderIcon = () => (
   </svg>
 );
 
-const StatusToggle = ({ label, color, checked, onChange }) => (
-  <button // <-- 1. Changed from <label> to <button>
-    type="button" // <-- 2. Added type="button"
+const getLocale = (lang) => {
+  const langCode = lang.split('-')[0];
+  if (langCode === 'kk' || langCode === 'kz') return kk;
+  if (langCode === 'ru') return ru;
+  return enUS;
+};
+
+const StatusToggle = ({ labelKey, color, checked, onChange, t }) => (
+  <button
+    type="button"
     className="flex items-center gap-2 cursor-pointer"
-    onClick={onChange} // <-- 3. Kept the onClick here
+    onClick={onChange}
   >
     <div
       className={`w-10 h-6 flex items-center rounded-full p-1 transition-colors ${checked ? color : 'bg-gray-300'
@@ -65,11 +75,13 @@ const StatusToggle = ({ label, color, checked, onChange }) => (
         animate={{ x: checked ? '1.125rem' : '0rem' }}
       />
     </div>
-    <span className="text-sm font-medium text-gray-700">{label}</span>
+    <span className="text-sm font-medium text-gray-700">{t(labelKey)}</span>
   </button>
 );
 
 const AdminSchedulePage = () => {
+  const { t, i18n } = useTranslation();
+  const { formatDate } = useDateFormatter();
   const [week, setWeek] = useState(new Date());
   const [appointments, setAppointments] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -80,6 +92,8 @@ const AdminSchedulePage = () => {
     REJECTED: false,
     CANCELLED: false,
   });
+
+  const currentLocale = getLocale(i18n.language);
 
   const handleFilterChange = (status) => {
     setStatusFilters((prev) => ({ ...prev, [status]: !prev[status] }));
@@ -95,20 +109,21 @@ const AdminSchedulePage = () => {
       const response = await getAppointmentSchedule(startDate, endDate);
       setAppointments(response.data.data || []);
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Failed to fetch schedule.');
+      const errorKey = err.response?.data?.message || 'admin_schedule.fetch_error';
+      toast.error(t(errorKey));
     } finally {
       setIsLoading(false);
     }
-  }, [week]);
+  }, [week, t]);
 
   useEffect(() => {
     fetchSchedule();
   }, [fetchSchedule]);
 
-  const days = eachDayOfInterval({
+  const days = useMemo(() => eachDayOfInterval({
     start: startOfWeek(week, { weekStartsOn: 1 }),
     end: addDays(startOfWeek(week, { weekStartsOn: 1 }), 6),
-  });
+  }), [week]);
 
   const getStatusColor = (status) => {
     switch (status) {
@@ -165,40 +180,45 @@ const AdminSchedulePage = () => {
 
   return (
     <div className="p-0 sm:p-6">
-      <h1 className="text-3xl font-bold mb-6">Appointment Schedule</h1>
+      <h1 className="text-3xl font-bold mb-6">{t('admin_schedule.title')}</h1>
 
       <div className="mb-6 bg-white p-4 rounded-lg shadow-md">
-        <h3 className="font-semibold text-lg mb-3">Filter Calendar</h3>
+        <h3 className="font-semibold text-lg mb-3">{t('admin_schedule.filter_title')}</h3>
         <div className="flex flex-wrap gap-x-6 gap-y-3">
           <StatusToggle
-            label="Pending"
+            labelKey="dashboard.status.pending"
             color="bg-yellow-500"
             checked={statusFilters.PENDING}
             onChange={() => handleFilterChange('PENDING')}
+            t={t}
           />
           <StatusToggle
-            label="Approved"
+            labelKey="dashboard.status.approved"
             color="bg-green-500"
             checked={statusFilters.APPROVED}
             onChange={() => handleFilterChange('APPROVED')}
+            t={t}
           />
           <StatusToggle
-            label="Completed"
+            labelKey="dashboard.status.completed"
             color="bg-blue-500"
             checked={statusFilters.COMPLETED}
             onChange={() => handleFilterChange('COMPLETED')}
+            t={t}
           />
           <StatusToggle
-            label="Rejected"
+            labelKey="dashboard.status.rejected"
             color="bg-red-500"
             checked={statusFilters.REJECTED}
             onChange={() => handleFilterChange('REJECTED')}
+            t={t}
           />
           <StatusToggle
-            label="Cancelled"
+            labelKey="dashboard.status.cancelled"
             color="bg-gray-500"
             checked={statusFilters.CANCELLED}
             onChange={() => handleFilterChange('CANCELLED')}
+            t={t}
           />
         </div>
       </div>
@@ -208,23 +228,23 @@ const AdminSchedulePage = () => {
             onClick={() => setWeek(addDays(week, -7))}
             className="px-4 py-2 bg-gray-200 rounded-lg"
           >
-            &lt; Previous
+            &lt; {t('admin_schedule.button_previous')}
           </button>
           <h2 className="text-xl font-semibold text-center">
-            {format(days[0], 'd MMM')} - {format(days[6], 'd MMM yyyy')}
+            {format(days[0], 'd MMM', { locale: currentLocale })} - {format(days[6], 'd MMM yyyy', { locale: currentLocale })}
           </h2>
           <button
             onClick={() => setWeek(addDays(week, 7))}
             className="px-4 py-2 bg-gray-200 rounded-lg"
           >
-            Next &gt;
+            {t('admin_schedule.button_next')} &gt;
           </button>
         </div>
 
         <div className="flex justify-center mb-4">
           <div className="p-2 bg-gray-100 rounded-md text-sm text-gray-600 inline-flex items-center gap-2">
             <ClockIcon />
-            <span>All times are shown in Astana Time (UTC+5)</span>
+            <span>{t('admin_schedule.timezone_note')}</span>
           </div>
         </div>
 
@@ -236,14 +256,14 @@ const AdminSchedulePage = () => {
         {!isLoading && (
           <div className="grid grid-cols-8 text-sm border-t border-l border-gray-200 min-w-[800px]">
             <div className="py-2 border-r border-b border-gray-200 font-semibold text-center sticky top-0 bg-white z-10">
-              Time
+              {t('admin_schedule.table_header_time')}
             </div>
             {days.map((day) => (
               <div
                 key={day.toString()}
                 className="py-2 border-r border-b border-gray-200 font-semibold text-center sticky top-0 bg-white z-10"
               >
-                {format(day, 'EEE d')}
+                {format(day, 'EEE d', { locale: currentLocale })}
               </div>
             ))}
 
@@ -269,27 +289,28 @@ const AdminSchedulePage = () => {
                         className="border-r border-b border-gray-200 p-1 space-y-1"
                         style={{ height: `${rowHeight}px` }}
                       >
-                        {dayAppointments.map((app) => (
-                          <div
-                            key={app.id}
-                            className={`p-1.5 rounded border-l-4 ${getStatusColor(
-                              app.status
-                            )}`}
-                            title={`${format(
-                              parseISO(app.startTime),
-                              'HH:mm'
-                            )} - ${format(parseISO(app.endTime), 'HH:mm')} - ${app.groomFirstName
-                              } & ${app.brideFirstName}`}
-                          >
-                            <p className="font-bold text-xs">
-                              {format(parseISO(app.startTime), 'HH:mm')} -{' '}
-                              {format(parseISO(app.endTime), 'HH:mm')}
-                            </p>
-                            <p className="text-xs truncate">
-                              {app.groomFirstName} & {app.brideFirstName}
-                            </p>
-                          </div>
-                        ))}
+                        {dayAppointments.map((app) => {
+                          const startTimeStr = formatDate(app.startTime, 'HH:mm');
+                          const endTimeStr = formatDate(app.endTime, 'HH:mm');
+                          const title = `${startTimeStr} - ${endTimeStr} - ${app.groomFirstName} & ${app.brideFirstName}`;
+
+                          return (
+                            <div
+                              key={app.id}
+                              className={`p-1.5 rounded border-l-4 ${getStatusColor(
+                                app.status
+                              )}`}
+                              title={title}
+                            >
+                              <p className="font-bold text-xs">
+                                {startTimeStr} - {endTimeStr}
+                              </p>
+                              <p className="text-xs truncate">
+                                {app.groomFirstName} & {app.brideFirstName}
+                              </p>
+                            </div>
+                          );
+                        })}
                       </div>
                     );
                   })}
@@ -300,7 +321,7 @@ const AdminSchedulePage = () => {
         )}
         {!isLoading && appointments.length === 0 && (
           <p className="text-center text-gray-500 py-10">
-            No appointments scheduled for this week.
+            {t('admin_schedule.empty')}
           </p>
         )}
       </div>

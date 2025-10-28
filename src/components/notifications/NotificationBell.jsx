@@ -2,15 +2,28 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { fetchNotifications, markAsRead } from '../../features/notification/notificationSlice';
 import { formatDistanceToNow } from 'date-fns';
+import { enUS, kk, ru } from 'date-fns/locale';
+import { useTranslation } from 'react-i18next';
+import { useDateFormatter } from '../../hooks/useDateFormatter';
 
 const BellIcon = () => <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" /></svg>;
 
+const getLocale = (lang) => {
+    const langCode = lang.split('-')[0];
+    if (langCode === 'kk' || langCode === 'kz') return kk;
+    if (langCode === 'ru') return ru;
+    return enUS;
+};
+
 const NotificationBell = () => {
+    const { t, i18n } = useTranslation();
+    const { formatDate } = useDateFormatter();
     const dispatch = useDispatch();
     const { notifications, unreadCount } = useSelector((state) => state.notifications);
     const [isOpen, setIsOpen] = useState(false);
     const dropdownRef = useRef(null);
     const buttonRef = useRef(null);
+    const currentLocale = getLocale(i18n.language);
 
     useEffect(() => {
         dispatch(fetchNotifications());
@@ -68,25 +81,41 @@ const NotificationBell = () => {
                     ref={dropdownRef}
                     className="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-xl border z-50 animate-fade-in-down"
                 >
-                    <div className="p-4 font-bold border-b">Notifications</div>
+                    <div className="p-4 font-bold border-b">{t('notifications_title')}</div>
                     <div className="max-h-96 overflow-y-auto">
                         {safeNotifications.length > 0 ? (
-                            safeNotifications.map(notif => (
-                                <div key={notif.id} className={`p-4 border-b hover:bg-gray-50 ${!notif.isRead ? 'bg-indigo-50' : ''}`}>
-                                    <p className="text-sm text-gray-800">{notif.message}</p>
-                                    <p className="text-xs text-gray-500 mt-1">{formatDistanceToNow(new Date(notif.createdAt), { addSuffix: true })}
-                                    </p>
-                                </div>
-                            ))
+                            safeNotifications.map(notif => {
+                                const params = { ...notif.messageParams };
+                                if (params.dateTime) {
+                                    params.dateTime = formatDate(params.dateTime, 'MMM d, yyyy h:mm a');
+                                }
+
+                                const translatedMessage = t(notif.messageKey, params);
+                                return (
+                                    <div key={notif.id} className={`p-4 border-b hover:bg-gray-50 ${!notif.isRead ? 'bg-indigo-50' : ''}`}>
+                                        <p className="text-sm text-gray-800">
+                                            {translatedMessage}
+                                        </p>
+                                        <p className="text-xs text-gray-500 mt-1">
+                                            {formatDistanceToNow(new Date(notif.createdAt), {
+                                                addSuffix: true,
+                                                locale: currentLocale
+                                            })}
+                                        </p>
+                                    </div>
+                                );
+                            })
                         ) : (
-                            <p className="p-4 text-sm text-gray-500">No notifications yet.</p>
+                            <p className="p-4 text-sm text-gray-500">
+                                {t('notifications_empty')}
+                            </p>
                         )}
                     </div>
                 </div>
             )}
         </div>
-    );
-};
+    )
+}
 
 export default NotificationBell;
 

@@ -4,6 +4,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import { logout } from '../../features/auth/authSlice';
 import NotificationBell from '../notifications/NotificationBell';
 import Footer from '../layout/Footer';
+import { useTranslation } from 'react-i18next';
+import LanguageSwitcher from '../common/LanguageSwitcher';
 
 const AdminDashboardIcon = () => <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 17v-2a4 4 0 00-4-4H3a4 4 0 00-4 4v2m18 0v-2a4 4 0 00-4-4h-2a4 4 0 00-4 4v2m4 4h.01M12 6h.01M6 6h.01M18 6h.01M7 20h10a2 2 0 002-2V6a2 2 0 00-2-2H7a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>;
 const ReportsIcon = () => <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>;
@@ -30,6 +32,7 @@ const LogIcon = () => (
 );
 
 const AdminLayout = () => {
+  const { t } = useTranslation();
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const location = useLocation();
@@ -64,32 +67,32 @@ const AdminLayout = () => {
       >
         <div className="p-6 border-b border-gray-200">
           <h1 className="text-3xl font-extrabold text-red-600 tracking-wider">
-            Astana Grand Mosque
+            {t('app_title')}
             <span className="block text-sm font-normal text-gray-500 -mt-1">
-              Admin Panel
+              {t('admin_panel')}
             </span>
           </h1>
         </div>
         <nav className="mt-6 px-4 space-y-2">
           <NavLink to="/admin/dashboard" className={navLinkClasses} onClick={() => setIsSidebarOpen(false)}>
             {' '}
-            <AdminDashboardIcon /> <span className="ml-4">Dashboard</span>
+            <AdminDashboardIcon /> <span className="ml-4">{t('nav.admin_dashboard')}</span>
           </NavLink>
           <NavLink to="/admin/schedule" className={navLinkClasses} onClick={() => setIsSidebarOpen(false)}>
             {' '}
-            <ScheduleIcon /> <span className="ml-4">Schedule</span>
+            <ScheduleIcon /> <span className="ml-4">{t('nav.schedule')}</span>
           </NavLink>
           <NavLink to="/admin/reports" className={navLinkClasses} onClick={() => setIsSidebarOpen(false)}>
             {' '}
-            <ReportsIcon /> <span className="ml-4">Reports</span>
+            <ReportsIcon /> <span className="ml-4">{t('nav.reports')}</span>
           </NavLink>
           <NavLink to="/admin/generate-slots" className={navLinkClasses} onClick={() => setIsSidebarOpen(false)}>
             {' '}
-            <SlotsIcon /> <span className="ml-4">Generate slots</span>
+            <SlotsIcon /> <span className="ml-4">{t('nav.generate_slots')}</span>
           </NavLink>
           {isSuperAdmin && (
             <NavLink to="/admin/logs" className={navLinkClasses} onClick={() => setIsSidebarOpen(false)}>
-              <LogIcon /> <span className="ml-4">Application Logs</span>
+              <LogIcon /> <span className="ml-4">{t('nav.logs')}</span>
             </NavLink>
           )}
         </nav>
@@ -104,22 +107,23 @@ const AdminLayout = () => {
             <MenuIcon />
           </button>
           <div className="font-semibold text-gray-700 hidden md:block">
-            Administrator View
+            {t('header.admin_view')}
           </div>
           <div className="flex items-center space-x-4">
+            <LanguageSwitcher />
             <Link
               to="/dashboard"
               className="flex items-center px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 font-semibold"
             >
               <UserViewIcon />{' '}
-              <span className="hidden sm:inline">Switch to user view</span>
+              <span className="hidden sm:inline">{t('nav.user_view')}</span>
             </Link>
             <NotificationBell />
             <button
               onClick={handleLogout}
               className="flex items-center px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 font-semibold"
             >
-              <LogoutIcon /> <span className="hidden sm:inline">Logout</span>
+              <LogoutIcon /> <span className="hidden sm:inline">{t('buttons.logout')}</span>
             </button>
           </div>
         </header>

@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import * as appointmentService from "../../api/appointmentService";
+import i18n from "../../i18n";
 
 const initialState = {
   myAppointments: [],
@@ -48,13 +49,26 @@ export const bookAppointment = createAsyncThunk(
       );
       return response.data.data;
     } catch (error) {
-      if (error.response?.data?.data) {
+      const errorCode = error.response?.data?.message;
+      let translatedError;
+
+      if (errorCode) {
+        translatedError = i18n.t(`errors.${errorCode}`);
+      } else {
+        translatedError = error.message;
+      }
+
+      if (errorCode === "PROFILE_INCOMPLETE") {
         return rejectWithValue({
-          message: error.response.data.message,
-          fieldErrors: error.response.data.data,
+          message: translatedError,
+          isProfileError: true,
+          fieldErrors: error.response?.data?.fieldErrors,
         });
       }
-      return rejectWithValue(error.response.data);
+      return rejectWithValue({
+        message: translatedError,
+        fieldErrors: error.response?.data?.fieldErrors,
+      });
     }
   }
 );

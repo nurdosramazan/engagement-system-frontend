@@ -3,6 +3,7 @@ import { useDispatch } from 'react-redux';
 import { updateUserProfile } from '../../features/user/userSlice';
 import toast from 'react-hot-toast';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 
 const MaleIcon = () => (
     <svg className="w-16 h-16 mx-auto text-indigo-500 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -22,11 +23,11 @@ const CheckIcon = () => (
     </svg>
 );
 
-const NameStep = ({ formData, setFormData, setStep }) => {
+const NameStep = ({ formData, setFormData, setStep, t }) => {
     const [error, setError] = useState('');
     const validate = () => {
         if (formData.firstName.trim().length < 2 || formData.lastName.trim().length < 2) {
-            setError('First and last name must be at least 2 characters.');
+            setError(t('onboarding.name.error_min_length'));
             return false;
         }
         setError('');
@@ -41,19 +42,19 @@ const NameStep = ({ formData, setFormData, setStep }) => {
             transition={{ type: 'spring', stiffness: 300, damping: 30 }}
             className="w-full"
         >
-            <h2 className="text-2xl font-bold text-gray-800 mb-4">Your Name</h2>
-            <p className="text-gray-600 mb-6">Please provide your full legal name.</p>
+            <h2 className="text-2xl font-bold text-gray-800 mb-4">{t('onboarding.name.title')}</h2>
+            <p className="text-gray-600 mb-6">{t('onboarding.name.description')}</p>
             <div className="space-y-4">
                 <input
                     type="text"
-                    placeholder="First Name"
+                    placeholder={t('onboarding.name.first_name_placeholder')}
                     value={formData.firstName}
                     onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
                     className="w-full p-3 border rounded-md"
                 />
                 <input
                     type="text"
-                    placeholder="Last Name"
+                    placeholder={t('onboarding.name.last_name_placeholder')}
                     value={formData.lastName}
                     onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
                     className="w-full p-3 border rounded-md"
@@ -64,13 +65,13 @@ const NameStep = ({ formData, setFormData, setStep }) => {
                 onClick={() => validate() && setStep(2)}
                 className="w-full bg-indigo-600 text-white py-3 rounded-md mt-6"
             >
-                Next
+                {t('onboarding.buttons.next')}
             </button>
         </motion.div>
     );
 };
 
-const GenderStep = ({ formData, setFormData, setStep, handleSubmit }) => {
+const GenderStep = ({ formData, setFormData, setStep, handleSubmit, t }) => {
     return (
         <motion.div
             initial={{ x: 300, opacity: 0 }}
@@ -79,8 +80,8 @@ const GenderStep = ({ formData, setFormData, setStep, handleSubmit }) => {
             transition={{ type: 'spring', stiffness: 300, damping: 30 }}
             className="w-full"
         >
-            <h2 className="text-2xl font-bold text-gray-800 mb-4">Your Gender</h2>
-            <p className="text-gray-600 mb-6">This is required for the marriage certificate.</p>
+            <h2 className="text-2xl font-bold text-gray-800 mb-4">{t('onboarding.gender.title')}</h2>
+            <p className="text-gray-600 mb-6">{t('onboarding.gender.description')}</p>
 
             <div className="flex gap-4">
                 <motion.button
@@ -93,7 +94,7 @@ const GenderStep = ({ formData, setFormData, setStep, handleSubmit }) => {
                     transition={{ type: 'spring', stiffness: 400, damping: 20 }}
                 >
                     <MaleIcon />
-                    <span className="font-semibold text-lg text-gray-800">Male</span>
+                    <span className="font-semibold text-lg text-gray-800">{t('onboarding.gender.male')}</span>
 
                     <AnimatePresence>
                         {formData.gender === 'MALE' && (
@@ -120,7 +121,7 @@ const GenderStep = ({ formData, setFormData, setStep, handleSubmit }) => {
                     transition={{ type: 'spring', stiffness: 400, damping: 20 }}
                 >
                     <FemaleIcon />
-                    <span className="font-semibold text-lg text-gray-800">Female</span>
+                    <span className="font-semibold text-lg text-gray-800">{t('onboarding.gender.female')}</span>
 
                     <AnimatePresence>
                         {formData.gender === 'FEMALE' && (
@@ -143,13 +144,13 @@ const GenderStep = ({ formData, setFormData, setStep, handleSubmit }) => {
                     onClick={() => setStep(1)}
                     className="w-1/2 bg-gray-200 text-gray-800 py-3 rounded-md hover:bg-gray-300 transition-colors"
                 >
-                    Back
+                    {t('onboarding.buttons.back')}
                 </button>
                 <button
                     onClick={handleSubmit}
                     className="w-1/2 bg-indigo-600 text-white py-3 rounded-md hover:bg-indigo-700 transition-colors"
                 >
-                    Save & Continue
+                    {t('onboarding.buttons.save')}
                 </button>
             </div>
         </motion.div>
@@ -157,6 +158,7 @@ const GenderStep = ({ formData, setFormData, setStep, handleSubmit }) => {
 };
 
 export const OnboardingModal = ({ profile, onClose }) => {
+    const { t } = useTranslation();
     const dispatch = useDispatch();
     const [step, setStep] = useState(1);
     const [formData, setFormData] = useState({
@@ -168,7 +170,7 @@ export const OnboardingModal = ({ profile, onClose }) => {
     const handleSubmit = async () => {
         try {
             await dispatch(updateUserProfile(formData)).unwrap();
-            toast.success('Profile updated!');
+            toast.success(t('api.profile_updated'));
             onClose();
         } catch (error) {
             toast.error(error.message || 'Failed to update profile.');
@@ -182,7 +184,7 @@ export const OnboardingModal = ({ profile, onClose }) => {
                     onClick={onClose}
                     className="absolute top-4 right-4 text-gray-500 hover:text-gray-800"
                 >
-                    Skip for now
+                    {t('onboarding.buttons.skip')}
                 </button>
 
                 <AnimatePresence mode="wait">
@@ -192,6 +194,7 @@ export const OnboardingModal = ({ profile, onClose }) => {
                             formData={formData}
                             setFormData={setFormData}
                             setStep={setStep}
+                            t={t}
                         />
                     )}
                     {step === 2 && (
@@ -201,6 +204,7 @@ export const OnboardingModal = ({ profile, onClose }) => {
                             setFormData={setFormData}
                             setStep={setStep}
                             handleSubmit={handleSubmit}
+                            t={t}
                         />
                     )}
                 </AnimatePresence>

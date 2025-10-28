@@ -7,6 +7,8 @@ import { fetchUserProfile } from '../../features/user/userSlice';
 import { OnboardingModal } from '../../components/onboarding/OnboardingModal';
 import { AnimatePresence } from 'framer-motion';
 import Footer from '../layout/Footer';
+import { useTranslation } from 'react-i18next';
+import LanguageSwitcher from '../common/LanguageSwitcher';
 
 const DashboardIcon = () => <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg>;
 const CalendarIcon = () => <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>;
@@ -16,6 +18,7 @@ const AdminIcon = () => <svg className="w-5 h-5 mr-2" fill="none" stroke="curren
 
 
 const UserLayout = () => {
+  const { t } = useTranslation();
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const location = useLocation();
@@ -59,27 +62,28 @@ const UserLayout = () => {
     <div className="relative min-h-screen md:flex">
       <aside className="hidden md:block bg-white shadow-lg w-64">
         <div className="p-6 border-b border-gray-200">
-          <h1 className="text-3xl font-extrabold text-indigo-600 tracking-wider">Astana Grand Mosque</h1>
+          <h1 className="text-3xl font-extrabold text-indigo-600 tracking-wider">{t('app_title')}</h1>
         </div>
         <nav className="mt-6 px-4 space-y-2">
-          <NavLink to="/dashboard" className={navLinkClasses}> <DashboardIcon /> <span className="ml-4">Dashboard</span> </NavLink>
-          <NavLink to="/book-appointment" className={navLinkClasses}> <CalendarIcon /> <span className="ml-4">Book appointment</span> </NavLink>
-          <NavLink to="/profile" className={navLinkClasses}> <UserIcon /> <span className="ml-4">My profile</span> </NavLink>
+          <NavLink to="/dashboard" className={navLinkClasses}> <DashboardIcon /> <span className="ml-4">{t('nav.dashboard')}</span> </NavLink>
+          <NavLink to="/book-appointment" className={navLinkClasses}> <CalendarIcon /> <span className="ml-4">{t('nav.book')}</span> </NavLink>
+          <NavLink to="/profile" className={navLinkClasses}> <UserIcon /> <span className="ml-4">{t('nav.profile')}</span> </NavLink>
         </nav>
       </aside>
 
       <div className="flex-1 flex flex-col">
         <header className="bg-white shadow-md p-4 flex justify-between items-center sticky top-0 z-10">
-          <div className="font-semibold text-gray-700">Astana Grand Mosque</div>
+          <div className="font-semibold text-gray-700">{t('app_title')}</div>
           <div className="flex items-center space-x-4">
+            <LanguageSwitcher />
             {isAdmin && (
               <Link to="/admin/dashboard" className="flex items-center px-4 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-800 font-semibold">
-                <AdminIcon /> <span className="hidden sm:inline">Admin Panel</span>
+                <AdminIcon /> <span className="hidden sm:inline">{t('nav.admin_panel')}</span>
               </Link>
             )}
             <NotificationBell />
             <button onClick={handleLogout} className="flex items-center px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 font-semibold">
-              <LogoutIcon /> <span className="hidden sm:inline">Logout</span>
+              <LogoutIcon /> <span className="hidden sm:inline">{t('buttons.logout')}</span>
             </button>
           </div>
         </header>
@@ -99,15 +103,15 @@ const UserLayout = () => {
         <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white shadow-lg border-t border-gray-200 flex justify-around z-20">
           <NavLink to="/dashboard" className={bottomNavLinkClasses}>
             <DashboardIcon />
-            <span className="text-xs mt-1">Dashboard</span>
+            <span className="text-xs mt-1">{t('nav.dashboard')}</span>
           </NavLink>
           <NavLink to="/book-appointment" className={bottomNavLinkClasses}>
             <CalendarIcon />
-            <span className="text-xs mt-1">Book</span>
+            <span className="text-xs mt-1">{t('nav.book_short')}</span>
           </NavLink>
           <NavLink to="/profile" className={bottomNavLinkClasses}>
             <UserIcon />
-            <span className="text-xs mt-1">Profile</span>
+            <span className="text-xs mt-1">{t('nav.profile_short')}</span>
           </NavLink>
         </nav>
       </div>
