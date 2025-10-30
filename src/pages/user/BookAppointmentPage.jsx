@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchAvailableSlots, bookAppointment } from '../../features/appointment/appointmentSlice';
 import { fetchUserProfile } from '../../features/user/userSlice';
-import { format, addMonths, subMonths, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, isPast } from 'date-fns';
+import { format, addMonths, subMonths, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, isPast, addDays, startOfWeek } from 'date-fns';
 import toast from 'react-hot-toast';
 import { useNavigate, useLocation } from 'react-router-dom';
 import Modal from '../../components/common/Modal';
@@ -24,7 +24,6 @@ const AlertTriangleIcon = () => <svg className="h-5 w-5 flex-shrink-0 text-yello
 
 const BookAppointmentPage = () => {
     const { t, i18n } = useTranslation();
-    const { formatDate } = useDateFormatter();
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const location = useLocation();
@@ -102,8 +101,7 @@ const BookAppointmentPage = () => {
             newErrors.spouseFirstName = t('booking.validation.name_length', { ...nameValidationParams, field: t('booking.form.spouse_first_name') });
         }
         if (!formData.spouseLastName?.trim() || formData.spouseLastName.trim().length < MIN_NAME_LENGTH || formData.spouseLastName.trim().length > MAX_NAME_LENGTH || !nameRegex.test(formData.spouseLastName)) {
-            newErrors.spouseLastName = `Last name must be ${MIN_NAME_LENGTH}-${MAX_NAME_LENGTH} letters.`;
-            newErrors.spouseFirstName = t('booking.validation.name_length', { ...nameValidationParams, field: t('booking.form.spouse_last_name') });
+            newErrors.spouseLastName = t('booking.validation.name_length', { ...nameValidationParams, field: t('booking.form.spouse_last_name') });
         }
 
         formData.witnesses.forEach((w, i) => {
@@ -343,7 +341,7 @@ const BookAppointmentPage = () => {
                                     <CalendarIcon />
                                     <span className="font-semibold">{format(new Date(selectedSlot.startTime), 'MMMM d, yyyy', { locale: currentLocale })}</span>
                                     <ClockIcon />
-                                    <span className="font-semibold">{format(new Date(selectedSlot.startTime), 'h:mm a, { locale: currentLocale }')}</span>
+                                    <span className="font-semibold">{format(new Date(selectedSlot.startTime), 'h:mm a', { locale: currentLocale })}</span>
                                 </div>
                             ) : (
                                 <div className="flex items-center bg-gray-100 p-3 rounded-lg text-gray-500">
