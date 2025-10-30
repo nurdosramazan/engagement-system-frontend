@@ -133,7 +133,10 @@ const authSlice = createSlice({
       })
       .addCase(verifyOtp.rejected, (state, action) => {
         state.status = "failed";
-        state.error = action.payload;
+        state.error = {
+          ...action.payload,
+          isOtpError: true,
+        };
       });
   },
 });

@@ -18,51 +18,16 @@ const successButtonStyle = `${buttonBaseStyle} bg-green-600 hover:bg-green-700 f
 const linkButtonStyle = "font-medium text-indigo-600 hover:text-indigo-500 disabled:text-gray-400";
 const secondaryLinkButtonStyle = "font-medium text-gray-600 hover:text-gray-900";
 
-
-const CountdownTimer = ({ targetTime, onComplete, t }) => {
-  const calculateTimeLeft = useCallback(() => {
-    const now = Date.now();
-    const difference = targetTime - now;
-    return Math.max(0, Math.floor(difference / 1000));
-  }, [targetTime]);
-
-  const [timeLeft, setTimeLeft] = useState(calculateTimeLeft());
-
-  useEffect(() => {
-    if (timeLeft <= 0) {
-      onComplete();
-      return;
-    }
-
-    const timer = setInterval(() => {
-      const newTimeLeft = calculateTimeLeft();
-      setTimeLeft(newTimeLeft);
-      if (newTimeLeft <= 0) {
-        clearInterval(timer);
-        onComplete();
-      }
-    }, 1000);
-
-    return () => clearInterval(timer);
-  }, [timeLeft, calculateTimeLeft, onComplete]);
-
-  return <span>{t('login.button_resend_in', { seconds: timeLeft })}</span>;
-};
-
 const LoginPage = () => {
   const { t } = useTranslation();
-  const [countryCode, setCountryCode] = useState('+7');
   const [phoneNumber, setPhoneNumber] = useState('');
-  const fullPhoneNumber = `${countryCode}${phoneNumber}`;
 
   const [otp, setOtp] = useState('');
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { status, error, otpMessage, usedChannel, lastOtpRequestTime } = useSelector((state) => state.auth);
-  const errorMessage = error?.message;
+  const { status, error, usedChannel, lastOtpRequestTime } = useSelector((state) => state.auth);
   const [otpError, setOtpError] = useState(false);
   const [defaultCountry, setDefaultCountry] = useState('KZ');
-  const timerRef = useRef(null);
 
 
   const RESEND_WAIT_SECONDS = 120;
@@ -70,29 +35,27 @@ const LoginPage = () => {
     return lastOtpRequestTime ? lastOtpRequestTime + RESEND_WAIT_SECONDS * 1000 : 0;
   }, [lastOtpRequestTime]);
   const [canResend, setCanResend] = useState(true);
-
-
-  const handleTimerComplete = useCallback(() => {
-    setCanResend(true);
-  }, []);
+  const [timerSeconds, setTimerSeconds] = useState(0);
 
   useEffect(() => {
-    const checkCanResend = () => {
-      const now = Date.now();
-      setCanResend(now >= canResendAt);
-    };
-    checkCanResend();
-
-    if (Date.now() < canResendAt) {
-      timerRef.current = setInterval(checkCanResend, 1000);
-    } else {
-      if (timerRef.current) clearInterval(timerRef.current);
+    if (canResend) {
+      setTimerSeconds(0);
+      return;
     }
+    const checkTime = () => {
+      const now = Date.now();
+      const timeLeftInSeconds = Math.max(0, Math.floor((canResendAt - now) / 1000));
 
-    return () => {
-      if (timerRef.current) clearInterval(timerRef.current);
+      setTimerSeconds(timeLeftInSeconds);
+
+      if (timeLeftInSeconds <= 0) {
+        setCanResend(true);
+      }
     };
-  }, [canResendAt]);
+    checkTime();
+    const interval = setInterval(checkTime, 1000);
+    return () => clearInterval(interval);
+  }, [canResend, canResendAt]);
 
   useEffect(() => {
     fetch('http://ip-api.com/json/?fields=countryCode')
@@ -120,28 +83,28 @@ const LoginPage = () => {
   const handleRequestOtp = async (e) => {
     e?.preventDefault();
     setOtpError(false);
+    if (isLoading || !canResend) return;
+
     if (!phoneNumber || !isValidPhoneNumber(phoneNumber)) {
       toast.error(t('login.validation_invalid_phone'));
       return;
     }
-    setCanResend(false);
     try {
       await dispatch(requestOtp(phoneNumber)).unwrap();
+      setCanResend(false);
     } catch (rejectedValue) {
       const errorKey = rejectedValue?.message || 'errors.OTP_GENERIC_FAIL';
-      const isRateLimit = errorKey === 'AUTH_RATE_LIMIT';
-      const remainingSeconds = isRateLimit ? Math.max(0, Math.floor((canResendAt - Date.now()) / 1000)) : 0;
-      toast.error(t(errorKey, { seconds: remainingSeconds }));
+      const isRateLimit = rejectedValue?.isRateLimitError;
 
-      if (!isRateLimit) {
-        setCanResend(true);
+      if (isRateLimit) {
+        setCanResend(false);
       }
+      toast.error(t(`errors.${errorKey}`, { seconds: RESEND_WAIT_SECONDS }));
     }
   };
 
   const handleOtpChange = (newOtp) => {
     setOtp(newOtp);
-    setOtpError(false);
     if (newOtp.length === 6) {
       handleVerifyOtp(undefined, newOtp);
     }
@@ -162,7 +125,7 @@ const LoginPage = () => {
       console.log('[LoginPage] OTP Verification successful.');
       toast.success(t('api.login_success'));
       setOtpError(false);
-      const decodedToken = jwtDecode(resultAction.token);
+      const decodedToken = jwtDecode(resultAction);
       const userRoles = decodedToken.roles || [];
 
       const targetPath = userRoles.includes('ROLE_ADMIN') || userRoles.includes('ROLE_SUPERADMIN')
@@ -172,22 +135,16 @@ const LoginPage = () => {
       console.log(`[LoginPage] Navigating to: ${targetPath}`);
       navigate(targetPath, { replace: true });
       console.log('[LoginPage] navigate() function called.');
-
-
     } catch (rejectedValue) {
       console.error('[LoginPage] OTP Verification failed:', rejectedValue);
-      const errorKey = rejectedValue?.message || 'errors.AUTH_INVALID_OTP';
-      toast.error(t(errorKey));
+      const errorKey = rejectedValue?.message || 'AUTH_INVALID_OTP';
+      toast.error(t(`errors.${errorKey}`));
       setOtpError(true);
     }
   };
 
   const isLoading = status === 'loading' || status === 'verifying';
   const isOtpScreen = status === 'otp_requested' || (status === 'failed' && error?.isOtpError) || status === 'verifying';
-
-  const remainingRateLimitSeconds = useMemo(() => {
-    return Math.max(0, Math.floor((canResendAt - Date.now()) / 1000));
-  }, [canResendAt, canResend]);
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 px-4 py-12">
@@ -213,7 +170,7 @@ const LoginPage = () => {
               />
             </div>
             {status === 'failed' && error?.message && !error?.isOtpError && !error?.isRateLimitError && (
-              <p className="text-sm text-red-600 text-center">{t(error.message)}</p>
+              <p className="text-sm text-red-600 text-center">{t(`errors.${error.message}`)}</p>
             )}
             <div>
               <button type="submit" disabled={isLoading || !canResend} className={primaryButtonStyle}>
@@ -221,12 +178,12 @@ const LoginPage = () => {
                   {isLoading && <SpinnerIcon />}
                 </span>
                 {isLoading ? t('login.button_sending') :
-                  (canResend ? t('login.button_send_code') : t('login.button_resend_in', { seconds: remainingRateLimitSeconds }))}
+                  (canResend ? t('login.button_send_code') : t('login.button_resend_in', { seconds: timerSeconds }))}
               </button>
             </div>
             {status === 'failed' && error?.isRateLimitError && !canResend && (
               <p className="text-sm text-orange-600 text-center">
-                {t('errors.AUTH_RATE_LIMIT', { seconds: remainingRateLimitSeconds })}
+                {t('errors.AUTH_RATE_LIMIT', { seconds: timerSeconds })}
               </p>
             )}
           </form>
@@ -253,7 +210,7 @@ const LoginPage = () => {
               />
             </div>
             {status === 'failed' && error?.isOtpError && (
-              <p className="text-sm text-red-600 text-center">{t(error.message || 'errors.AUTH_INVALID_OTP')}</p>
+              <p className="text-sm text-red-600 text-center">{t(`errors.${error.message}` || t('errors.AUTH_INVALID_OTP'))}</p>
             )}
 
             <div>
@@ -273,7 +230,7 @@ const LoginPage = () => {
                 className={linkButtonStyle}
               >
                 {isLoading ? t('login.button_sending') :
-                  (canResend ? t('login.button_resend') : t('login.button_resend_in', { seconds: remainingRateLimitSeconds }))}</button>
+                  (canResend ? t('login.button_resend') : t('login.button_resend_in', { seconds: timerSeconds }))}</button>
               <button
                 type="button"
                 onClick={() => {
