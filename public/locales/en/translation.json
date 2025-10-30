@@ -117,10 +117,10 @@
       "title": "Technical Support",
       "description": "For technical issues with the website:"
     },
-    "copyright": "© {{year}} Neke Booking. All rights reserved.",
-    "notifications_title": "Notifications",
-    "notifications_empty": "No notifications yet."
+    "copyright": "© {{year}} Neke Booking. All rights reserved."
   },
+  "notifications_title": "Notifications",
+  "notifications_empty": "No notifications yet.",
   "admin_dashboard": {
     "title": "Admin Dashboard",
     "loading": "Loading appointments...",

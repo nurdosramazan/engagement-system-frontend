@@ -117,10 +117,10 @@
       "title": "Техникалық қолдау",
       "description": "Веб-сайттағы техникалық мәселелер бойынша:"
     },
-    "copyright": "© {{year}} Neke Booking. Барлық құқықтар қорғалған.",
-    "notifications_title": "Хабарламалар",
-    "notifications_empty": "Әзірге хабарламалар жоқ."
+    "copyright": "© {{year}} Neke Booking. Барлық құқықтар қорғалған."
   },
+  "notifications_title": "Хабарламалар",
+  "notifications_empty": "Әзірге хабарламалар жоқ.",
   "admin_dashboard": {
     "title": "Әкімші тақтасы",
     "loading": "Кездесулер жүктелуде...",
