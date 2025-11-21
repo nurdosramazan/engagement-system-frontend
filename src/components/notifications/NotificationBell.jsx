@@ -57,6 +57,8 @@ const NotificationBell = () => {
     };
 
     const safeNotifications = Array.isArray(notifications) ? notifications : [];
+    const capitalize = (s) => s.charAt(0).toUpperCase() + s.slice(1);
+
 
     return (
         <div className="relative">
@@ -87,7 +89,14 @@ const NotificationBell = () => {
                             safeNotifications.map(notif => {
                                 const params = { ...notif.messageParams };
                                 if (params.dateTime) {
-                                    params.dateTime = formatDate(params.dateTime, 'MMM d, yyyy h:mm a');
+                                    const currentLang = i18n.language || 'en';
+                                    const baseLang = currentLang.split('-')[0];
+
+                                    const formatString = (baseLang === 'kz' || baseLang === 'kk' || baseLang === 'ru')
+                                        ? 'MMMM d, yyyy HH:mm'
+                                        : 'MMM d, yyyy h:mm a';
+
+                                    params.dateTime = capitalize(formatDate(params.dateTime, formatString));
                                 }
 
                                 const translatedMessage = t(notif.messageKey, params);

@@ -8,7 +8,18 @@ import { addNotification } from '../../features/notification/notificationSlice';
 import { fetchAppointmentsByStatus } from '../../features/admin/adminSlice';
 import { fetchMyAppointments } from '../../features/appointment/appointmentSlice';
 import i18n from '../../i18n';
-import { useDateFormatter } from '../../hooks/useDateFormatter';
+
+import { enUS, kk, ru } from "date-fns/locale";
+import { format } from "date-fns";
+
+
+const getLocale = (lang) => {
+  if (!lang) return enUS;
+  const base = lang.split("-")[0];
+  if (base === "kk" || base === "kz") return kk;
+  if (base === "ru") return ru;
+  return enUS;
+};
 
 const InfoToastIcon = () => (
   <svg className="w-6 h-6 text-blue-500" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd"></path></svg>
@@ -21,8 +32,24 @@ const WebSocketProvider = ({ children }) => {
   const { token } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
 
-  const { formatDate } = useDateFormatter();
+  const formatNotificationParams = (params) => {
+    if (!params || !params.dateTime) return params;
 
+    const newParams = { ...params };
+    const currentLang = i18n.language || 'en';
+    const baseLang = currentLang.split("-")[0];
+    const locale = getLocale(currentLang);
+
+    const formatString = (baseLang === 'kz' || baseLang === 'kk' || baseLang === 'ru') ? 'PP HH:mm' : 'PP p';
+
+    try {
+      newParams.dateTime = format(new Date(params.dateTime), formatString, { locale });
+    } catch (e) {
+      console.warn("Error formatting notification date:", e);
+    }
+
+    return newParams;
+  };
   useEffect(() => {
     if (!token) return;
 
@@ -49,12 +76,8 @@ const WebSocketProvider = ({ children }) => {
         stompClient.subscribe(userDestination, (message) => {
           try {
             const notification = JSON.parse(message.body);
-            const params = { ...notification.messageParams };
-            if (params.dateTime) {
-              const lang = i18n.language.split('-')[0];
-              const formatString = (lang === 'kz' || lang === 'ru') ? 'PP HH:mm' : 'PP p';
-              params.dateTime = formatDate(params.dateTime, formatString);
-            }
+            const params = formatNotificationParams(notification.messageParams);
+
             const translatedMessage = i18n.t(notification.messageKey, params);
             notificationSound?.play().catch(e => console.warn("Sound playback failed:", e));
 
@@ -92,7 +115,7 @@ const WebSocketProvider = ({ children }) => {
     return () => {
       stompClient.deactivate();
     };
-  }, [token, dispatch, formatDate]);
+  }, [token, dispatch]);
 
   return children;
 };

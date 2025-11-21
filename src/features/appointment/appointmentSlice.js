@@ -49,24 +49,17 @@ export const bookAppointment = createAsyncThunk(
       );
       return response.data.data;
     } catch (error) {
-      const errorCode = error.response?.data?.message;
-      let translatedError;
-
-      if (errorCode) {
-        translatedError = i18n.t(`errors.${errorCode}`);
-      } else {
-        translatedError = error.message;
-      }
+      const errorCode = error.response?.data?.message || error.message;
 
       if (errorCode === "PROFILE_INCOMPLETE") {
         return rejectWithValue({
-          message: translatedError,
+          message: errorCode,
           isProfileError: true,
           fieldErrors: error.response?.data?.fieldErrors,
         });
       }
       return rejectWithValue({
-        message: translatedError,
+        message: errorCode,
         fieldErrors: error.response?.data?.fieldErrors,
       });
     }

@@ -208,6 +208,7 @@ const BookAppointmentPage = () => {
             await dispatch(bookAppointment(data)).unwrap();
             navigate('/dashboard');
         } catch (error) {
+            console.log(error.message);
             const errorKey = error?.message || 'unexpected_server_error';
             const isProfileError = errorKey === 'PROFILE_INCOMPLETE';
 

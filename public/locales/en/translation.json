@@ -43,7 +43,8 @@
     "logout": "Logout",
     "cancel": "Cancel",
     "confirm": "Confirm & Book",
-    "details": "Details"
+    "details": "Details",
+    "back": "Back"
   },
   "welcome": "Welcome, {{name}}!",
   "errors": {
@@ -149,7 +150,8 @@
       "completed_by": "Completed By:",
       "admin_notes": "Admin Notes:",
       "cancelled_by": "Cancelled By:",
-      "cancellation_reason": "Cancellation Reason:"
+      "cancellation_reason": "Cancellation Reason:",
+      "approved": "Approved:"
     },
     "filters": {
       "pending": "Pending",
