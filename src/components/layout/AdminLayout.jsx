@@ -66,7 +66,7 @@ const AdminLayout = () => {
           } md:relative md:translate-x-0 transition-transform duration-300 ease-in-out z-30`}
       >
         <div className="p-6 border-b border-gray-200">
-          <h1 className="text-3xl font-extrabold text-red-600 tracking-wider">
+          <h1 className="text-2xl font-extrabold text-red-600 tracking-wider">
             {t('app_title')}
             <span className="block text-sm font-normal text-gray-500 -mt-1">
               {t('admin_panel')}

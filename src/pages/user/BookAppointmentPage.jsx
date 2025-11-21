@@ -8,7 +8,6 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import Modal from '../../components/common/Modal';
 import { enUS, kk, ru } from 'date-fns/locale';
 import { useTranslation } from 'react-i18next';
-import { useDateFormatter } from '../../hooks/useDateFormatter';
 
 const getLocale = (lang) => {
     const langCode = lang.split('-')[0];
@@ -56,6 +55,14 @@ const BookAppointmentPage = () => {
     const ALLOWED_FILE_TYPES = ['application/pdf', 'image/jpeg', 'image/png'];
 
     const currentLocale = getLocale(i18n.language);
+
+    const getTimeFormat = () => {
+        const lang = i18n.language;
+        if (lang === 'kk' || lang === 'kz') {
+            return 'HH:mm';
+        }
+        return 'h:mm a';
+    };
 
     useEffect(() => {
         const restoredData = location.state?.restoredBookingData;
@@ -323,7 +330,7 @@ const BookAppointmentPage = () => {
                                         onClick={() => setSelectedSlot(slot)}
                                         className={`p-3 rounded-lg border-2 transition-colors text-center font-medium ${selectedSlot?.id === slot.id ? 'bg-indigo-600 text-white border-indigo-600 shadow-md' : 'bg-white hover:bg-indigo-50 border-gray-200'}`}
                                     >
-                                        {format(new Date(slot.startTime), 'h:mm a', { locale: currentLocale })}
+                                        {format(new Date(slot.startTime), getTimeFormat(), { locale: currentLocale })}
                                     </button>
                                 )) : <p className="col-span-3 text-sm text-gray-500">{t('booking.calendar.no_slots')}</p>}
                             </div>
@@ -341,7 +348,7 @@ const BookAppointmentPage = () => {
                                     <CalendarIcon />
                                     <span className="font-semibold">{format(new Date(selectedSlot.startTime), 'MMMM d, yyyy', { locale: currentLocale })}</span>
                                     <ClockIcon />
-                                    <span className="font-semibold">{format(new Date(selectedSlot.startTime), 'h:mm a', { locale: currentLocale })}</span>
+                                    <span className="font-semibold">{format(new Date(selectedSlot.startTime), getTimeFormat(), { locale: currentLocale })}</span>
                                 </div>
                             ) : (
                                 <div className="flex items-center bg-gray-100 p-3 rounded-lg text-gray-500">
@@ -441,7 +448,7 @@ const BookAppointmentPage = () => {
                             <div className="space-y-4">
                                 <p>{t('booking.modal.review')}</p>
                                 <div className="p-4 bg-gray-100 rounded-md">
-                                    <strong>{t('booking.modal.time_label')}</strong>
+                                    <strong>{t('booking.modal.time_label')} </strong>
                                     {selectedSlot ? format(new Date(selectedSlot.startTime), 'PPpp', { locale: currentLocale }) : 'N/A'}
                                 </div>
 

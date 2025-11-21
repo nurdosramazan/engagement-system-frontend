@@ -62,7 +62,7 @@ const UserLayout = () => {
     <div className="relative min-h-screen md:flex">
       <aside className="hidden md:block bg-white shadow-lg w-64">
         <div className="p-6 border-b border-gray-200">
-          <h1 className="text-3xl font-extrabold text-indigo-600 tracking-wider">{t('app_title')}</h1>
+          <h1 className="text-lg sm:text-2xl font-bold text-indigo-600 whitespace-normal leading-tight">{t('app_title')}</h1>
         </div>
         <nav className="mt-6 px-4 space-y-2">
           <NavLink to="/dashboard" className={navLinkClasses}> <DashboardIcon /> <span className="ml-4">{t('nav.dashboard')}</span> </NavLink>

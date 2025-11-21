@@ -51,7 +51,9 @@ const WebSocketProvider = ({ children }) => {
             const notification = JSON.parse(message.body);
             const params = { ...notification.messageParams };
             if (params.dateTime) {
-              params.dateTime = formatDate(params.dateTime);
+              const lang = i18n.language.split('-')[0];
+              const formatString = (lang === 'kz' || lang === 'ru') ? 'PP HH:mm' : 'PP p';
+              params.dateTime = formatDate(params.dateTime, formatString);
             }
             const translatedMessage = i18n.t(notification.messageKey, params);
             notificationSound?.play().catch(e => console.warn("Sound playback failed:", e));
@@ -59,7 +61,6 @@ const WebSocketProvider = ({ children }) => {
             dispatch(addNotification(notification));
             toast.success(translatedMessage || "You have a new notification!");
 
-            const lowerCaseMessage = (notification.message || "").toLowerCase();
             dispatch(fetchMyAppointments());
           } catch (error) {
             console.error("WebSocketProvider: Error processing user message:", error);
@@ -70,8 +71,10 @@ const WebSocketProvider = ({ children }) => {
           stompClient.subscribe('/topic/admin/new-appointments', (message) => {
             try {
               notificationSound?.play().catch(e => console.warn("Sound playback failed:", e));
+              const payload = JSON.parse(message.body);
+              const translatedMessage = i18n.t(payload.messageKey, payload.params);
 
-              toast((t) => (<span onClick={() => toast.dismiss(t.id)}>{message.body}</span>), { icon: <InfoToastIcon /> });
+              toast((t) => (<span onClick={() => toast.dismiss(t.id)}>{translatedMessage}</span>), { icon: <InfoToastIcon /> });
               dispatch(fetchAppointmentsByStatus('PENDING'));
             } catch (error) {
               console.error("WebSocketProvider: Error processing admin message:", error);
@@ -89,7 +92,7 @@ const WebSocketProvider = ({ children }) => {
     return () => {
       stompClient.deactivate();
     };
-  }, [token, dispatch]);
+  }, [token, dispatch, formatDate]);
 
   return children;
 };
