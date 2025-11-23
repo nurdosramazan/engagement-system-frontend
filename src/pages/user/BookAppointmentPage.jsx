@@ -10,7 +10,7 @@ import { enUS, kk, ru } from 'date-fns/locale';
 import { useTranslation } from 'react-i18next';
 
 const getLocale = (lang) => {
-    const langCode = lang.split('-')[0];
+    const langCode = lang ? lang.split('-')[0] : 'en';
     if (langCode === 'kk' || langCode === 'kz') return kk;
     if (langCode === 'ru') return ru;
     return enUS;
@@ -27,17 +27,22 @@ const BookAppointmentPage = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const { availableSlots, status: appointmentStatus } = useSelector((state) => state.appointments);
+    const { uploadProgress } = useSelector((state) => state.appointments);
 
     const [currentMonth, setCurrentMonth] = useState(new Date());
     const [selectedDate, setSelectedDate] = useState(null);
     const [selectedSlot, setSelectedSlot] = useState(null);
-    const { uploadProgress } = useSelector((state) => state.appointments);
     const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
     const [hasAgreed, setHasAgreed] = useState(false);
 
     const [formData, setFormData] = useState({
+        applicantDateOfBirth: '',
+        applicantOrigin: '',
         spouseFirstName: '',
         spouseLastName: '',
+        spousePhoneNumber: '',
+        spouseDateOfBirth: '',
+        spouseOrigin: '',
         witnesses: [
             { firstName: '', lastName: '', gender: 'MALE' },
             { firstName: '', lastName: '', gender: 'MALE' },
@@ -69,8 +74,13 @@ const BookAppointmentPage = () => {
         if (restoredData) {
             console.log("Restoring booking data:", restoredData);
             setFormData({
+                applicantDateOfBirth: restoredData.formData?.applicantDateOfBirth || '',
+                applicantOrigin: restoredData.formData?.applicantOrigin || '',
                 spouseFirstName: restoredData.formData?.spouseFirstName || '',
                 spouseLastName: restoredData.formData?.spouseLastName || '',
+                spousePhoneNumber: restoredData.formData?.spousePhoneNumber || '',
+                spouseDateOfBirth: restoredData.formData?.spouseDateOfBirth || '',
+                spouseOrigin: restoredData.formData?.spouseOrigin || '',
                 witnesses: restoredData.formData?.witnesses || [],
                 notes: restoredData.formData?.notes || '',
                 document: null,
@@ -93,7 +103,7 @@ const BookAppointmentPage = () => {
         }
     }, [currentMonth, dispatch, location.state]);
 
-    const daysOfWeek = useMemo(() => Array.from({ length: 7 }, (_, i) => format(addDays(startOfWeek(new Date(), { locale: currentLocale }), i), 'EEEEEE', { locale: currentLocale })), [currentLocale]); // Short day names like Mo, Tu
+    const daysOfWeek = useMemo(() => Array.from({ length: 7 }, (_, i) => format(addDays(startOfWeek(new Date(), { locale: currentLocale }), i), 'EEEEEE', { locale: currentLocale })), [currentLocale]);
     const start = useMemo(() => startOfMonth(currentMonth), [currentMonth]);
     const end = useMemo(() => endOfMonth(currentMonth), [currentMonth]);
     const daysInMonth = useMemo(() => eachDayOfInterval({ start, end }), [start, end]);
@@ -103,20 +113,43 @@ const BookAppointmentPage = () => {
         const newErrors = {};
         const nameRegex = /^[a-zA-Zа-яА-ЯёЁ'][a-zA-Zа-яА-ЯёЁ' -]*$/;
         const nameValidationParams = { min: MIN_NAME_LENGTH, max: MAX_NAME_LENGTH };
+        const phoneRegex = /^\+[1-9]\d{7,14}$/;
+
+        if (!formData.applicantDateOfBirth) {
+            newErrors.applicantDateOfBirth = t('booking.validation.required');
+        } else if (!isPast(new Date(formData.applicantDateOfBirth))) {
+            newErrors.applicantDateOfBirth = t('booking.validation.date_past');
+        }
+
+        if (!formData.applicantOrigin?.trim()) newErrors.applicantOrigin = t('booking.validation.required');
 
         if (!formData.spouseFirstName?.trim() || formData.spouseFirstName.trim().length < MIN_NAME_LENGTH || formData.spouseFirstName.trim().length > MAX_NAME_LENGTH || !nameRegex.test(formData.spouseFirstName)) {
             newErrors.spouseFirstName = t('booking.validation.name_length', { ...nameValidationParams, field: t('booking.form.spouse_first_name') });
         }
+
         if (!formData.spouseLastName?.trim() || formData.spouseLastName.trim().length < MIN_NAME_LENGTH || formData.spouseLastName.trim().length > MAX_NAME_LENGTH || !nameRegex.test(formData.spouseLastName)) {
             newErrors.spouseLastName = t('booking.validation.name_length', { ...nameValidationParams, field: t('booking.form.spouse_last_name') });
         }
+
+        if (!formData.spousePhoneNumber?.trim()) {
+            newErrors.spousePhoneNumber = t('booking.validation.required');
+        } else if (!phoneRegex.test(formData.spousePhoneNumber)) {
+            newErrors.spousePhoneNumber = t('booking.validation.invalid_phone');
+        }
+
+        if (!formData.spouseDateOfBirth) {
+            newErrors.spouseDateOfBirth = t('booking.validation.required');
+        } else if (!isPast(new Date(formData.spouseDateOfBirth))) {
+            newErrors.spouseDateOfBirth = t('booking.validation.date_past');
+        }
+        if (!formData.spouseOrigin?.trim()) newErrors.spouseOrigin = t('booking.validation.required');
 
         formData.witnesses.forEach((w, i) => {
             if (!w.firstName?.trim() || w.firstName.trim().length < MIN_NAME_LENGTH || w.firstName.trim().length > MAX_NAME_LENGTH || !nameRegex.test(w.firstName)) {
                 newErrors[`witnessFirstName${i}`] = t('booking.validation.name_length', { ...nameValidationParams, field: t('booking.form.witness_first_name_placeholder') });
             }
             if (!w.lastName?.trim() || w.lastName.trim().length < MIN_NAME_LENGTH || w.lastName.trim().length > MAX_NAME_LENGTH || !nameRegex.test(w.lastName)) {
-                newErrors[`witnessFirstName${i}`] = t('booking.validation.name_length', { ...nameValidationParams, field: t('booking.form.witness_last_name_placeholder') });
+                newErrors[`witnessLastName${i}`] = t('booking.validation.name_length', { ...nameValidationParams, field: t('booking.form.witness_last_name_placeholder') });
             }
         });
 
@@ -193,8 +226,13 @@ const BookAppointmentPage = () => {
 
         const requestData = {
             timeSlotId: selectedSlot.id,
+            applicantDateOfBirth: formData.applicantDateOfBirth,
+            applicantOrigin: formData.applicantOrigin.trim(),
             spouseFirstName: formData.spouseFirstName.trim(),
             spouseLastName: formData.spouseLastName.trim(),
+            spousePhoneNumber: formData.spousePhoneNumber.trim(),
+            spouseDateOfBirth: formData.spouseDateOfBirth,
+            spouseOrigin: formData.spouseOrigin.trim(),
             witnesses: formData.witnesses.map(w => ({
                 ...w,
                 firstName: w.firstName.trim(),
@@ -208,29 +246,24 @@ const BookAppointmentPage = () => {
             await dispatch(bookAppointment(data)).unwrap();
             navigate('/dashboard');
         } catch (error) {
-            console.log(error.message);
-            const errorKey = error?.message || 'unexpected_server_error';
+            const rawError = typeof error === 'string' ? error : (error?.message || 'unexpected_server_error');
             const isProfileError = errorKey === 'PROFILE_INCOMPLETE';
+
 
             if (isProfileError) {
                 toast.error(t('booking.validation.profile_incomplete'), { duration: 5000 });
                 navigate('/profile', {
                     state: {
                         fromBooking: true,
-                        bookingData: {
-                            formData: {
-                                spouseFirstName: formData.spouseFirstName,
-                                spouseLastName: formData.spouseLastName,
-                                witnesses: formData.witnesses,
-                                notes: formData.notes,
-                            },
-                            selectedSlot: selectedSlot,
+                        restoredBookingData: {
+                            formData: formData,
+                            selectedSlot: selectedSlot
                         }
                     }
                 });
             } else if (error?.fieldErrors) {
                 const firstErrorMsg = error.fieldErrors[0]?.defaultMessage || t(`errors.${errorKey}`);
-                toast.error(t(firstErrorMsg));
+                toast.error(firstErrorMsg || t('booking.validation.fix_errors'));
                 const backendErrors = {};
                 error.fieldErrors.forEach(err => {
                     let key = err.field;
@@ -243,7 +276,8 @@ const BookAppointmentPage = () => {
                 setFormErrors(backendErrors);
 
             } else {
-                toast.error(t('booking.validation.booking_failed', { message: t(`errors.${errorKey}`) }));
+                const errorMessage = rawError.includes(' ') ? rawError : t(`errors.${rawError}`);
+                toast.error(t('booking.validation.booking_failed', { message: errorMessage }));
             }
         }
     };
@@ -342,7 +376,7 @@ const BookAppointmentPage = () => {
                 <div className={`bg-white p-6 rounded-lg shadow-md transition-opacity duration-500 ${selectedSlot ? 'opacity-100' : 'opacity-50 pointer-events-none'}`}>
                     <h2 className="text-xl font-semibold mb-4">{t('booking.form.title')}</h2>
                     <form onSubmit={handleSubmit} className="space-y-4 noValidate">
-                        <div>
+                        <div className="mb-6">
                             <h3 className="font-medium mb-2">{t('booking.form.selected_appointment')}</h3>
                             {selectedSlot ? (
                                 <div className="flex items-center bg-gray-100 p-3 rounded-lg text-gray-700">
@@ -358,19 +392,59 @@ const BookAppointmentPage = () => {
                             )}
                         </div>
 
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700">{t('booking.form.spouse_first_name')}</label>
-                            <input type="text" name="spouseFirstName" value={formData.spouseFirstName} onChange={handleFormChange} required
-                                className={`mt-1 block w-full px-3 py-2 border rounded-md ${formErrors.spouseFirstName ? 'border-red-500' : 'border-gray-300'}`} />
-                            {formErrors.spouseFirstName && <p className="mt-1 text-xs text-red-500">{formErrors.spouseFirstName}</p>}
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700">{t('booking.form.spouse_last_name')}</label>
-                            <input type="text" name="spouseLastName" value={formData.spouseLastName} onChange={handleFormChange} required
-                                className={`mt-1 block w-full px-3 py-2 border rounded-md ${formErrors.spouseLastName ? 'border-red-500' : 'border-gray-300'}`} />
-                            {formErrors.spouseLastName && <p className="mt-1 text-xs text-red-500">{formErrors.spouseLastName}</p>}
+                        <div className="border-b pb-4 mb-4">
+                            <h3 className="text-lg font-semibold text-indigo-800 mb-3">{t('booking.form.section_applicant')}</h3>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700">{t('booking.form.dob')}</label>
+                                    <input type="date" name="applicantDateOfBirth" value={formData.applicantDateOfBirth} onChange={handleFormChange} required
+                                        className={`mt-1 block w-full px-3 py-2 border rounded-md ${formErrors.applicantDateOfBirth ? 'border-red-500' : 'border-gray-300'}`} />
+                                    {formErrors.applicantDateOfBirth && <p className="text-xs text-red-500 mt-1">{formErrors.applicantDateOfBirth}</p>}
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700">{t('booking.form.origin')}</label>
+                                    <input type="text" name="applicantOrigin" value={formData.applicantOrigin} onChange={handleFormChange} placeholder={t('booking.form.origin_placeholder')} required
+                                        className={`mt-1 block w-full px-3 py-2 border rounded-md ${formErrors.applicantOrigin ? 'border-red-500' : 'border-gray-300'}`} />
+                                    {formErrors.applicantOrigin && <p className="text-xs text-red-500 mt-1">{formErrors.applicantOrigin}</p>}
+                                </div>
+                            </div>
                         </div>
 
+                        <div className="border-b pb-4 mb-4">
+                            <h3 className="text-lg font-semibold text-pink-800 mb-3">{t('booking.form.section_spouse')}</h3>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700">{t('booking.form.spouse_first_name')}</label>
+                                    <input type="text" name="spouseFirstName" value={formData.spouseFirstName} onChange={handleFormChange} required
+                                        className={`mt-1 block w-full px-3 py-2 border rounded-md ${formErrors.spouseFirstName ? 'border-red-500' : 'border-gray-300'}`} />
+                                    {formErrors.spouseFirstName && <p className="mt-1 text-xs text-red-500">{formErrors.spouseFirstName}</p>}
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700">{t('booking.form.spouse_last_name')}</label>
+                                    <input type="text" name="spouseLastName" value={formData.spouseLastName} onChange={handleFormChange} required
+                                        className={`mt-1 block w-full px-3 py-2 border rounded-md ${formErrors.spouseLastName ? 'border-red-500' : 'border-gray-300'}`} />
+                                    {formErrors.spouseLastName && <p className="mt-1 text-xs text-red-500">{formErrors.spouseLastName}</p>}
+                                </div>
+                                <div className="md:col-span-2">
+                                    <label className="block text-sm font-medium text-gray-700">{t('booking.form.phone')}</label>
+                                    <input type="tel" name="spousePhoneNumber" value={formData.spousePhoneNumber} onChange={handleFormChange} placeholder={t('booking.form.phone_placeholder')} required
+                                        className={`mt-1 block w-full px-3 py-2 border rounded-md ${formErrors.spousePhoneNumber ? 'border-red-500' : 'border-gray-300'}`} />
+                                    {formErrors.spousePhoneNumber && <p className="text-xs text-red-500 mt-1">{formErrors.spousePhoneNumber}</p>}
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700">{t('booking.form.dob')}</label>
+                                    <input type="date" name="spouseDateOfBirth" value={formData.spouseDateOfBirth} onChange={handleFormChange} required
+                                        className={`mt-1 block w-full px-3 py-2 border rounded-md ${formErrors.spouseDateOfBirth ? 'border-red-500' : 'border-gray-300'}`} />
+                                    {formErrors.spouseDateOfBirth && <p className="text-xs text-red-500 mt-1">{formErrors.spouseDateOfBirth}</p>}
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700">{t('booking.form.origin')}</label>
+                                    <input type="text" name="spouseOrigin" value={formData.spouseOrigin} onChange={handleFormChange} placeholder={t('booking.form.origin_placeholder')} required
+                                        className={`mt-1 block w-full px-3 py-2 border rounded-md ${formErrors.spouseOrigin ? 'border-red-500' : 'border-gray-300'}`} />
+                                    {formErrors.spouseOrigin && <p className="text-xs text-red-500 mt-1">{formErrors.spouseOrigin}</p>}
+                                </div>
+                            </div>
+                        </div>
                         <div>
                             <h3 className="font-medium mb-2">{t('booking.form.witnesses_title')}</h3>
                             <div className="flex items-center bg-blue-50 text-blue-700 text-sm p-3 rounded-lg mb-3">
@@ -499,4 +573,3 @@ const BookAppointmentPage = () => {
 };
 
 export default BookAppointmentPage;
-

@@ -277,9 +277,16 @@
       "button_next": ">"
     },
     "form": {
+      "section_applicant": "Your Details",
+      "section_spouse": "Spouse Details",
       "title": "2. Provide Details",
       "selected_appointment": "Selected Appointment",
       "no_selection": "Please select a date and time slot first.",
+      "dob": "Date of Birth",
+      "origin": "Origin (City/Region)",
+      "origin_placeholder": "e.g. Astana",
+      "phone": "Phone Number",
+      "phone_placeholder": "+77001234567",
       "spouse_first_name": "Spouse's First Name",
       "spouse_last_name": "Spouse's Last Name",
       "witnesses_title": "Witnesses",
@@ -320,7 +327,10 @@
       "fix_errors": "Please fix the errors in the form.",
       "agree_rules": "You must agree to the rules to continue.",
       "profile_incomplete": "Your profile is incomplete. Please update it to continue.",
-      "booking_failed": "Booking Failed: {{message}}"
+      "booking_failed": "Booking Failed: {{message}}",
+      "required": "This field is required.",
+      "invalid_phone": "Invalid phone format. Example: +77001234567",
+      "date_past": "Date must be in the past."
     }
   },
   "user_dashboard": {
