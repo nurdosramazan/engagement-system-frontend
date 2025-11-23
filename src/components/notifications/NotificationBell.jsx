@@ -57,7 +57,21 @@ const NotificationBell = () => {
     };
 
     const safeNotifications = Array.isArray(notifications) ? notifications : [];
-    const capitalize = (s) => s.charAt(0).toUpperCase() + s.slice(1);
+    const capitalize = (s) => {
+        if (!s || typeof s !== 'string') return s;
+        return s.charAt(0).toUpperCase() + s.slice(1);
+    };
+
+    const parseJavaDate = (dateInput) => {
+        if (!dateInput) return null;
+
+        if (Array.isArray(dateInput)) {
+            const [year, month, day, hour, minute] = dateInput;
+            return new Date(year, month - 1, day, hour || 0, minute || 0);
+        }
+
+        return new Date(dateInput);
+    };
 
 
     return (
@@ -88,15 +102,22 @@ const NotificationBell = () => {
                         {safeNotifications.length > 0 ? (
                             safeNotifications.map(notif => {
                                 const params = { ...notif.messageParams };
+                                const currentLang = i18n.language || 'en';
+                                const baseLang = currentLang.split('-')[0];
                                 if (params.dateTime) {
-                                    const currentLang = i18n.language || 'en';
-                                    const baseLang = currentLang.split('-')[0];
-
+                                    const dateObj = parseJavaDate(params.dateTime);
                                     const formatString = (baseLang === 'kz' || baseLang === 'kk' || baseLang === 'ru')
                                         ? 'MMMM d, yyyy HH:mm'
                                         : 'MMM d, yyyy h:mm a';
 
-                                    params.dateTime = capitalize(formatDate(params.dateTime, formatString));
+                                    const formatted = formatDate(dateObj, formatString);
+                                    params.dateTime = capitalize(formatted);
+                                }
+
+                                if (baseLang === 'kz' || baseLang === 'kk') {
+                                    params.address = params.addressKz || params.addressEn;
+                                } else {
+                                    params.address = params.addressEn;
                                 }
 
                                 const translatedMessage = t(notif.messageKey, params);

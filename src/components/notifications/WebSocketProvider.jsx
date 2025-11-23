@@ -48,6 +48,12 @@ const WebSocketProvider = ({ children }) => {
       console.warn("Error formatting notification date:", e);
     }
 
+    if (baseLang === 'kz' || baseLang === 'kk') {
+      newParams.address = newParams.addressKz;
+    } else {
+      newParams.address = newParams.addressEn;
+    }
+
     return newParams;
   };
   useEffect(() => {
