@@ -122,6 +122,9 @@ const BookAppointmentPage = () => {
         }
 
         if (!formData.applicantOrigin?.trim()) newErrors.applicantOrigin = t('booking.validation.required');
+        else if (formData.applicantOrigin.length > 30) {
+            newErrors.applicantOrigin = t('booking.validation.origin_length');
+        }
 
         if (!formData.spouseFirstName?.trim() || formData.spouseFirstName.trim().length < MIN_NAME_LENGTH || formData.spouseFirstName.trim().length > MAX_NAME_LENGTH || !nameRegex.test(formData.spouseFirstName)) {
             newErrors.spouseFirstName = t('booking.validation.name_length', { ...nameValidationParams, field: t('booking.form.spouse_first_name') });
@@ -143,6 +146,9 @@ const BookAppointmentPage = () => {
             newErrors.spouseDateOfBirth = t('booking.validation.date_past');
         }
         if (!formData.spouseOrigin?.trim()) newErrors.spouseOrigin = t('booking.validation.required');
+        else if (formData.spouseOrigin.length > 30) {
+            newErrors.spouseOrigin = t('booking.validation.origin_length');
+        }
 
         formData.witnesses.forEach((w, i) => {
             if (!w.firstName?.trim() || w.firstName.trim().length < MIN_NAME_LENGTH || w.firstName.trim().length > MAX_NAME_LENGTH || !nameRegex.test(w.firstName)) {
@@ -206,16 +212,30 @@ const BookAppointmentPage = () => {
 
     const addWitness = () => {
         if (formData.witnesses.length < 3) {
-            setFormData(prev => ({
-                ...prev,
-                witnesses: [...prev.witnesses, { firstName: '', lastName: '', gender: 'FEMALE' }]
-            }));
+            setFormData(prev => {
+                const updatedWitnesses = [...prev.witnesses];
+
+                if (updatedWitnesses[1]) {
+                    updatedWitnesses[1] = { ...updatedWitnesses[1], gender: 'FEMALE' };
+                }
+
+                updatedWitnesses.push({ firstName: '', lastName: '', gender: 'FEMALE' });
+
+                return { ...prev, witnesses: updatedWitnesses };
+            });
         }
     };
 
     const removeWitness = (index) => {
-        const updatedWitnesses = formData.witnesses.filter((_, i) => i !== index);
-        setFormData(prev => ({ ...prev, witnesses: updatedWitnesses }));
+        setFormData(prev => {
+            const updatedWitnesses = prev.witnesses.filter((_, i) => i !== index);
+
+            if (updatedWitnesses.length === 2 && updatedWitnesses[1]) {
+                updatedWitnesses[1] = { ...updatedWitnesses[1], gender: 'MALE' };
+            }
+
+            return { ...prev, witnesses: updatedWitnesses };
+        });
     };
 
     const executeBooking = async () => {
@@ -246,9 +266,8 @@ const BookAppointmentPage = () => {
             await dispatch(bookAppointment(data)).unwrap();
             navigate('/dashboard');
         } catch (error) {
-            const rawError = typeof error === 'string' ? error : (error?.message || 'unexpected_server_error');
+            const errorKey = typeof error === 'string' ? error : (error?.message || 'unexpected_server_error');
             const isProfileError = errorKey === 'PROFILE_INCOMPLETE';
-
 
             if (isProfileError) {
                 toast.error(t('booking.validation.profile_incomplete'), { duration: 5000 });
@@ -276,7 +295,7 @@ const BookAppointmentPage = () => {
                 setFormErrors(backendErrors);
 
             } else {
-                const errorMessage = rawError.includes(' ') ? rawError : t(`errors.${rawError}`);
+                const errorMessage = errorKey.includes(' ') ? errorKey : t(`errors.${errorKey}`);
                 toast.error(t('booking.validation.booking_failed', { message: errorMessage }));
             }
         }

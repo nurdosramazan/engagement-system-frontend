@@ -36,7 +36,8 @@
     "notifications_read": "All notifications marked as read",
     "logs_listed": "Log files listed successfully",
     "profile_fetched": "User profile fetched successfully",
-    "profile_updated": "Profile updated successfully"
+    "profile_updated": "Profile updated successfully",
+    "appointment_details_updated": "Appointment details updated successfully."
   },
   "buttons": {
     "save": "Save Changes",
@@ -44,7 +45,8 @@
     "cancel": "Cancel",
     "confirm": "Confirm & Book",
     "details": "Details",
-    "back": "Back"
+    "back": "Back",
+    "edit": "Edit"
   },
   "welcome": "Welcome, {{name}}!",
   "errors": {
@@ -57,6 +59,8 @@
     "invalid_request_body": "Invalid request body format. Please check your data.",
     "access_denied": "You do not have permission to perform this action.",
     "unexpected_server_error": "An unexpected server error occurred. Please try again later.",
+    "update_failed": "Failed to update.",
+    "approval_failed": "Approval failed. Please try again.",
 
     "OTP_SEND_FAILED_WHATSAPP": "Failed to send OTP via WhatsApp. Please try again.",
     "OTP_SEND_FAILED_SMS_FALLBACK": "Failed to send OTP via WhatsApp or SMS. Please try again.",
@@ -127,12 +131,12 @@
     "loading": "Loading appointments...",
     "empty": "No appointments found for this status.",
     "history": {
-      "total": "Total",
-      "approved": "Approved",
-      "rejected": "Rejected",
-      "cancelled": "Cancelled",
-      "completed": "Completed",
-      "not_available": "N/A"
+      "total": "Total:",
+      "approved": "Approved:",
+      "rejected": "Rejected:",
+      "cancelled": "Cancelled:",
+      "completed": "Completed:",
+      "not_available": "History not available"
     },
     "details": {
       "title": "Details for Appointment #{{id}}",
@@ -151,7 +155,28 @@
       "admin_notes": "Admin Notes:",
       "cancelled_by": "Cancelled By:",
       "cancellation_reason": "Cancellation Reason:",
-      "approved": "Approved:"
+      "approved": "Approved:",
+      "section_groom": "Groom's Details",
+      "section_bride": "Bride's Details",
+      "section_admin": "Administrative",
+      "assigned_imam": "Assigned Imam",
+      "no_imam": "Not assigned yet",
+      "label_name": "Name",
+      "label_phone": "Phone",
+      "label_dob": "Date of Birth",
+      "label_origin": "Origin",
+      "label_login_phone": "Login Phone",
+      "label_applicant_user": "Applicant (User Account)"
+    },
+    "edit": {
+      "title": "Edit Appointment Details",
+      "warning": "Warning: Changing these details will affect the final marriage certificate.",
+      "save": "Save Changes"
+    },
+    "approve": {
+      "title": "Өтінімді мақұлдау",
+      "select_imam": "Неке қиятын Имамды таңдаңыз",
+      "confirm": "Мақұлдау және Бекіту"
     },
     "filters": {
       "pending": "Pending",
@@ -287,8 +312,8 @@
       "origin_placeholder": "e.g. Astana",
       "phone": "Phone Number",
       "phone_placeholder": "+77001234567",
-      "spouse_first_name": "Spouse's First Name",
-      "spouse_last_name": "Spouse's Last Name",
+      "spouse_first_name": "Spouse's first name",
+      "spouse_last_name": "Spouse's last name",
       "witnesses_title": "Witnesses",
       "witnesses_info": "Must be 2 males, or 1 male and 2 females.",
       "witness_first_name_placeholder": "First Name",
@@ -330,7 +355,9 @@
       "booking_failed": "Booking Failed: {{message}}",
       "required": "This field is required.",
       "invalid_phone": "Invalid phone format. Example: +77001234567",
-      "date_past": "Date must be in the past."
+      "date_past": "Date must be in the past.",
+      "origin_length": "Origin cannot exceed 30 characters.",
+      "input_len": "Must be between {{min}} and {{max}} characters."
     }
   },
   "user_dashboard": {

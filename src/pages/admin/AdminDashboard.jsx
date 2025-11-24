@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import {
     fetchAppointmentsByStatus,
-    approveAdminAppointment,
     rejectAdminAppointment,
     completeAdminAppointment,
     cancelAdminAppointment,
@@ -14,69 +13,9 @@ import { getAppointmentDocument } from '../../api/appointmentService';
 import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { useDateFormatter } from '../../hooks/useDateFormatter';
+import AppointmentDetails from '../../components/admin/AppointmentDetails';
 
 const AlertTriangleIcon = () => <svg className="w-5 h-5 inline-block ml-1 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>;
-const formatHistory = (history, t) => {
-    if (!history) return t('admin_dashboard.history.not_available');
-    const parts = [`${t('admin_dashboard.history.total')} ${history.totalSubmissions}`];
-    if (history.approvedCount > 0) parts.push(`${t('admin_dashboard.history.approved')} ${history.approvedCount}`);
-    if (history.rejectedCount > 0) parts.push(`${t('admin_dashboard.history.rejected')} ${history.rejectedCount}`);
-    if (history.cancelledCount > 0) parts.push(`${t('admin_dashboard.history.cancelled')} ${history.cancelledCount}`);
-    if (history.completedCount > 0) parts.push(`${t('admin_dashboard.history.completed')} ${history.completedCount}`);
-    return parts.join(', ');
-};
-
-const AppointmentDetails = ({ app, t, formatDate }) => (
-    <div className="space-y-4 text-sm text-gray-700">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-2">
-            <div><strong className="font-semibold text-gray-900">{t('admin_dashboard.details.applicant_phone')}</strong> {app.applicantPhoneNumber}</div>
-            <div>
-                <strong className="font-semibold text-gray-900">{t('admin_dashboard.details.applicant_history')}</strong>
-                <span className="ml-1">{formatHistory(app.applicantHistory, t)}</span>
-                {app.applicantHistory?.totalSubmissions > 1 && <AlertTriangleIcon />}
-            </div>
-            <div><strong className="font-semibold text-gray-900">{t('admin_dashboard.details.groom')}</strong> {app.groomFirstName} {app.groomLastName}</div>
-            <div><strong className="font-semibold text-gray-900">{t('admin_dashboard.details.bride')}</strong> {app.brideFirstName} {app.brideLastName}</div>
-        </div>
-        <hr />
-        <div><strong className="font-semibold text-gray-900">{t('admin_dashboard.details.witnesses')}</strong>
-            <ul className="list-disc list-inside ml-4 mt-1">
-                <li>{app.witness1FirstName} {app.witness1LastName}</li>
-                <li>{app.witness2FirstName} {app.witness2LastName}</li>
-                {app.witness3FirstName && <li>{app.witness3FirstName} {app.witness3LastName}</li>}
-            </ul>
-        </div>
-        <hr />
-        {app.notes && <div><strong className="font-semibold text-gray-900">{t('admin_dashboard.details.user_notes')}</strong><p className="mt-1 text-gray-600 bg-gray-50 p-2 rounded break-words">{app.notes}</p></div>}
-        <div className="space-y-1 mt-3 pt-3 border-t">
-            <h4 className="font-semibold text-gray-900 mb-2">{t('admin_dashboard.details.history_status')}</h4>
-            <div><strong className="w-28 inline-block whitespace-nowrap">{t('admin_dashboard.details.submitted')}</strong>{formatDate(app.createdAt, 'PPpp')}</div>
-            {app.processedAt && app.processedByName && (
-                <div className={app.status === 'REJECTED' ? 'text-red-600' : 'text-green-600'}>
-                    <strong className="w-28 inline-block whitespace-nowrap">{t(app.status === 'REJECTED' ? 'admin_dashboard.details.rejected_by' : 'admin_dashboard.details.approved_by')}</strong>
-                    {app.processedByName} ({format(new Date(app.processedAt), 'PPpp')})
-                </div>
-            )}
-            {app.rejectionReason && <div className="p-2 bg-red-50 border border-red-200 rounded-md text-red-700 break-words"><strong className="font-semibold">{t('admin_dashboard.details.rejection_reason')}</strong> {app.rejectionReason}</div>}
-
-            {app.completedAt && app.completedByName && (
-                <div className="text-blue-600">
-                    <strong className="w-28 inline-block whitespace-nowrap">{t('admin_dashboard.details.completed_by')}</strong>
-                    {app.completedByName} ({formatDate(app.completedAt, 'PPpp')})
-                </div>
-            )}
-            {app.adminNotes && <div className="p-2 bg-blue-50 border border-blue-200 rounded-md text-blue-700 break-words"><strong className="font-semibold">{t('admin_dashboard.details.admin_notes')}</strong> {app.adminNotes}</div>}
-
-            {app.cancelledAt && app.cancelledByName && (
-                <div className="text-gray-600">
-                    <strong className="w-28 inline-block whitespace-nowrap">{t('admin_dashboard.details.cancelled_by')}</strong>
-                    {app.cancelledByName} ({formatDate(app.cancelledAt, 'PPpp')})
-                </div>
-            )}
-            {app.cancellationReason && <div className="p-2 bg-gray-50 border border-gray-200 rounded-md text-gray-700 break-words"><strong className="font-semibold">{t('admin_dashboard.details.cancellation_reason')}</strong> {app.cancellationReason}</div>}
-        </div>
-    </div>
-);
 
 const AdminDashboard = () => {
     const dispatch = useDispatch();
@@ -112,9 +51,10 @@ const AdminDashboard = () => {
     };
 
     const openRejectionModal = (app) => {
-        setSelectedApp(app);
+        setSelectedApp(app || selectedApp);
         setReason('');
         setFormErrors({});
+        setIsDetailsModalOpen(false);
         setIsRejectionModalOpen(true);
     };
 
@@ -130,15 +70,6 @@ const AdminDashboard = () => {
         setAdminNotes('');
         setFormErrors({});
         setIsCompleteModalOpen(true);
-    };
-
-    const handleApprove = (id) => {
-        dispatch(approveAdminAppointment(id))
-            .unwrap()
-            .then((result) => {
-                toast.success(t(result.data.message));
-            })
-            .catch((err) => toast.error(t(err.message || 'admin_dashboard.toasts.approve_fail')));
     };
 
     const handleRejectSubmit = (e) => {
@@ -234,8 +165,12 @@ const AdminDashboard = () => {
 
     return (
         <div className="p-6">
-            <Modal isOpen={isDetailsModalOpen} onClose={() => setIsDetailsModalOpen(false)} title={t('admin_dashboard.details.title', { id: selectedApp?.id })}>
-                {selectedApp && <AppointmentDetails app={selectedApp} t={t} formatDate={formatDate} />}
+            <Modal isOpen={isDetailsModalOpen} onClose={() => setIsDetailsModalOpen(false)} title={t('admin_dashboard.details.title', { id: selectedApp?.id })} size="lg">
+                {selectedApp && <AppointmentDetails app={selectedApp} t={t} formatDate={formatDate}
+                    onReject={() => openRejectionModal(selectedApp)}
+                    onApproveSuccess={() => setIsDetailsModalOpen(false)}
+                    onEditSuccess={() => { }}
+                />}
             </Modal>
 
             <Modal isOpen={isRejectionModalOpen} onClose={() => setIsRejectionModalOpen(false)} title={t('admin_dashboard.modals.reject_title', { id: selectedApp?.id })}>
@@ -363,12 +298,6 @@ const AdminDashboard = () => {
                                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-4">
                                     <button onClick={() => openDetailsModal(app)} className="text-indigo-600 hover:text-indigo-900">{t('admin_dashboard.table.details')}</button>
                                     <button onClick={() => handleDownloadDocument(app)} className="text-gray-600 hover:text-gray-900">{t('admin_dashboard.table.document')}</button>
-                                    {app.status === 'PENDING' && (
-                                        <>
-                                            <button onClick={() => handleApprove(app.id)} className="text-green-600 hover:text-green-900">{t('admin_dashboard.table.approve')}</button>
-                                            <button onClick={() => openRejectionModal(app)} className="text-red-600 hover:text-red-900">{t('admin_dashboard.table.reject')}</button>
-                                        </>
-                                    )}
                                     {app.status === 'APPROVED' && (
                                         <>
                                             <button onClick={() => openCompleteModal(app)} className="text-blue-600 hover:text-blue-900">{t('admin_dashboard.table.complete')}</button>
