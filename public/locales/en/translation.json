@@ -37,7 +37,8 @@
     "logs_listed": "Log files listed successfully",
     "profile_fetched": "User profile fetched successfully",
     "profile_updated": "Profile updated successfully",
-    "appointment_details_updated": "Appointment details updated successfully."
+    "appointment_details_updated": "Appointment details updated successfully.",
+    "imams_fetched": "Imam list loaded."
   },
   "buttons": {
     "save": "Save Changes",
@@ -61,6 +62,16 @@
     "unexpected_server_error": "An unexpected server error occurred. Please try again later.",
     "update_failed": "Failed to update.",
     "approval_failed": "Approval failed. Please try again.",
+    "rate_limit_exceeded": "Too many requests. Please wait.",
+    "otp_request_failed": "Failed to request SMS code.",
+    "otp_verify_failed": "Failed to verify the code",
+    "server_invalid_response": "Server error.",
+
+    "notifications_fetch_error": "Could not load notifications.",
+    "notifications_update_error": "Could not update notifications.",
+    "profile_fetch_error": "Could not load profile.",
+    "profile_update_error": "Could not update profile.",
+    "validation_failed": "Please check your input.",
 
     "OTP_SEND_FAILED_WHATSAPP": "Failed to send OTP via WhatsApp. Please try again.",
     "OTP_SEND_FAILED_SMS_FALLBACK": "Failed to send OTP via WhatsApp or SMS. Please try again.",
@@ -77,6 +88,7 @@
     "CANNOT_CANCEL_APPOINTMENT": "Cannot cancel an appointment that is not pending or approved.",
     "INVALID_DATE_RANGE": "Start date cannot be after end date.",
     "CANNOT_PROCESS_APPOINTMENT": "Cannot approve/reject an appointment that is not pending.",
+    "IMAM_NOT_FOUND": "Selected Imam was not found.",
 
     "AUTH_RATE_LIMIT": "Please wait before requesting another OTP.",
     "SLOTS_TOO_FAR_FUTURE": "Cannot generate time slots more than 2 years into the future.",
@@ -174,9 +186,12 @@
       "save": "Save Changes"
     },
     "approve": {
-      "title": "Өтінімді мақұлдау",
-      "select_imam": "Неке қиятын Имамды таңдаңыз",
-      "confirm": "Мақұлдау және Бекіту"
+      "title": "Approve Appointment",
+      "select_imam": "Select Officiating Imam",
+      "select_placeholder": "Таңдаңыз",
+      "select_imam_error": "Имамды таңдаңыз.",
+      "confirm": "Approve & Assign",
+      "processing": "Өңделуде..."
     },
     "filters": {
       "pending": "Pending",

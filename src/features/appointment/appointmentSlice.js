@@ -49,7 +49,10 @@ export const bookAppointment = createAsyncThunk(
       );
       return response.data.data;
     } catch (error) {
-      const errorCode = error.response?.data?.message || error.message;
+      let errorCode = error.response?.data?.message;
+      if (!errorCode) {
+        errorCode = "unexpected_server_error";
+      }
 
       if (errorCode === "PROFILE_INCOMPLETE") {
         return rejectWithValue({

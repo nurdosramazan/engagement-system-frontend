@@ -42,3 +42,7 @@ export const getReport = (format, startDate, endDate) => {
     responseType: "blob",
   });
 };
+
+export const getActiveImams = () => {
+  return axiosInstance.get("/admin/imams");
+};

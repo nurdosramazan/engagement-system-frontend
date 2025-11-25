@@ -37,7 +37,8 @@
     "logs_listed": "Лог файлдары сәтті тізімделді",
     "profile_fetched": "Пайдаланушы профилі сәтті алынды",
     "profile_updated": "Профиль сәтті жаңартылды",
-    "appointment_details_updated": "Өтінім деректері сәтті жаңартылды."
+    "appointment_details_updated": "Өтінім деректері сәтті жаңартылды.",
+    "imams_fetched": "Имамдар тізімі жүктелді."
   },
   "buttons": {
     "save": "Өзгерістерді сақтау",
@@ -61,6 +62,15 @@
     "unexpected_server_error": "Күтпеген сервер қатесі орын алды. Кейінірек қайталап көріңіз.",
     "update_failed": "Жаңарту сәтсіз болды.",
     "approval_failed": "Мақұлдау сәтсіз аяқталды. Қайтадан көріңіз.",
+    "rate_limit_exceeded": "Сұраныс тым көп. Күте тұрыңыз.",
+    "otp_request_failed": "SMS код жіберу сәтсіз аяқталды.",
+    "otp_verify_failed": "Кодты растау сәтсіз аяқталды.",
+    "server_invalid_response": "Сервер қатесі.",
+    "notifications_fetch_error": "Хабарландыруларды жүктеу мүмкін болмады.",
+    "notifications_update_error": "Хабарландыруларды жаңарту мүмкін болмады.",
+    "profile_fetch_error": "Профильді жүктеу мүмкін болмады.",
+    "profile_update_error": "Профильді жаңарту мүмкін болмады.",
+    "validation_failed": "Деректерді тексеріңіз.",
 
     "OTP_SEND_FAILED_WHATSAPP": "WhatsApp арқылы OTP жіберу сәтсіз аяқталды. Қайталап көріңіз.",
     "OTP_SEND_FAILED_SMS_FALLBACK": "WhatsApp немесе SMS арқылы OTP жіберу сәтсіз аяқталды. Қайталап көріңіз.",
@@ -77,6 +87,7 @@
     "CANNOT_CANCEL_APPOINTMENT": "Cannot cancel an appointment that is not pending or approved.",
     "INVALID_DATE_RANGE": "Start date cannot be after end date.",
     "CANNOT_PROCESS_APPOINTMENT": "Cannot approve/reject an appointment that is not pending.",
+    "IMAM_NOT_FOUND": "Таңдалған Имам табылмады.",
 
     "AUTH_RATE_LIMIT": "Басқа OTP кодын сұрамас бұрын күте тұрыңыз.",
     "SLOTS_TOO_FAR_FUTURE": "Уақыт аралықтарын болашаққа 2 жылдан артық жасау мүмкін емес.",
@@ -176,7 +187,10 @@
     "approve": {
       "title": "Өтінімді мақұлдау",
       "select_imam": "Неке қиятын Имамды таңдаңыз",
-      "confirm": "Мақұлдау және Бекіту"
+      "confirm": "Мақұлдау және Бекіту",
+      "select_placeholder": "Таңдаңыз",
+      "select_imam_error": "Имамды таңдаңыз.",
+      "processing": "Өңделуде..."
     },
     "filters": {
       "pending": "Күтілуде",

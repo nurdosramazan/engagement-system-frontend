@@ -41,14 +41,12 @@ export const requestOtp = createAsyncThunk(
     } catch (error) {
       if (error.response?.status === 429) {
         return rejectWithValue({
-          message:
-            error.response?.data?.message ||
-            "Rate limit exceeded. Please wait.",
+          message: "rate_limit_exceeded",
           isRateLimitError: true,
         });
       }
       return rejectWithValue(
-        error.response?.data || { message: "Failed to request OTP" }
+        error.response?.data || { message: "otp_request_failed" }
       );
     }
   }
@@ -66,12 +64,12 @@ export const verifyOtp = createAsyncThunk(
         return response.data.data.accessToken;
       } else {
         return rejectWithValue({
-          message: "Invalid response structure from server.",
+          message: "server_invalid_response",
         });
       }
     } catch (error) {
       return rejectWithValue(
-        error.response?.data || { message: "OTP verification failed" }
+        error.response?.data || { message: "otp_verify_failed" }
       );
     }
   }

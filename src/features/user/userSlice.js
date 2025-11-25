@@ -15,7 +15,7 @@ export const fetchUserProfile = createAsyncThunk(
       return response.data.data;
     } catch (error) {
       return rejectWithValue(
-        error.response?.data?.message || "Failed to fetch profile."
+        error.response?.data?.message || "profile_fetch_error"
       );
     }
   }
@@ -34,12 +34,12 @@ export const updateUserProfile = createAsyncThunk(
         Array.isArray(error.response.data.data)
       ) {
         return rejectWithValue({
-          message: error.response.data.message || "Validation failed.",
+          message: error.response.data.message || "validation_failed",
           fieldErrors: error.response.data.data,
         });
       }
       return rejectWithValue(
-        error.response?.data?.message || "Failed to update profile."
+        error.response?.data?.message || "profile_update_error"
       );
     }
   }

@@ -82,6 +82,18 @@ export const approveAppointment = createAsyncThunk(
   }
 );
 
+export const fetchActiveImams = createAsyncThunk(
+  "admin/fetchImams",
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await adminService.getActiveImams();
+      return response.data.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data);
+    }
+  }
+);
+
 const adminSlice = createSlice({
   name: "admin",
   initialState,
@@ -127,6 +139,10 @@ const adminSlice = createSlice({
         state.appointments[index].status = "APPROVED";
         state.appointments[index].assignedImam = action.payload.assignedImam;
       }
+    });
+
+    builder.addCase(fetchActiveImams.fulfilled, (state, action) => {
+      state.imamsList = action.payload;
     });
   },
 });
