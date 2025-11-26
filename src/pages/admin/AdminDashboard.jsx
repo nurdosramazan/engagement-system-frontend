@@ -132,15 +132,29 @@ const AdminDashboard = () => {
         toast.loading(t('admin_dashboard.toasts.downloading'));
         try {
             const response = await getAppointmentDocument(app.id);
-            const url = window.URL.createObjectURL(new Blob([response.data]));
-            const link = document.createElement('a');
+
+            const contentDisposition = response.headers["content-disposition"];
+            let filename = "document";
+
+            if (contentDisposition) {
+                const match = contentDisposition.match(/filename="(.+)"/);
+                if (match && match[1]) filename = match[1];
+            }
+
+            const contentType = response.headers["content-type"];
+
+            const blob = new Blob([response.data], { type: contentType });
+            const url = window.URL.createObjectURL(blob);
+
+            const link = document.createElement("a");
             link.href = url;
-            const filename = app.documentPath.split('/').pop();
-            link.setAttribute('download', filename);
+            link.download = filename;
             document.body.appendChild(link);
             link.click();
-            link.parentNode.removeChild(link);
+            link.remove();
+
             window.URL.revokeObjectURL(url);
+
             toast.dismiss();
             toast.success(t('admin_dashboard.toasts.download_success'));
         } catch (error) {

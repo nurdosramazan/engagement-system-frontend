@@ -66,6 +66,7 @@
     "otp_request_failed": "Failed to request SMS code.",
     "otp_verify_failed": "Failed to verify the code",
     "server_invalid_response": "Server error.",
+    "access_denied_document": "Access to the document is denied",
 
     "notifications_fetch_error": "Could not load notifications.",
     "notifications_update_error": "Could not update notifications.",
@@ -161,6 +162,9 @@
       "history_status": "History & Status",
       "submitted": "Submitted:",
       "rejected_by": "Rejected By:",
+      "rejected": "Rejected:",
+      "cancelled": "Cancelled:",
+      "completed": "Completed:",
       "approved_by": "Approved By:",
       "rejection_reason": "Rejection Reason:",
       "completed_by": "Completed By:",
@@ -399,6 +403,7 @@
     "cancel_modal_prompt": "Please provide a reason for cancelling this appointment.",
     "cancel_modal_reason_placeholder": "Reason...",
     "cancel_modal_button_confirm": "Confirm Cancellation",
+    "no_notes": "No notes provided",
     "toasts": {
       "cancel_fail": "Failed to cancel appointment.",
       "downloading": "Downloading document...",

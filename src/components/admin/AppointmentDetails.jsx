@@ -115,7 +115,7 @@ const AppointmentDetails = ({ app, t, formatDate, onReject, onApproveSuccess, on
                 <div className="bg-pink-50 p-5 rounded-xl border border-pink-100 shadow-sm relative overflow-hidden">
                     <div className="absolute top-0 right-0 w-16 h-16 bg-pink-100 rounded-bl-full -mr-8 -mt-8"></div>
                     <h3 className="text-lg font-bold text-pink-900 mb-4 flex items-center">
-                        <span className="mr-2 text-2xl">👰</span> {t('admin_dashboard.details.section_bride')}
+                        <span className="mr-2 text-2xl">🧕</span> {t('admin_dashboard.details.section_bride')}
                     </h3>
                     <div className="space-y-3">
                         <div><span className="text-pink-400 text-xs uppercase font-semibold">{t('admin_dashboard.details.label_name')}</span> <p className="font-medium text-gray-800">{app.brideFirstName} {app.brideLastName}</p></div>
@@ -145,7 +145,7 @@ const AppointmentDetails = ({ app, t, formatDate, onReject, onApproveSuccess, on
                         <h4 className="font-bold">{t('admin_dashboard.details.user_notes')}</h4>
                     </div>
                     <p className="text-gray-600 italic bg-gray-50 p-2 rounded border border-gray-100 min-h-[3rem]">
-                        {app.notes || "No notes provided."}
+                        {app.notes || t('user_dashboard.no_notes')}
                     </p>
                 </div>
             </div>

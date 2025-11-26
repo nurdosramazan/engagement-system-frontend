@@ -66,6 +66,8 @@
     "otp_request_failed": "SMS код жіберу сәтсіз аяқталды.",
     "otp_verify_failed": "Кодты растау сәтсіз аяқталды.",
     "server_invalid_response": "Сервер қатесі.",
+    "access_denied_document": "Бұл құжатты алуға рұқсат жоқ.",
+
     "notifications_fetch_error": "Хабарландыруларды жүктеу мүмкін болмады.",
     "notifications_update_error": "Хабарландыруларды жаңарту мүмкін болмады.",
     "profile_fetch_error": "Профильді жүктеу мүмкін болмады.",
@@ -160,6 +162,9 @@
       "history_status": "Тарихы және мәртебесі",
       "submitted": "Жіберілді:",
       "rejected_by": "Қабылдамаған:",
+      "rejected": "Қабылданбады:",
+      "cancelled": "Қайтарып алынды:",
+      "completed": "Аяқталды:",
       "approved_by": "Растаған:",
       "rejection_reason": "Бас тарту себебі:",
       "completed_by": "Аяқтаған:",
@@ -398,6 +403,7 @@
     "cancel_modal_prompt": "Бұл кездесуден бас тарту себебін көрсетіңіз.",
     "cancel_modal_reason_placeholder": "Себебі...",
     "cancel_modal_button_confirm": "Бас тартуды растау",
+    "no_notes": "Жазбалар берілмеген.",
     "toasts": {
       "cancel_fail": "Кездесуді болдыру сәтсіз аяқталды.",
       "downloading": "Құжат жүктелуде...",
