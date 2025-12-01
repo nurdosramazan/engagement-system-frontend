@@ -14,7 +14,9 @@ import ProtectedRoute from './components/auth/ProtectedRoute';
 import WebSocketProvider from './components/notifications/WebSocketProvider';
 import NotFoundPage from './pages/NotFoundPage';
 import AdminSchedulePage from './pages/admin/AdminSchedulePage';
-import SuperAdminPage from './pages/superadmin/SuperAdminPage';
+import SystemLogsPage from './pages/superadmin/SystemLogsPage';
+import UserManagementPage from './pages/superadmin/UserManagementPage';
+import UserProfileDetailedPage from './pages/superadmin/UserProfileDetailedPage';
 
 function App() {
   const { token } = useSelector((state) => state.auth);
@@ -38,7 +40,9 @@ function App() {
             <Route path="schedule" element={<AdminSchedulePage />} />
             <Route path="reports" element={<AdminReportsPage />} />
             <Route path="generate-slots" element={<AdminSlotGenerationPage />} />
-            <Route path="logs" element={<ProtectedRoute roles={['SUPERADMIN']}> <SuperAdminPage /> </ProtectedRoute>} />
+            <Route path="users" element={<ProtectedRoute roles={['SUPERADMIN']}> <UserManagementPage /> </ProtectedRoute>} />
+            <Route path="users/:userId" element={<ProtectedRoute roles={['SUPERADMIN']}> <UserProfileDetailedPage /> </ProtectedRoute>} />
+            <Route path="logs" element={<ProtectedRoute roles={['SUPERADMIN']}> <SystemLogsPage /> </ProtectedRoute>} />
           </Route>
 
           <Route path="/" element={token ? <Navigate to="/dashboard" replace /> : <Navigate to="/landing" replace />} />

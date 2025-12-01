@@ -6,6 +6,7 @@ import NotificationBell from '../notifications/NotificationBell';
 import Footer from '../layout/Footer';
 import { useTranslation } from 'react-i18next';
 import LanguageSwitcher from '../common/LanguageSwitcher';
+import { ChevronDownIcon, ChevronUpIcon } from '@heroicons/react/24/solid';
 
 const AdminDashboardIcon = () => <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 17v-2a4 4 0 00-4-4H3a4 4 0 00-4 4v2m18 0v-2a4 4 0 00-4-4h-2a4 4 0 00-4 4v2m4 4h.01M12 6h.01M6 6h.01M18 6h.01M7 20h10a2 2 0 002-2V6a2 2 0 00-2-2H7a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>;
 const ReportsIcon = () => <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>;
@@ -30,6 +31,8 @@ const LogIcon = () => (
     />
   </svg>
 );
+const ShieldIcon = () => <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>;
+const UsersIcon = () => <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" /></svg>;
 
 const AdminLayout = () => {
   const { t } = useTranslation();
@@ -37,6 +40,7 @@ const AdminLayout = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isSuperAdminMenuOpen, setIsSuperAdminMenuOpen] = useState(false);
   const { user } = useSelector((state) => state.auth);
   const isSuperAdmin = user?.roles?.includes('SUPERADMIN');
 
@@ -51,6 +55,9 @@ const AdminLayout = () => {
 
   const navLinkClasses = ({ isActive }) =>
     `flex items-center px-4 py-3 text-gray-700 hover:bg-red-100 rounded-lg transition-colors duration-200 ${isActive ? 'bg-red-100 text-red-700 font-bold' : 'font-medium'
+    }`;
+  const subNavLinkClasses = ({ isActive }) =>
+    `flex items-center px-4 py-2 ml-4 text-sm text-gray-600 hover:bg-gray-100 rounded-lg transition-colors duration-200 ${isActive ? 'bg-gray-100 text-indigo-700 font-bold' : 'font-medium'
     }`;
 
   return (
@@ -75,26 +82,41 @@ const AdminLayout = () => {
         </div>
         <nav className="mt-6 px-4 space-y-2">
           <NavLink to="/admin/dashboard" className={navLinkClasses} onClick={() => setIsSidebarOpen(false)}>
-            {' '}
             <AdminDashboardIcon /> <span className="ml-4">{t('nav.admin_dashboard')}</span>
           </NavLink>
           <NavLink to="/admin/schedule" className={navLinkClasses} onClick={() => setIsSidebarOpen(false)}>
-            {' '}
             <ScheduleIcon /> <span className="ml-4">{t('nav.schedule')}</span>
           </NavLink>
           <NavLink to="/admin/reports" className={navLinkClasses} onClick={() => setIsSidebarOpen(false)}>
-            {' '}
             <ReportsIcon /> <span className="ml-4">{t('nav.reports')}</span>
           </NavLink>
           <NavLink to="/admin/generate-slots" className={navLinkClasses} onClick={() => setIsSidebarOpen(false)}>
-            {' '}
             <SlotsIcon /> <span className="ml-4">{t('nav.generate_slots')}</span>
           </NavLink>
           {isSuperAdmin && (
-            <NavLink to="/admin/logs" className={navLinkClasses} onClick={() => setIsSidebarOpen(false)}>
-              <LogIcon /> <span className="ml-4">{t('nav.logs')}</span>
-            </NavLink>
+            <>
+              <button
+                onClick={() => setIsSuperAdminMenuOpen(!isSuperAdminMenuOpen)}
+                className={`w-full flex items-center justify-between px-4 py-3 text-gray-700 hover:bg-red-100 rounded-lg transition-colors duration-200 font-medium`}
+              >
+                <div className="flex items-center">
+                  <ShieldIcon /> <span className="ml-4">{t('nav.superadmin')}</span>
+                </div>
+                {isSuperAdminMenuOpen ? <ChevronUpIcon className="w-4 h-4" /> : <ChevronDownIcon className="w-4 h-4" />}
+              </button>
+              {isSuperAdminMenuOpen && (
+                <div className="mt-1 space-y-1">
+                  <NavLink to="/admin/users" className={subNavLinkClasses} onClick={() => setIsSidebarOpen(false)}>
+                    <UsersIcon /> <span className="ml-3">{t('superadmin.nav.users')}</span>
+                  </NavLink>
+                  <NavLink to="/admin/logs" className={subNavLinkClasses} onClick={() => setIsSidebarOpen(false)}>
+                    <LogIcon /> <span className="ml-3">{t('nav.logs')}</span>
+                  </NavLink>
+                </div>
+              )}
+            </>
           )}
+
         </nav>
       </aside>
 
@@ -115,7 +137,7 @@ const AdminLayout = () => {
               to="/dashboard"
               className="flex items-center px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 font-semibold"
             >
-              <UserViewIcon />{' '}
+              <UserViewIcon />
               <span className="hidden sm:inline">{t('nav.user_view')}</span>
             </Link>
             <NotificationBell />

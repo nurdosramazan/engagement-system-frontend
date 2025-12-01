@@ -13,7 +13,8 @@
     "reports": "Reports",
     "generate_slots": "Generate Slots",
     "logs": "Application Logs",
-    "user_view": "Switch to user view"
+    "user_view": "Switch to user view",
+    "superadmin": "Superadmin"
   },
   "header": {
     "admin_view": "Administrator View"
@@ -460,5 +461,25 @@
     "title": "Page Not Found",
     "description": "Sorry, the page you are looking for does not exist or you don't have permission to view it.",
     "button_home": "Return to Home"
+  },
+  "superadmin": {
+    "nav": {
+      "users": "User Management"
+    },
+    "users": {
+      "title": "User Management",
+      "search_placeholder": "Search by phone or name...",
+      "user": "User",
+      "role": "Role",
+      "status": "Status",
+      "actions": "Actions",
+      "view_profile": "View Profile",
+      "ban": "Ban User",
+      "unban": "Unban User"
+    },
+    "status": {
+      "ACTIVE": "Active",
+      "BANNED": "Banned"
+    }
   }
 }

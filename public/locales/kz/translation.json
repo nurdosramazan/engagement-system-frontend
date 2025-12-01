@@ -13,7 +13,8 @@
     "reports": "Есеп беру",
     "generate_slots": "Жаңа слоттар",
     "logs": "Қосымша журналдары",
-    "user_view": "Пайдаланушы көрінісіне ауысу"
+    "user_view": "Пайдаланушы көрінісіне ауысу",
+    "superadmin": "Superadmin"
   },
   "header": {
     "admin_view": "Админ көрінісі"
@@ -459,5 +460,24 @@
     "title": "Бет табылмады",
     "description": "Кешіріңіз, сіз іздеген бет жоқ немесе оны көруге рұқсатыңыз жоқ.",
     "button_home": "Басты бетке оралу"
+  },
+  "superadmin": {
+    "nav": {
+      "users": "User Management"
+    },
+    "users": {
+      "title": "Қолданушыларды басқару",
+      "search_placeholder": "Телефон немесе аты бойынша іздеу...",
+      "user": "Қолданушы",
+      "role": "Рөлі",
+      "status": "Мәртебесі",
+      "actions": "Әрекеттер",
+      "ban": "Бұғаттау",
+      "unban": "Бұғаттан шығару"
+    },
+    "status": {
+      "ACTIVE": "Active",
+      "BANNED": "Banned"
+    }
   }
 }

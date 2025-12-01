@@ -29,3 +29,17 @@ export const downloadLogFile = async (fileName) => {
     toast.error(`Failed to download ${fileName}.`);
   }
 };
+
+export const getUsers = (page, size, search) => {
+  return axiosInstance.get("/superadmin/users", {
+    params: { page, size, search },
+  });
+};
+
+export const getUserDeepProfile = (userId) => {
+  return axiosInstance.get(`/superadmin/users/${userId}`);
+};
+
+export const toggleUserLock = (userId) => {
+  return axiosInstance.post(`/superadmin/users/${userId}/toggle-lock`);
+};
