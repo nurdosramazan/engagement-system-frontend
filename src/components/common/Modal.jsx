@@ -1,22 +1,33 @@
-import React from 'react';
+import React, { useEffect } from 'react';
+import { XMarkIcon } from '@heroicons/react/24/solid';
 
-const Modal = ({ isOpen, onClose, title, children, size = '2xl' }) => {
+const Modal = ({ isOpen, onClose, title, children, size = 'md' }) => {
+  useEffect(() => {
+    const handleEsc = (e) => {
+      if (e.key === 'Escape') onClose();
+    };
+
+    if (isOpen) {
+      window.addEventListener('keydown', handleEsc);
+    }
+    return () => window.removeEventListener('keydown', handleEsc);
+  }, [isOpen, onClose]);
   if (!isOpen) return null;
 
   const sizeClasses = {
-    'md': 'max-w-md',
-    'lg': 'max-w-lg',
-    'xl': 'max-w-xl',
-    '2xl': 'max-w-2xl',
+    sm: 'max-w-md',
+    md: 'max-w-lg',
+    lg: 'max-w-4xl',
+    xl: 'max-w-6xl',
   };
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-4">
-      <div className={`bg-white p-6 rounded-lg shadow-xl w-full ${sizeClasses[size] || 'max-w-2xl'} max-h-[90vh] overflow-y-auto`}>
-        < div className="flex justify-between items-center border-b pb-3 mb-4">
-          <h2 className="text-2xl font-bold text-gray-800">{title}</h2>
-          <button onClick={onClose} className="text-gray-500 hover:text-gray-800 text-3xl font-bold">&times;</button>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4 backdrop-blur-sm transition-opacity" onClick={onClose}>
+      <div className={`bg-white rounded-xl shadow-2xl w-full ${sizeClasses[size]} overflow-hidden transform transition-all`} onClick={(e) => e.stopPropagation()}>
+        <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50">
+          <h3 className="text-lg font-bold text-gray-800">{title}</h3>
+          <button onClick={onClose} className="p-1 rounded-full hover:bg-gray-200 text-gray-400 hover:text-gray-600 transition-colors"><XMarkIcon className="w-5 h-5" /></button>
         </div>
-        <div>
+        <div className="p-6 max-h-[80vh] overflow-y-auto">
           {children}
         </div>
       </div>

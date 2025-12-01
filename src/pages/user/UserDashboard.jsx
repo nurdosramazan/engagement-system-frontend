@@ -89,7 +89,7 @@ const AppointmentDetails = ({ app, t, formatDate }) => (
 
             <div><strong className="w-32 inline-block">{t('admin_dashboard.details.submitted')}</strong>{formatDate(app.createdAt, 'PPpp')}</div>
 
-            {app.processedAt && (app.status === 'APPROVED' || app.status === 'REJECTED') && (
+            {app.processedAt && (
                 <div className={app.status === 'REJECTED' ? 'text-red-600' : 'text-green-600'}>
                     <strong className="w-32 inline-block">{t(app.status === 'REJECTED' ? 'admin_dashboard.details.rejected' : 'admin_dashboard.details.approved')}</strong>
                     {formatDate(app.processedAt, 'PPpp')}

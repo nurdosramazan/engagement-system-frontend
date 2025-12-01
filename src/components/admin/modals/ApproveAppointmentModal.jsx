@@ -15,6 +15,14 @@ const ApproveAppointmentModal = ({ appointmentId, isOpen, onClose, t }) => {
         }
     }, [isOpen, dispatch, imamsList]);
 
+    useEffect(() => {
+        const handleEsc = (e) => {
+            if (e.key === 'Escape') onClose();
+        };
+        if (isOpen) window.addEventListener('keydown', handleEsc);
+        return () => window.removeEventListener('keydown', handleEsc);
+    }, [isOpen, onClose]);
+
     const handleApprove = async () => {
         if (!selectedImamId) {
             toast.error(t('admin_dashboard.approve.select_imam_error'));
@@ -36,8 +44,8 @@ const ApproveAppointmentModal = ({ appointmentId, isOpen, onClose, t }) => {
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-lg w-full max-w-md p-6">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 backdrop-blur-sm" onClick={onClose}>
+            <div className="bg-white rounded-lg w-full max-w-md p-6 shadow-2xl" onClick={(e) => e.stopPropagation()}>
                 <h2 className="text-xl font-bold mb-4">{t('admin_dashboard.approve.title')}</h2>
 
                 <div className="mb-6">
