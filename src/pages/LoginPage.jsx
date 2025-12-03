@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { requestOtp, verifyOtp, resetAuthStatus } from '../features/auth/authSlice';
@@ -89,6 +89,8 @@ const LoginPage = () => {
       toast.error(t('login.validation_invalid_phone'));
       return;
     }
+    setOtp('');
+
     try {
       await dispatch(requestOtp(phoneNumber)).unwrap();
       setCanResend(false);
@@ -114,7 +116,6 @@ const LoginPage = () => {
     e?.preventDefault();
     if (otpToVerify.length !== 6 || !phoneNumber) return;
 
-    console.log('[LoginPage] Attempting to verify OTP...');
     try {
       const resultAction = await dispatch(verifyOtp({
         phoneNumber: phoneNumber,
@@ -122,7 +123,6 @@ const LoginPage = () => {
         channel: usedChannel
       })).unwrap();
 
-      console.log('[LoginPage] OTP Verification successful.');
       toast.success(t('api.login_success'));
       setOtpError(false);
       const decodedToken = jwtDecode(resultAction);
@@ -132,11 +132,8 @@ const LoginPage = () => {
         ? '/admin/dashboard'
         : '/dashboard';
 
-      console.log(`[LoginPage] Navigating to: ${targetPath}`);
       navigate(targetPath, { replace: true });
-      console.log('[LoginPage] navigate() function called.');
     } catch (rejectedValue) {
-      console.error('[LoginPage] OTP Verification failed:', rejectedValue);
       const errorKey = rejectedValue?.message || 'AUTH_INVALID_OTP';
       toast.error(t(`errors.${errorKey}`));
       setOtpError(true);

@@ -52,6 +52,8 @@ const superAdminSlice = createSlice({
   reducers: {
     clearCurrentProfile: (state) => {
       state.currentUserProfile = null;
+      state.status = "idle";
+      state.error = null;
     },
   },
   extraReducers: (builder) => {
@@ -74,10 +76,16 @@ const superAdminSlice = createSlice({
     builder.addCase(fetchUserDetails.pending, (state) => {
       state.status = "loading";
       state.currentUserProfile = null;
+      state.error = null;
     });
     builder.addCase(fetchUserDetails.fulfilled, (state, action) => {
       state.status = "succeeded";
       state.currentUserProfile = action.payload;
+    });
+
+    builder.addCase(fetchUserDetails.rejected, (state, action) => {
+      state.status = "failed";
+      state.error = action.payload;
     });
 
     builder.addCase(toggleUserLock.fulfilled, (state, action) => {

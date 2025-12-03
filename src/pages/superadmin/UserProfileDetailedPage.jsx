@@ -5,7 +5,7 @@ import { fetchUserDetails, toggleUserLock, clearCurrentProfile } from '../../fea
 import { getAppointmentDocument } from '../../api/appointmentService';
 import toast from 'react-hot-toast';
 import {
-    ClockIcon, DocumentTextIcon, MapPinIcon, DevicePhoneMobileIcon,
+    ClockIcon, DocumentTextIcon, ExclamationTriangleIcon, DevicePhoneMobileIcon,
     ShieldExclamationIcon, ArrowLeftIcon, UserIcon, ChatBubbleLeftRightIcon
 } from '@heroicons/react/24/outline';
 import { useTranslation } from 'react-i18next';
@@ -15,7 +15,7 @@ const UserProfileDetailedPage = () => {
     const navigate = useNavigate();
     const dispatch = useDispatch();
     const { t } = useTranslation();
-    const { currentUserProfile: profile, status } = useSelector((state) => state.superAdmin);
+    const { currentUserProfile: profile, status, error } = useSelector((state) => state.superAdmin);
     const [activeTab, setActiveTab] = useState('appointments');
 
     useEffect(() => {
@@ -48,7 +48,33 @@ const UserProfileDetailedPage = () => {
         }
     };
 
-    if (status === 'loading' || !profile) return <div className="p-8 text-center text-gray-500">Loading profile...</div>;
+    if (status === 'loading') {
+        return (
+            <div className="flex justify-center items-center h-64 text-gray-500">
+                <ClockIcon className="w-6 h-6 animate-spin mr-2" />
+                Loading profile data...
+            </div>
+        );
+    }
+
+    if (status === 'failed' || error) {
+        return (
+            <div className="flex flex-col items-center justify-center h-96 text-center space-y-4">
+                <div className="bg-red-100 p-4 rounded-full">
+                    <ExclamationTriangleIcon className="w-10 h-10 text-red-600" />
+                </div>
+                <h2 className="text-xl font-bold text-gray-900">{t(`errors.${error?.message}`)}</h2>
+                <button
+                    onClick={() => navigate('/admin/users')}
+                    className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 font-medium transition-colors"
+                >
+                    {t('superadmin.buttons.return_to_list')}
+                </button>
+            </div>
+        );
+    }
+
+    if (!profile) return null;
 
     const { basicInfo, loginHistory, auditLogs, appointments, uploadedDocumentAppointmentIds, stats } = profile;
 

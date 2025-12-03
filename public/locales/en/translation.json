@@ -94,7 +94,8 @@
 
     "AUTH_RATE_LIMIT": "Please wait before requesting another OTP.",
     "SLOTS_TOO_FAR_FUTURE": "Cannot generate time slots more than 2 years into the future.",
-    "SLOTS_PAST_MONTH": "Cannot generate time slots for a past month."
+    "SLOTS_PAST_MONTH": "Cannot generate time slots for a past month.",
+    "USER_BANNED": "Your account has been suspended. Please contact support."
   },
   "notifications": {
     "appointment_created": "Your application for {{dateTime}} has been submitted for review.",
@@ -480,6 +481,9 @@
     "status": {
       "ACTIVE": "Active",
       "BANNED": "Banned"
+    },
+    "buttons": {
+      "return_to_list": "Return to User List"
     }
   }
 }
