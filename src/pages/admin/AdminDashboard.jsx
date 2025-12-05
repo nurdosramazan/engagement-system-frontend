@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import {
-    fetchAppointmentsByStatus,
     rejectAdminAppointment,
     completeAdminAppointment,
     cancelAdminAppointment,
+    fetchFilteredAppointments
 } from '../../features/admin/adminSlice';
 import { format } from 'date-fns';
 import toast from 'react-hot-toast';
@@ -14,6 +14,9 @@ import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { useDateFormatter } from '../../hooks/useDateFormatter';
 import AppointmentDetails from '../../components/admin/AppointmentDetails';
+import AppointmentFilters from '../../components/admin/AppointmentFilters';
+import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/solid';
+
 
 const AlertTriangleIcon = () => <svg className="w-5 h-5 inline-block ml-1 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>;
 
@@ -21,8 +24,13 @@ const AdminDashboard = () => {
     const dispatch = useDispatch();
     const { t } = useTranslation();
     const { formatDate } = useDateFormatter();
-    const { appointments, status } = useSelector((state) => state.admin);
-    const [selectedStatus, setSelectedStatus] = useState('PENDING');
+    const { appointments, status, totalPages, totalElements } = useSelector((state) => state.admin);
+
+    const [page, setPage] = useState(0);
+    const pageSize = 10;
+    const [filters, setFilters] = useState({
+        search: '', status: 'PENDING', startDate: '', endDate: ''
+    });
 
     const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
     const [isRejectionModalOpen, setIsRejectionModalOpen] = useState(false);
@@ -39,11 +47,32 @@ const AdminDashboard = () => {
         { label: t('admin_dashboard.filters.completed'), value: 'COMPLETED' },
         { label: t('admin_dashboard.filters.rejected'), value: 'REJECTED' },
         { label: t('admin_dashboard.filters.cancelled'), value: 'CANCELLED' },
+        { label: t('admin_dashboard.filters.all_statuses'), value: '' },
     ];
 
     useEffect(() => {
-        dispatch(fetchAppointmentsByStatus(selectedStatus));
-    }, [dispatch, selectedStatus]);
+        dispatch(fetchFilteredAppointments({
+            page,
+            size: pageSize,
+            ...filters
+        }));
+    }, [dispatch, page, filters]);
+
+    const handleStatusTabClick = (statusValue) => {
+        setFilters(prev => ({ ...prev, status: statusValue }));
+        setPage(0);
+    };
+
+    const handleFilterComponentChange = (newFilters) => {
+        setFilters(prev => ({ ...prev, ...newFilters }));
+        setPage(0);
+    };
+
+    const handlePageChange = (newPage) => {
+        if (newPage >= 0 && newPage < totalPages) {
+            setPage(newPage);
+        }
+    };
 
     const openDetailsModal = (app) => {
         setSelectedApp(app);
@@ -178,7 +207,7 @@ const AdminDashboard = () => {
     const MAX_NOTES_LENGTH = 500;
 
     return (
-        <div className="p-6">
+        <div className="p-6 space-y-6">
             <Modal isOpen={isDetailsModalOpen} onClose={() => setIsDetailsModalOpen(false)} title={t('admin_dashboard.details.title', { id: selectedApp?.id })} size="lg">
                 {selectedApp && <AppointmentDetails app={selectedApp} t={t} formatDate={formatDate}
                     onReject={() => openRejectionModal(selectedApp)}
@@ -260,21 +289,24 @@ const AdminDashboard = () => {
                 </form>
             </Modal>
 
-            <h1 className="text-3xl font-bold mb-6">{t('admin_dashboard.title')}</h1>
-            <div className="mb-6 bg-white p-4 rounded-lg shadow-md">
-                <div className="flex items-center gap-2 overflow-x-auto">
+            <div className="flex justify-between items-center">
+                <h1 className="text-3xl font-bold text-gray-800">{t('admin_dashboard.title')}</h1>
+            </div>
+            <AppointmentFilters onFilterChange={handleFilterComponentChange} />
+            <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
+                <div className="flex items-center gap-2 overflow-x-auto pb-2 sm:pb-0">
                     {filterOptions.map((option) => (
                         <motion.button
                             key={option.value}
-                            onClick={() => setSelectedStatus(option.value)}
-                            className={`relative px-4 py-2 rounded-full text-sm font-semibold whitespace-nowrap ${selectedStatus === option.value
+                            onClick={() => handleStatusTabClick(option.value)}
+                            className={`relative px-4 py-2 rounded-full text-sm font-semibold whitespace-nowrap ${filters.status === option.value
                                 ? 'text-white'
                                 : 'text-gray-700 hover:bg-gray-100'
                                 }`}
                             whileHover={{ scale: 1.05 }}
                             whileTap={{ scale: 0.95 }}
                         >
-                            {selectedStatus === option.value && (
+                            {filters.status === option.value && (
                                 <motion.div
                                     layoutId="activePill"
                                     className="absolute inset-0 bg-indigo-600 rounded-full"
@@ -287,44 +319,89 @@ const AdminDashboard = () => {
                 </div>
             </div>
 
-
-            {status === 'loading' && <p>{t('admin_dashboard.loading')}</p>}
-
-            <div className="bg-white shadow-md rounded-lg overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-gray-50">
-                        <tr>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">{t('admin_dashboard.table.applicant')}</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">{t('admin_dashboard.table.datetime')}</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">{t('admin_dashboard.table.status')}</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">{t('admin_dashboard.table.actions')}</th>
-                        </tr>
-                    </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
-                        {(appointments || []).map((app) => (
-                            <tr key={app.id}>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                    {app.applicantPhoneNumber}
-                                    {app.applicantHistory?.totalSubmissions > 1 && <AlertTriangleIcon />}
-                                </td>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{format(new Date(app.startTime), 'PPpp')}</td>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm">{renderStatusBadge(app.status)}</td>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-4">
-                                    <button onClick={() => openDetailsModal(app)} className="text-indigo-600 hover:text-indigo-900">{t('admin_dashboard.table.details')}</button>
-                                    <button onClick={() => handleDownloadDocument(app)} className="text-gray-600 hover:text-gray-900">{t('admin_dashboard.table.document')}</button>
-                                    {app.status === 'APPROVED' && (
-                                        <>
-                                            <button onClick={() => openCompleteModal(app)} className="text-blue-600 hover:text-blue-900">{t('admin_dashboard.table.complete')}</button>
-                                            <button onClick={() => openCancelModal(app)} className="text-red-600 hover:text-red-900">{t('admin_dashboard.table.cancel')}</button>
-                                        </>
-                                    )}
-                                </td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
+            <div className="bg-white shadow-md rounded-lg overflow-hidden border border-gray-200">
+                {status === 'loading' && (
+                    <div className="p-12 text-center text-gray-500">{t('admin_dashboard.loading')}</div>
+                )}
+                {status === 'succeeded' && (
+                    <>
+                        <div className="bg-white shadow-md rounded-lg overflow-x-auto">
+                            <table className="min-w-full divide-y divide-gray-200">
+                                <thead className="bg-gray-50">
+                                    <tr>
+                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('admin_dashboard.table.applicant')}</th>
+                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('admin_dashboard.table.datetime')}</th>
+                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('admin_dashboard.table.status')}</th>
+                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('admin_dashboard.table.actions')}</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="bg-white divide-y divide-gray-200">
+                                    {(appointments || []).map((app) => (
+                                        <tr key={app.id} className="hover:bg-gray-50 transition-colors">
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                                {app.applicantPhoneNumber}
+                                                {app.applicantHistory?.totalSubmissions > 1 && (
+                                                    <span title="Multiple Submissions">
+                                                        <AlertTriangleIcon />
+                                                    </span>
+                                                )}
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{format(new Date(app.startTime), 'PPpp')}</td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm">{renderStatusBadge(app.status)}</td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-3">
+                                                <button onClick={() => openDetailsModal(app)} className="text-indigo-600 hover:text-indigo-900 font-medium">{t('admin_dashboard.table.details')}</button>
+                                                <button onClick={() => handleDownloadDocument(app)} className="text-gray-600 hover:text-gray-900 font-medium">{t('admin_dashboard.table.document')}</button>
+                                                {app.status === 'APPROVED' && (
+                                                    <>
+                                                        <button onClick={() => openCompleteModal(app)} className="text-blue-600 hover:text-blue-900 font-medium">{t('admin_dashboard.table.complete')}</button>
+                                                        <button onClick={() => openCancelModal(app)} className="text-red-600 hover:text-red-900 font-medium">{t('admin_dashboard.table.cancel')}</button>
+                                                    </>
+                                                )}
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                        {totalPages > 1 && (
+                            <div className="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
+                                <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+                                    <div>
+                                        <p className="text-sm text-gray-700">
+                                            Showing <span className="font-medium">{page * pageSize + 1}</span> to <span className="font-medium">{Math.min((page + 1) * pageSize, totalElements)}</span> of <span className="font-medium">{totalElements}</span> results
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+                                            <button
+                                                onClick={() => handlePageChange(page - 1)}
+                                                disabled={page === 0}
+                                                className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:bg-gray-100 disabled:cursor-not-allowed"
+                                            >
+                                                <span className="sr-only">Previous</span>
+                                                <ChevronLeftIcon className="h-5 w-5" aria-hidden="true" />
+                                            </button>
+                                            <button
+                                                onClick={() => handlePageChange(page + 1)}
+                                                disabled={page === totalPages - 1}
+                                                className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:bg-gray-100 disabled:cursor-not-allowed"
+                                            >
+                                                <span className="sr-only">Next</span>
+                                                <ChevronRightIcon className="h-5 w-5" aria-hidden="true" />
+                                            </button>
+                                        </nav>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+                        {appointments && appointments.length === 0 && (
+                            <div className="text-center py-10 text-gray-500">
+                                {t('admin_dashboard.empty')}
+                            </div>
+                        )}
+                    </>
+                )}
             </div>
-            {status === 'succeeded' && appointments && appointments.length === 0 && <p className="text-center mt-4">{t('admin_dashboard.empty')}</p>}
         </div>
     );
 };

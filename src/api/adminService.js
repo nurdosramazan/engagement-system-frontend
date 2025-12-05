@@ -1,9 +1,5 @@
 import axiosInstance from "./axiosInstance";
 
-export const getAppointmentsByStatus = (status) => {
-  return axiosInstance.get("/admin/appointments", { params: { status } });
-};
-
 export const updateAppointmentDetails = (id, updateData) => {
   return axiosInstance.put(`/admin/appointments/${id}`, updateData);
 };
@@ -45,4 +41,8 @@ export const getReport = (format, startDate, endDate) => {
 
 export const getActiveImams = () => {
   return axiosInstance.get("/admin/imams");
+};
+
+export const fetchFilteredAppointments = (params) => {
+  return axiosInstance.get("/admin/filter", { params });
 };

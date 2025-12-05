@@ -5,7 +5,7 @@ import SockJS from 'sockjs-client';
 import toast from 'react-hot-toast';
 import { jwtDecode } from 'jwt-decode';
 import { addNotification } from '../../features/notification/notificationSlice';
-import { fetchAppointmentsByStatus } from '../../features/admin/adminSlice';
+import { fetchFilteredAppointments } from '../../features/admin/adminSlice';
 import { fetchMyAppointments } from '../../features/appointment/appointmentSlice';
 import i18n from '../../i18n';
 
@@ -104,7 +104,11 @@ const WebSocketProvider = ({ children }) => {
               const translatedMessage = i18n.t(payload.messageKey, payload.params);
 
               toast((t) => (<span onClick={() => toast.dismiss(t.id)}>{translatedMessage}</span>), { icon: <InfoToastIcon /> });
-              dispatch(fetchAppointmentsByStatus('PENDING'));
+              dispatch(fetchFilteredAppointments({
+                page: 0,
+                size: 10,
+                status: 'PENDING'
+              }));
             } catch (error) {
               console.error("WebSocketProvider: Error processing admin message:", error);
             }

@@ -3,21 +3,11 @@ import * as adminService from "../../api/adminService";
 
 const initialState = {
   appointments: [],
+  totalElements: 0,
+  totalPages: 0,
   status: "idle",
   error: null,
 };
-
-export const fetchAppointmentsByStatus = createAsyncThunk(
-  "admin/fetchAppointmentsByStatus",
-  async (status, { rejectWithValue }) => {
-    try {
-      const response = await adminService.getAppointmentsByStatus(status);
-      return response.data.data;
-    } catch (error) {
-      return rejectWithValue(error.response?.data);
-    }
-  }
-);
 
 export const rejectAdminAppointment = createAsyncThunk(
   "admin/rejectAppointment",
@@ -94,16 +84,32 @@ export const fetchActiveImams = createAsyncThunk(
   }
 );
 
+export const fetchFilteredAppointments = createAsyncThunk(
+  "admin/fetchFilteredAppointments",
+  async (
+    { page, size, search, status, startDate, endDate },
+    { rejectWithValue }
+  ) => {
+    try {
+      const params = { page, size };
+      if (search) params.search = search;
+      if (status) params.status = status;
+      if (startDate) params.startDate = startDate;
+      if (endDate) params.endDate = endDate;
+      const response = await adminService.fetchFilteredAppointments(params);
+      return response.data.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data);
+    }
+  }
+);
+
 const adminSlice = createSlice({
   name: "admin",
   initialState,
   reducers: {},
   extraReducers: (builder) => {
     builder
-      .addCase(fetchAppointmentsByStatus.fulfilled, (state, action) => {
-        state.status = "succeeded";
-        state.appointments = action.payload;
-      })
       .addCase(rejectAdminAppointment.fulfilled, (state, action) => {
         state.appointments = state.appointments.filter(
           (app) => app.id !== action.payload.id
@@ -144,6 +150,21 @@ const adminSlice = createSlice({
     builder.addCase(fetchActiveImams.fulfilled, (state, action) => {
       state.imamsList = action.payload;
     });
+
+    builder
+      .addCase(fetchFilteredAppointments.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(fetchFilteredAppointments.fulfilled, (state, action) => {
+        state.status = "succeeded";
+        state.appointments = action.payload.content;
+        state.totalElements = action.payload.totalElements;
+        state.totalPages = action.payload.totalPages;
+      })
+      .addCase(fetchFilteredAppointments.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.payload;
+      });
   },
 });
 

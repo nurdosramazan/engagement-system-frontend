@@ -48,7 +48,8 @@
     "confirm": "Confirm & Book",
     "details": "Details",
     "back": "Back",
-    "edit": "Edit"
+    "edit": "Edit",
+    "reset": "Reset"
   },
   "welcome": "Welcome, {{name}}!",
   "errors": {
@@ -204,7 +205,13 @@
       "approved": "Approved",
       "completed": "Completed",
       "rejected": "Rejected",
-      "cancelled": "Cancelled"
+      "cancelled": "Cancelled",
+      "search_label": "Search",
+      "search_placeholder": "Name, Phone number...",
+      "status": "Filter by Status",
+      "all_statuses": "All Statuses",
+      "date_from": "Date From",
+      "date_to": "Date To"
     },
     "table": {
       "applicant": "Applicant",
