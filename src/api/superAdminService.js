@@ -43,3 +43,27 @@ export const getUserDeepProfile = (userId) => {
 export const toggleUserLock = (userId) => {
   return axiosInstance.post(`/superadmin/users/${userId}/toggle-lock`);
 };
+
+export const getAuditLogs = (page, size, filters) => {
+  return axiosInstance.get("/superadmin/audit-logs", {
+    params: { page, size, ...filters },
+  });
+};
+
+export const getAllImams = () => {
+  return axiosInstance.get("/superadmin/imams");
+};
+
+export const createImam = (imamData) => {
+  return axiosInstance.post("/superadmin/imams", imamData);
+};
+
+export const updateImam = (id, imamData) => {
+  return axiosInstance.put(`/superadmin/imams/${id}`, imamData);
+};
+
+export const toggleImamStatus = (id, isActive) => {
+  return axiosInstance.patch(`/superadmin/imams/${id}/status`, null, {
+    params: { isActive },
+  });
+};

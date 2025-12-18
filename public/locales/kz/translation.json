@@ -12,12 +12,26 @@
     "schedule": "График",
     "reports": "Есеп беру",
     "generate_slots": "Жаңа слоттар",
-    "logs": "Қосымша журналдары",
     "user_view": "Пайдаланушы көрінісіне ауысу",
     "superadmin": "Superadmin"
   },
   "header": {
     "admin_view": "Админ көрінісі"
+  },
+  "common": {
+    "loading": "Жазылуда..",
+    "active": "Ашық",
+    "inactive": "Бұғатталған",
+    "edit": "Өзгерту",
+    "disable": "Өшіру",
+    "enable": "Қосу",
+    "cancel": "Қайтару",
+    "save": "Сақтау",
+    "search": "Іздеу",
+    "no_data": "Ақпарат жоқ",
+    "previous": "Алдыңғы",
+    "page": "Бет",
+    "next": "Келесі"
   },
   "api": {
     "slots_generated": "{{year}}-{{month}} үшін {{count}} жаңа уақыт аралығы сәтті жасалды.",
@@ -39,7 +53,12 @@
     "profile_fetched": "Пайдаланушы профилі сәтті алынды",
     "profile_updated": "Профиль сәтті жаңартылды",
     "appointment_details_updated": "Өтінім деректері сәтті жаңартылды.",
-    "imams_fetched": "Имамдар тізімі жүктелді."
+    "active_imams_fetched": "Имамдар тізімі жүктелді.",
+    "all_imams_fetched": "Барлық имамдардың тізімі жүктелді",
+    "audit_logs_fetched": "Audit logs сәтті жүктелді",
+    "imam_created": "Жаңа имам сәтті қосылды",
+    "imam_updated": "Имам информация жаңартылды",
+    "imam_status_changed": "Имамның статусы өзгерді"
   },
   "buttons": {
     "save": "Өзгерістерді сақтау",
@@ -92,6 +111,7 @@
     "INVALID_DATE_RANGE": "Start date cannot be after end date.",
     "CANNOT_PROCESS_APPOINTMENT": "Cannot approve/reject an appointment that is not pending.",
     "IMAM_NOT_FOUND": "Таңдалған Имам табылмады.",
+    "IMAM_NOT_ACTIVE": "Таңдалған Имам блокта",
 
     "AUTH_RATE_LIMIT": "Басқа OTP кодын сұрамас бұрын күте тұрыңыз.",
     "SLOTS_TOO_FAR_FUTURE": "Уақыт аралықтарын болашаққа 2 жылдан артық жасау мүмкін емес.",
@@ -471,7 +491,8 @@
   },
   "superadmin": {
     "nav": {
-      "users": "User Management"
+      "users": "Қолданушылар",
+      "logs": "Қосымша журналдары"
     },
     "users": {
       "title": "Қолданушыларды басқару",
@@ -492,6 +513,28 @@
     },
     "pagination": {
       "info": "{{total}} нәтиженің {{start}}-{{end}} аралығы көрсетілуде"
+    },
+    "audit_logs": {
+      "title": "System Audit Logs",
+      "actor_id": "Жасаушы ID",
+      "all_actions": "Барлық әрекеттер",
+      "action": "Әрекет",
+      "actor": "Жасаушы",
+      "entity": "Нәрсе ID",
+      "details": "Толығырақ",
+      "date": "Күні & Уақыты"
+    },
+    "imams": {
+      "title": "Имамдарды Басқару",
+      "add_new": "Имам қосу",
+      "name": "Толық аты",
+      "status": "Статус",
+      "actions": "Әрекеттер",
+      "confirm_status_change": "Бұл имамның статусын өзгертетініңізге сенімдісіз бе?",
+      "create_title": "Жаңа имам қосу",
+      "edit_title": "Имамды өзгерту",
+      "first_name": "Аты",
+      "last_name": "Тегі"
     }
   }
 }

@@ -6,6 +6,13 @@ const initialState = {
   totalElements: 0,
   totalPages: 0,
   currentUserProfile: null,
+  auditLogs: {
+    content: [],
+    totalPages: 0,
+    totalElements: 0,
+    number: 0,
+  },
+  imamsList: [],
   status: "idle",
   error: null,
 };
@@ -40,6 +47,73 @@ export const toggleUserLock = createAsyncThunk(
     try {
       await superAdminService.toggleUserLock(userId);
       return userId;
+    } catch (error) {
+      return rejectWithValue(error.response?.data);
+    }
+  }
+);
+
+export const fetchAuditLogs = createAsyncThunk(
+  "superAdmin/fetchAuditLogs",
+  async ({ page = 0, size = 20, filters = {} }, { rejectWithValue }) => {
+    try {
+      const response = await superAdminService.getAuditLogs(
+        page,
+        size,
+        filters
+      );
+      return response.data.data; // Backend wraps in ApiResponse(true, msg, data)
+    } catch (error) {
+      return rejectWithValue(error.response?.data);
+    }
+  }
+);
+
+export const fetchAllImams = createAsyncThunk(
+  "superAdmin/fetchAllImams",
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await superAdminService.getAllImams();
+      return response.data?.data || response.data || [];
+    } catch (error) {
+      return rejectWithValue(error.response?.data);
+    }
+  }
+);
+
+export const createImam = createAsyncThunk(
+  "superAdmin/createImam",
+  async (imamData, { rejectWithValue, dispatch }) => {
+    try {
+      await superAdminService.createImam(imamData);
+      dispatch(fetchAllImams());
+      return;
+    } catch (error) {
+      return rejectWithValue(error.response?.data);
+    }
+  }
+);
+
+export const updateExistingImam = createAsyncThunk(
+  "superAdmin/updateExistingImam",
+  async ({ id, data }, { rejectWithValue, dispatch }) => {
+    try {
+      await superAdminService.updateImam(id, data);
+      dispatch(fetchAllImams());
+      return;
+    } catch (error) {
+      return rejectWithValue(error.response?.data);
+    }
+  }
+);
+
+export const toggleImamActiveStatus = createAsyncThunk(
+  "superAdmin/toggleImamStatus",
+  async ({ id, isActive }, { rejectWithValue, dispatch }) => {
+    try {
+      await superAdminService.toggleImamStatus(id, isActive);
+      dispatch(fetchAllImams());
+      return;
     } catch (error) {
       return rejectWithValue(error.response?.data);
     }
@@ -100,6 +174,31 @@ const superAdminSlice = createSlice({
         state.currentUserProfile.basicInfo.isLocked =
           !state.currentUserProfile.basicInfo.isLocked;
       }
+    });
+
+    builder.addCase(fetchAuditLogs.pending, (state) => {
+      state.status = "loading";
+    });
+    builder.addCase(fetchAuditLogs.fulfilled, (state, action) => {
+      state.status = "succeeded";
+      state.auditLogs = action.payload;
+    });
+    builder.addCase(fetchAuditLogs.rejected, (state, action) => {
+      state.status = "failed";
+      state.error = action.payload;
+    });
+
+    builder.addCase(fetchAllImams.pending, (state) => {
+      state.status = "loading";
+      state.error = null;
+    });
+    builder.addCase(fetchAllImams.fulfilled, (state, action) => {
+      state.status = "succeeded";
+      state.imamsList = action.payload;
+    });
+    builder.addCase(fetchAllImams.rejected, (state, action) => {
+      state.status = "failed";
+      state.error = action.payload;
     });
   },
 });

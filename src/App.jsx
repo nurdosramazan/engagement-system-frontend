@@ -17,6 +17,8 @@ import AdminSchedulePage from './pages/admin/AdminSchedulePage';
 import SystemLogsPage from './pages/superadmin/SystemLogsPage';
 import UserManagementPage from './pages/superadmin/UserManagementPage';
 import UserProfileDetailedPage from './pages/superadmin/UserProfileDetailedPage';
+import AuditLogsPage from './pages/superadmin/AuditLogsPage';
+import ImamManagementPage from './pages/superadmin/ImamManagementPage';
 
 function App() {
   const { token } = useSelector((state) => state.auth);
@@ -43,6 +45,8 @@ function App() {
             <Route path="users" element={<ProtectedRoute roles={['SUPERADMIN']}> <UserManagementPage /> </ProtectedRoute>} />
             <Route path="users/:userId" element={<ProtectedRoute roles={['SUPERADMIN']}> <UserProfileDetailedPage /> </ProtectedRoute>} />
             <Route path="logs" element={<ProtectedRoute roles={['SUPERADMIN']}> <SystemLogsPage /> </ProtectedRoute>} />
+            <Route path="audit-logs" element={<ProtectedRoute roles={['SUPERADMIN']}> <AuditLogsPage /> </ProtectedRoute>} />
+            <Route path="imams" element={<ProtectedRoute roles={['SUPERADMIN']}> <ImamManagementPage /> </ProtectedRoute>} />
           </Route>
 
           <Route path="/" element={token ? <Navigate to="/dashboard" replace /> : <Navigate to="/landing" replace />} />

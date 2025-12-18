@@ -4,7 +4,7 @@ import appointmentReducer from "../features/appointment/appointmentSlice";
 import userReducer from "../features/user/userSlice";
 import adminReducer from "../features/admin/adminSlice";
 import notificationReducer from "../features/notification/notificationSlice";
-import superAdminReducer from "../features/superadmin/superAdminSlice";
+import superAdminReducer from "../features/superAdmin/superAdminSlice";
 
 export const store = configureStore({
   reducer: {

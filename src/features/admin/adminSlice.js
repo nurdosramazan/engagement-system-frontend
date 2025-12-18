@@ -3,6 +3,7 @@ import * as adminService from "../../api/adminService";
 
 const initialState = {
   appointments: [],
+  imamsList: [],
   totalElements: 0,
   totalPages: 0,
   status: "idle",
@@ -77,7 +78,7 @@ export const fetchActiveImams = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const response = await adminService.getActiveImams();
-      return response.data.data;
+      return response.data?.data || [];
     } catch (error) {
       return rejectWithValue(error.response?.data);
     }
@@ -147,8 +148,18 @@ const adminSlice = createSlice({
       }
     });
 
+    builder.addCase(fetchActiveImams.pending, (state) => {
+      state.status = "loading";
+    });
+
     builder.addCase(fetchActiveImams.fulfilled, (state, action) => {
+      state.status = "succeeded";
       state.imamsList = action.payload;
+    });
+
+    builder.addCase(fetchActiveImams.rejected, (state, action) => {
+      state.status = "failed";
+      state.error = action.payload;
     });
 
     builder

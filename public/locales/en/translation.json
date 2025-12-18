@@ -12,12 +12,26 @@
     "schedule": "Schedule",
     "reports": "Reports",
     "generate_slots": "Generate Slots",
-    "logs": "Application Logs",
     "user_view": "Switch to user view",
     "superadmin": "Superadmin"
   },
   "header": {
     "admin_view": "Administrator View"
+  },
+  "common": {
+    "loading": "Loading..",
+    "active": "Active",
+    "inactive": "Inactive",
+    "edit": "Edit",
+    "disable": "Disable",
+    "enable": "Enable",
+    "cancel": "Cancel",
+    "save": "Save",
+    "search": "Search",
+    "no_data": "No data",
+    "previous": "Previous",
+    "page": "Page",
+    "next": "Next"
   },
   "api": {
     "slots_generated": "Successfully generated {{count}} new time slots for {{year}}-{{month}}.",
@@ -39,7 +53,12 @@
     "profile_fetched": "User profile fetched successfully",
     "profile_updated": "Profile updated successfully",
     "appointment_details_updated": "Appointment details updated successfully.",
-    "imams_fetched": "Imam list loaded."
+    "active_imams_fetched": "Imam list loaded.",
+    "all_imams_fetched": "All imams list fetched successfully",
+    "audit_logs_fetched": "Audit logs retrieved successfully",
+    "imam_created": "New Imam created successfully",
+    "imam_updated": "Imam details updated",
+    "imam_status_changed": "Imam status changed"
   },
   "buttons": {
     "save": "Save Changes",
@@ -92,6 +111,7 @@
     "INVALID_DATE_RANGE": "Start date cannot be after end date.",
     "CANNOT_PROCESS_APPOINTMENT": "Cannot approve/reject an appointment that is not pending.",
     "IMAM_NOT_FOUND": "Selected Imam was not found.",
+    "IMAM_NOT_ACTIVE": "The selected Imam is currently inactive. Please choose another.",
 
     "AUTH_RATE_LIMIT": "Please wait before requesting another OTP.",
     "SLOTS_TOO_FAR_FUTURE": "Cannot generate time slots more than 2 years into the future.",
@@ -472,7 +492,8 @@
   },
   "superadmin": {
     "nav": {
-      "users": "User Management"
+      "users": "User Management",
+      "logs": "Application Logs"
     },
     "users": {
       "title": "User Management",
@@ -491,9 +512,31 @@
     },
     "buttons": {
       "return_to_list": "Return to User List"
+    },
+    "pagination": {
+      "info": "Showing {{start}} to {{end}} of {{total}} results"
+    },
+    "audit_logs": {
+      "title": "System Audit Logs",
+      "actor_id": "Actor ID",
+      "all_actions": "All Actions",
+      "action": "Action",
+      "actor": "Actor",
+      "entity": "Entity ID",
+      "details": "Details",
+      "date": "Date & Time"
+    },
+    "imams": {
+      "title": "Imam Management",
+      "add_new": "Add Imam",
+      "name": "Full Name",
+      "status": "Status",
+      "actions": "Actions",
+      "confirm_status_change": "Are you sure you want to change the status of this Imam?",
+      "create_title": "Add New Imam",
+      "edit_title": "Edit Imam",
+      "first_name": "First Name",
+      "last_name": "Last Name"
     }
-  },
-  "pagination": {
-    "info": "Showing {{start}} to {{end}} of {{total}} results"
   }
 }
