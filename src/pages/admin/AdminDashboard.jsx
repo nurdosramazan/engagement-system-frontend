@@ -42,12 +42,12 @@ const AdminDashboard = () => {
 
     const [formErrors, setFormErrors] = useState({});
     const filterOptions = [
+        { label: t('admin_dashboard.filters.all_statuses'), value: '' },
         { label: t('admin_dashboard.filters.pending'), value: 'PENDING' },
         { label: t('admin_dashboard.filters.approved'), value: 'APPROVED' },
         { label: t('admin_dashboard.filters.completed'), value: 'COMPLETED' },
         { label: t('admin_dashboard.filters.rejected'), value: 'REJECTED' },
         { label: t('admin_dashboard.filters.cancelled'), value: 'CANCELLED' },
-        { label: t('admin_dashboard.filters.all_statuses'), value: '' },
     ];
 
     useEffect(() => {
@@ -59,12 +59,13 @@ const AdminDashboard = () => {
     }, [dispatch, page, filters]);
 
     const handleStatusTabClick = (statusValue) => {
+        if (filters.status === statusValue) return;
         setFilters(prev => ({ ...prev, status: statusValue }));
         setPage(0);
     };
 
     const handleFilterComponentChange = (newFilters) => {
-        setFilters(prev => ({ ...prev, ...newFilters }));
+        setFilters(prev => ({ ...prev, ...newFilters, status: prev.status }));
         setPage(0);
     };
 
@@ -292,7 +293,7 @@ const AdminDashboard = () => {
             <div className="flex justify-between items-center">
                 <h1 className="text-3xl font-bold text-gray-800">{t('admin_dashboard.title')}</h1>
             </div>
-            <AppointmentFilters onFilterChange={handleFilterComponentChange} />
+            <AppointmentFilters onFilterChange={handleFilterComponentChange} initialFilters={filters} />
             <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
                 <div className="flex items-center gap-2 overflow-x-auto pb-2 sm:pb-0">
                     {filterOptions.map((option) => (
@@ -319,11 +320,8 @@ const AdminDashboard = () => {
                 </div>
             </div>
 
-            <div className="bg-white shadow-md rounded-lg overflow-hidden border border-gray-200">
-                {status === 'loading' && (
-                    <div className="p-12 text-center text-gray-500">{t('admin_dashboard.loading')}</div>
-                )}
-                {status === 'succeeded' && (
+            <div className="bg-white shadow-md rounded-lg overflow-hidden border border-gray-200 relative">
+                {(status === 'succeeded' || status === 'loading') && (
                     <>
                         <div className="bg-white shadow-md rounded-lg overflow-x-auto">
                             <table className="min-w-full divide-y divide-gray-200">
@@ -368,7 +366,11 @@ const AdminDashboard = () => {
                                 <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
                                     <div>
                                         <p className="text-sm text-gray-700">
-                                            Showing <span className="font-medium">{page * pageSize + 1}</span> to <span className="font-medium">{Math.min((page + 1) * pageSize, totalElements)}</span> of <span className="font-medium">{totalElements}</span> results
+                                            {t('pagination.info', {
+                                                start: page * pageSize + 1,
+                                                end: Math.min((page + 1) * pageSize, totalElements),
+                                                total: totalElements
+                                            })}
                                         </p>
                                     </div>
                                     <div>

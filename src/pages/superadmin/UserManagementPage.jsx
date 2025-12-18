@@ -116,8 +116,8 @@ const UserManagementPage = () => {
                                         <button
                                             onClick={() => handleToggleLock(user)}
                                             className={`font-semibold transition-colors ${user.isLocked
-                                                    ? 'text-green-600 hover:text-green-900'
-                                                    : 'text-red-600 hover:text-red-900'
+                                                ? 'text-green-600 hover:text-green-900'
+                                                : 'text-red-600 hover:text-red-900'
                                                 }`}
                                         >
                                             {user.isLocked ? t('superadmin.users.unban') : t('superadmin.users.ban')}
@@ -134,7 +134,11 @@ const UserManagementPage = () => {
                         <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
                             <div>
                                 <p className="text-sm text-gray-700">
-                                    Showing page <span className="font-medium">{page + 1}</span> of <span className="font-medium">{totalPages}</span>
+                                    {t('pagination.info', {
+                                        start: page * pageSize + 1,
+                                        end: Math.min((page + 1) * pageSize, totalElements),
+                                        total: totalElements
+                                    })}
                                 </p>
                             </div>
                             <div>

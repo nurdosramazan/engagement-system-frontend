@@ -145,7 +145,7 @@
   "admin_dashboard": {
     "title": "Admin Dashboard",
     "loading": "Loading appointments...",
-    "empty": "No appointments found for this status.",
+    "empty": "No appointments found. Try other search parameters or looking in other statuses.",
     "history": {
       "total": "Total:",
       "approved": "Approved:",
@@ -492,5 +492,8 @@
     "buttons": {
       "return_to_list": "Return to User List"
     }
+  },
+  "pagination": {
+    "info": "Showing {{start}} to {{end}} of {{total}} results"
   }
 }
