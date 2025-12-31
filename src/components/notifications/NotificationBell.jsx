@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { fetchNotifications, markAsRead } from '../../features/notification/notificationSlice';
+import { fetchNotifications, fetchUnreadCount, markAsRead } from '../../features/notification/notificationSlice';
 import { formatDistanceToNow } from 'date-fns';
 import { enUS, kk, ru } from 'date-fns/locale';
 import { useTranslation } from 'react-i18next';
@@ -19,14 +19,14 @@ const NotificationBell = () => {
     const { t, i18n } = useTranslation();
     const { formatDate } = useDateFormatter();
     const dispatch = useDispatch();
-    const { notifications, unreadCount } = useSelector((state) => state.notifications);
+    const { notifications, unreadCount, listStatus } = useSelector((state) => state.notifications);
     const [isOpen, setIsOpen] = useState(false);
     const dropdownRef = useRef(null);
     const buttonRef = useRef(null);
     const currentLocale = getLocale(i18n.language);
 
     useEffect(() => {
-        dispatch(fetchNotifications());
+        dispatch(fetchUnreadCount());
     }, [dispatch]);
 
     useEffect(() => {
@@ -51,8 +51,12 @@ const NotificationBell = () => {
     const handleToggle = () => {
         const nextState = !isOpen;
         setIsOpen(nextState);
-        if (nextState && unreadCount > 0) {
-            dispatch(markAsRead());
+        if (nextState) {
+            dispatch(fetchNotifications());
+
+            if (unreadCount > 0) {
+                dispatch(markAsRead());
+            }
         }
     };
 

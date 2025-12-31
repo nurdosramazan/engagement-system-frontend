@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchAllUsers, toggleUserLock } from '../../features/superadmin/superAdminSlice';
+import { fetchAllUsers, toggleUserLock } from '../../features/superAdmin/superAdminSlice';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { MagnifyingGlassIcon, LockClosedIcon, ChevronLeftIcon, ChevronRightIcon, ShieldExclamationIcon } from '@heroicons/react/24/solid';

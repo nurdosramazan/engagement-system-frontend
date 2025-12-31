@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchUserDetails, toggleUserLock, clearCurrentProfile } from '../../features/superadmin/superAdminSlice';
+import { fetchUserDetails, toggleUserLock, clearCurrentProfile } from '../../features/superAdmin/superAdminSlice';
 import { getAppointmentDocument } from '../../api/appointmentService';
 import toast from 'react-hot-toast';
 import {

@@ -1,9 +1,13 @@
-import axiosInstance from './axiosInstance';
+import axiosInstance from "./axiosInstance";
 
 export const getNotifications = () => {
-    return axiosInstance.get('/notifications');
+  return axiosInstance.get("/notifications");
+};
+
+export const getUnreadCount = () => {
+  return axiosInstance.get("/notifications/unread-count");
 };
 
 export const markNotificationsAsRead = () => {
-    return axiosInstance.post('/notifications/mark-as-read');
+  return axiosInstance.post("/notifications/mark-as-read");
 };

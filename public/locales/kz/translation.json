@@ -47,6 +47,7 @@
     "appointment_cancelled_user": "Кездесуіңіз сәтті болдырылды",
     "otp_sent": "OTP WhatsApp арқылы жіберілді",
     "login_success": "Кіру сәтті аяқталды",
+    "notifications_count_fetched": "Хабарламалар саны сәтті алынды",
     "notifications_fetched": "Хабарламалар сәтті алынды",
     "notifications_read": "Барлық хабарламалар оқылды деп белгіленді",
     "logs_listed": "Лог файлдары сәтті тізімделді",

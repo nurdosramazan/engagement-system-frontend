@@ -47,6 +47,7 @@
     "appointment_cancelled_user": "Your appointment has been successfully cancelled",
     "otp_sent": "OTP has been sent via WhatsApp",
     "login_success": "Login successful",
+    "notifications_count_fetched": "Notifications count fetched successfully",
     "notifications_fetched": "Notifications fetched successfully",
     "notifications_read": "All notifications marked as read",
     "logs_listed": "Log files listed successfully",
